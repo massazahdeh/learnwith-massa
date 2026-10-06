@@ -1,0 +1,393 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>DNA to Protein Animation</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,800&family=Lexend:wght@400;600;700&display=swap">
+<style>
+/* Layout: one large animated cell scene (nucleus top-left, cytoplasm around it), step buttons and a one-line caption below. */
+:root{
+  --bg:#f3f6f6; --surface:#ffffff; --ink:#1b2a2e; --muted:#5a6b6f; --line:#d4dfe0;
+  --accent:#0f6e6a; --accent-soft:#dcefed;
+  --nuc:#dcd9f2; --env:#f2f1fb; --env-edge:#9a95cf; --cyto:#f9e6d3;
+  --dna:#2f8fd6; --dna2:#7cc4ef; --rna:#cf3b2b; --ribo:#7a4b38; --ribo2:#9a634c; --amino:#7f78d6; --aa2:#1aa39a; --aa3:#f08a24; --aa4:#e0569a; --trna:#3f9a4a; --stop:#d23b3b;
+  --f-display:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;
+  --f-body:"Lexend","Segoe UI",system-ui,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0f181a; --surface:#172427; --ink:#e5eeee; --muted:#9db0b2; --line:#2a3b3e;
+  --accent:#4fc3b9; --accent-soft:#1c3a39;
+  --nuc:#2b2950; --env:#3a3866; --env-edge:#8c86d6; --cyto:#2d241c;
+  --dna:#5fb0f0; --dna2:#2c6ea3; --rna:#ff6f57; --ribo:#b07a62; --ribo2:#8d5c48; --amino:#a7a1ff; --aa2:#4fd1c5; --aa3:#ffa14a; --aa4:#ff7ab8; --trna:#7fd17a; --stop:#ff6b6b; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0f181a; --surface:#172427; --ink:#e5eeee; --muted:#9db0b2; --line:#2a3b3e;
+  --accent:#4fc3b9; --accent-soft:#1c3a39;
+  --nuc:#2b2950; --env:#3a3866; --env-edge:#8c86d6; --cyto:#2d241c;
+  --dna:#5fb0f0; --dna2:#2c6ea3; --rna:#ff6f57; --ribo:#b07a62; --ribo2:#8d5c48; --amino:#a7a1ff; --aa2:#4fd1c5; --aa3:#ffa14a; --aa4:#ff7ab8; --trna:#7fd17a; --stop:#ff6b6b; color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.5;padding-inline:16px;padding-block:20px 40px}
+.wrap{max-width:1120px;margin:0 auto;display:flex;flex-direction:column;gap:14px}
+h1{font-family:var(--f-display);font-weight:800;font-size:clamp(1.7rem,5vw,2.4rem);margin:0;line-height:1.1}
+h1 span{color:var(--accent)}
+.scene{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:6px;overflow:hidden}
+svg{display:block;width:100%;height:auto}
+#svg{font-family:var(--f-body);font-weight:700;font-size:17px;fill:var(--ink)}
+.narr svg text,.legend svg text{font-family:var(--f-body)}
+.cap{font-size:15px;letter-spacing:.14em;fill:var(--muted)}
+.lbl{opacity:0;transition:opacity .5s}
+.lbl.on{opacity:1}
+.hot{cursor:pointer}
+.draw{stroke-dasharray:1;stroke-dashoffset:1}
+.draw.on{animation:draw var(--dur,2s) ease forwards}
+.draw.done{stroke-dashoffset:0;animation:none}
+@keyframes draw{to{stroke-dashoffset:0}}
+.dim{opacity:.25;transition:opacity .6s}
+.num{font-family:var(--f-display);font-size:16px;fill:#fff}
+
+.controls{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+button{font:inherit;cursor:pointer}
+.step{display:flex;align-items:center;gap:8px;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);border-radius:12px;padding:8px 14px;font-weight:600}
+.step b{display:inline-grid;place-items:center;width:26px;height:26px;border-radius:50%;background:var(--accent);color:var(--bg);font-family:var(--f-display)}
+.step[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft)}
+.play{border:none;background:var(--accent);color:var(--bg);border-radius:12px;padding:10px 18px;font-weight:700}
+.ghost{border:none;background:none;color:var(--muted);text-decoration:underline;padding:8px}
+button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.caption{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px 16px;font-size:1.1rem;font-weight:600;min-height:3.4em;margin:0}
+.caption small{display:block;font-size:.9rem;font-weight:400;color:var(--muted);margin-top:2px}
+.flow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-family:var(--f-display);font-weight:800;font-size:1.15rem}
+.flow .d{color:var(--dna)} .flow .r{color:var(--rna)} .flow .p{color:var(--amino)}
+.flow i{font-style:normal;font-family:var(--f-body);font-weight:600;font-size:.8rem;color:var(--muted)}
+@media (prefers-reduced-motion:reduce){.draw.on{animation:none;stroke-dashoffset:0}.lbl,.dim{transition:none}}
+.explain{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px;margin-top:6px}
+.card{background:var(--surface);border:1.5px solid var(--line);border-radius:14px;padding:14px 16px;display:flex;flex-direction:column;gap:8px;min-width:0;transition:border-color .3s,background .3s}
+.card.on{border-color:var(--accent);background:var(--accent-soft)}
+.card h3{font-family:var(--f-display);font-weight:800;font-size:1.15rem;margin:0;display:flex;align-items:center;gap:8px}
+.card h3 b{display:inline-grid;place-items:center;width:26px;height:26px;border-radius:50%;background:var(--accent);color:var(--bg);font-size:.9rem}
+.card .where{font-size:.8rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+.card p{margin:0;font-size:.95rem;line-height:1.5}
+.card .k{display:block;font-size:.75rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);margin-bottom:2px}
+.explain-h{font-family:var(--f-display);font-weight:800;font-size:1.4rem;margin:12px 0 0}
+.scene{position:relative}
+.stage{display:grid;grid-template-columns:minmax(0,1.65fr) minmax(250px,1fr);gap:12px;align-items:start}
+.narr{background:var(--surface);border:1.5px solid var(--line);border-radius:14px;padding:10px;box-shadow:0 6px 18px rgba(20,40,45,.12);display:flex;flex-direction:column;gap:8px}
+.narr .tag{font-family:var(--f-display);font-weight:800;font-size:16px;color:var(--accent);line-height:1.2}
+.narr .what{margin:0;font-size:14px;font-weight:600;line-height:1.35}
+.tiles{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.tile{display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 4px 5px;border-radius:10px;border:1.5px solid var(--line);background:var(--bg);opacity:.3;transition:opacity .4s,border-color .4s,background .4s,transform .4s;min-width:0;position:relative}
+.tile svg{width:100%;max-width:96px;height:auto}
+.tile span{font-size:12px;font-weight:600;text-align:center;line-height:1.2}
+.tile i{position:absolute;top:4px;left:6px;font-style:normal;font-size:11px;font-weight:700;color:var(--muted)}
+.tile.seen{opacity:1}
+.tile.now{opacity:1;border-color:var(--accent);background:var(--accent-soft);transform:scale(1.04)}
+.why{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:10px;background:var(--accent-soft);opacity:0;transition:opacity .5s}
+.why.seen{opacity:1}
+.why svg{flex:0 0 64px;width:64px;height:auto}
+.why span{font-size:13px;font-weight:600;line-height:1.3}
+.why b{display:block;font-size:10.5px;letter-spacing:.12em;color:var(--accent)}
+#zoom{opacity:0;pointer-events:none;transition:opacity .6s}
+#zoom.on{opacity:1;pointer-events:auto}
+.zr,.zt,.zb{transition:transform .8s cubic-bezier(.45,0,.25,1),opacity .6s}
+.ztile{font-family:var(--f-display);font-weight:800;font-size:24px;text-anchor:middle;dominant-baseline:central}
+.key{display:grid;grid-template-columns:auto auto 1fr;gap:4px 8px;align-items:center;font-size:13px;background:var(--bg);border-radius:10px;padding:8px 10px}
+.key .cod{font-family:var(--f-display);font-weight:800;letter-spacing:.08em;color:var(--rna)}
+.key .dot{width:14px;height:14px;border-radius:50%}
+.key .k{grid-column:1/-1;font-size:10.5px;font-weight:700;letter-spacing:.12em;color:var(--muted)}
+.legend{display:flex;flex-wrap:wrap;gap:8px}
+.chip{display:flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--line);border-radius:99px;padding:5px 12px 5px 6px;font-size:.9rem}
+.chip svg{width:40px;height:22px}
+.chip b{font-weight:700}
+@media (max-width:760px){.stage{grid-template-columns:1fr}.tiles{grid-template-columns:repeat(auto-fit,minmax(110px,1fr))}}
+@media (prefers-reduced-motion:reduce){.tile,.why{transition:none}.tile.now{transform:none}}
+</style>
+
+<main class="wrap">
+  <h1>DNA <span>→</span> RNA <span>→</span> Protein</h1>
+
+  <div class="stage"><div class="scene">
+    <svg id="svg" viewBox="0 0 720 560" role="img" aria-label="Animated cell: DNA is copied into mRNA in the nucleus, mRNA leaves through a nuclear pore, and a ribosome uses it to make protein">
+      <rect x="0" y="0" width="720" height="560" fill="var(--cyto)"/>
+      <circle cx="150" cy="110" r="282" fill="var(--env)" stroke="var(--env-edge)" stroke-width="2"/>
+      <circle cx="150" cy="110" r="266" fill="var(--nuc)" stroke="var(--env-edge)" stroke-width="2"/>
+      <text class="cap" x="60" y="300">NUCLEUS</text>
+      <text class="cap" x="30" y="430">CYTOPLASM</text>
+
+      <!-- DNA -->
+      <g id="dna" class="hot" data-info="DNA|The original instruction. It stays inside the nucleus."></g>
+      <text class="lbl on" id="lDNA" x="370" y="62" style="fill:var(--dna)">DNA</text>
+
+      <!-- step 1: mRNA made in nucleus -->
+      <path id="arrow1" class="lbl" d="M200 112 V150" stroke="var(--muted)" stroke-width="2.5" marker-end="url(#ah)"/>
+      <path id="m1" class="draw hot" pathLength="1" data-info="mRNA|A copy of the DNA message." d="M30 185 C 70 170, 100 200, 140 185 S 210 170, 250 185 S 320 200, 350 185" fill="none" stroke="var(--rna)" stroke-width="7" stroke-linecap="round" style="--dur:2.2s"/>
+      <text class="lbl" id="lM1" x="240" y="222" style="fill:var(--rna)">mRNA</text>
+
+      <!-- nuclear pore -->
+      <g id="pore" class="hot" data-info="Nuclear pore|A gate in the nucleus wall. mRNA leaves through it.">
+        <ellipse cx="316" cy="318" rx="11" ry="15" fill="var(--env-edge)" transform="rotate(-40 316 318)"/>
+        <ellipse cx="338" cy="300" rx="11" ry="15" fill="var(--env-edge)" transform="rotate(-40 338 300)"/>
+      </g>
+      <text class="lbl" id="lPore" x="372" y="292">Nuclear pore</text>
+
+      <!-- step 2: mRNA leaves through pore -->
+      <path id="m2" class="draw hot" pathLength="1" data-info="mRNA|Carries the copied message out to the cytoplasm." d="M290 215 C 300 255, 318 280, 327 309 C 336 340, 300 360, 318 385 C 336 410, 372 400, 368 430 C 364 450, 340 452, 330 448" fill="none" stroke="var(--rna)" stroke-width="7" stroke-linecap="round" style="--dur:2.4s"/>
+      <text class="lbl" id="lM2" x="384" y="400" style="fill:var(--rna)">mRNA</text>
+
+      <!-- step 3: translation -->
+      <path id="m3" class="draw hot" pathLength="1" data-info="mRNA|The ribosome reads this message." d="M300 476 C 360 462, 400 490, 460 476 S 560 462, 620 476 S 690 490, 712 480" fill="none" stroke="var(--rna)" stroke-width="7" stroke-linecap="round" style="--dur:1.4s"/>
+      <g id="chain"></g>
+      <g id="free" class="hot" data-info="Amino acids|The building blocks of protein."></g>
+      <g id="ribo" class="hot lbl" data-info="Ribosome|Reads the mRNA and joins amino acids together.">
+        <ellipse cx="0" cy="452" rx="48" ry="34" fill="var(--ribo2)"/>
+        <ellipse cx="0" cy="500" rx="40" ry="18" fill="var(--ribo)"/>
+      </g>
+      <text class="lbl" id="lRibo" x="0" y="404" text-anchor="middle" style="fill:var(--ribo)">Ribosome</text>
+      <text class="lbl" id="lAA" x="540" y="300" style="fill:var(--amino)">Amino acids</text>
+      <text class="lbl" id="lPoly" x="338" y="532" text-anchor="end" style="fill:var(--amino)">Protein chain</text>
+
+      <!-- step badges -->
+      <g class="lbl" id="b1"><circle cx="40" cy="240" r="15" fill="var(--accent)"/><text class="num" x="40" y="246" text-anchor="middle">1</text></g>
+      <g class="lbl" id="b2"><circle cx="270" cy="390" r="15" fill="var(--accent)"/><text class="num" x="270" y="396" text-anchor="middle">2</text></g>
+      <g class="lbl" id="b3"><circle cx="270" cy="470" r="15" fill="var(--accent)"/><text class="num" x="270" y="476" text-anchor="middle">3</text></g>
+
+      <defs><marker id="ah" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10z" fill="var(--muted)"/></marker></defs>
+    </svg>
+  </div>
+    <div class="narr" id="narr" aria-live="polite"></div>
+  </div>
+
+  <div class="controls">
+    <button class="step" data-s="1" aria-pressed="false"><b>1</b>Make mRNA</button>
+    <button class="step" data-s="2" aria-pressed="false"><b>2</b>mRNA leaves</button>
+    <button class="step" data-s="3" aria-pressed="false"><b>3</b>Make protein</button>
+    <button class="step" data-s="4" aria-pressed="false"><b>4</b>Zoom in: read the code</button>
+    <button class="play" id="play">▶ Play all</button>
+    <button class="ghost" id="reset">Reset</button>
+  </div>
+
+  <p class="caption" id="cap" aria-live="polite">Press <b>1</b>, <b>2</b>, <b>3</b>, <b>4</b> or <b>Play all</b>.<small>Tap any part of the cell to see what it is.</small></p>
+
+  <div class="legend" id="legend"></div>
+
+</main>
+
+<script>
+(function(){
+var NS="http://www.w3.org/2000/svg",$=function(i){return document.getElementById(i);};
+function el(t,a,p){var e=document.createElementNS(NS,t);for(var k in a)e.setAttribute(k,a[k]);if(p)p.appendChild(e);return e;}
+var reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+// DNA helix
+(function(){var g=$("dna"),a="",b="",x0=20,x1=360,cy=78,A=22,w=85;
+  for(var x=x0;x<=x1;x+=3){var y=A*Math.sin((x-x0)/w*2*Math.PI);a+=(x===x0?"M":"L")+x+" "+(cy+y).toFixed(1);b+=(x===x0?"M":"L")+x+" "+(cy-y).toFixed(1);}
+  el("rect",{x:x0,y:cy-30,width:x1-x0,height:60,fill:"transparent"},g);
+  el("path",{d:b,fill:"none",stroke:"var(--dna2)","stroke-width":9,"stroke-linecap":"round"},g);
+  el("path",{d:a,fill:"none",stroke:"var(--dna)","stroke-width":9,"stroke-linecap":"round"},g);
+})();
+
+// free amino acids
+var freePts=[[480,350],[530,330],[580,365],[630,340],[680,362],[690,318],[620,375]],free=[];
+var AAC=["var(--amino)","var(--aa2)","var(--aa3)","var(--aa4)"],SEQ=[0,2,1,3,0,1,2,2,3,0,1,3,2,0,1,3];
+freePts.forEach(function(p,i){free.push(el("circle",{cx:p[0],cy:p[1],r:8,fill:AAC[i%4]},$("free")));});
+function showFree(on){free.forEach(function(c){c.style.transition="opacity .5s";c.style.opacity=on?1:0;});}
+showFree(false);
+
+var CAP={
+  1:["Step 1 · Inside the nucleus, the DNA message is copied into mRNA.","This is called transcription. DNA stays in the nucleus."],
+  2:["Step 2 · The mRNA leaves the nucleus through a nuclear pore.","It carries the copied message to the cytoplasm."],
+  3:["Step 3 · A ribosome reads the mRNA and joins amino acids into a protein.","This is called translation."]
+};
+var B="var(--dna)",B2="var(--dna2)",R="var(--rna)",BR="var(--ribo)",BR2="var(--ribo2)",AC="var(--accent)",W="var(--env-edge)",M="var(--muted)";
+function sv(inner,vb){return '<svg viewBox="'+(vb||"0 0 80 50")+'" aria-hidden="true">'+inner+'</svg>';}
+function wave(y,x0,x1,a,col,w){var d="M"+x0+" "+y;for(var x=x0;x<x1;x+=8)d+=" q4 "+(((x-x0)/8)%2?a:-a)+" 8 0";return '<path d="'+d+'" fill="none" stroke="'+col+'" stroke-width="'+(w||4)+'" stroke-linecap="round"/>';}
+function helix(y,x0,x1,a,w){var p1="",p2="";for(var x=x0;x<=x1;x+=2){var t=a*Math.sin((x-x0)/22*2*Math.PI);p1+=(x===x0?"M":"L")+x+" "+(y+t).toFixed(1);p2+=(x===x0?"M":"L")+x+" "+(y-t).toFixed(1);}
+  return '<path d="'+p2+'" fill="none" stroke="'+B2+'" stroke-width="'+(w||4)+'" stroke-linecap="round"/><path d="'+p1+'" fill="none" stroke="'+B+'" stroke-width="'+(w||4)+'" stroke-linecap="round"/>';}
+function bead(x,y,c,r){return '<circle cx="'+x+'" cy="'+y+'" r="'+(r||5)+'" fill="'+c+'"/>';}
+function ribo(x,y,s){s=s||1;return '<ellipse cx="'+x+'" cy="'+(y-8*s)+'" rx="'+15*s+'" ry="'+11*s+'" fill="'+BR2+'"/><ellipse cx="'+x+'" cy="'+(y+7*s)+'" rx="'+12*s+'" ry="'+6*s+'" fill="'+BR+'"/>';}
+var C=["var(--amino)","var(--aa2)","var(--aa3)","var(--aa4)"];
+function letters(str,x0,y,hl){var o="";str.split("").forEach(function(ch,i){var x=x0+i*11+Math.floor(i/3)*4;o+='<rect x="'+x+'" y="'+y+'" width="10" height="14" rx="2" fill="'+(hl&&i<3?"var(--accent)":"var(--rna)")+'" opacity="'+(hl&&i>=3?.35:1)+'"/><text x="'+(x+5)+'" y="'+(y+10.5)+'" font-size="9" font-weight="800" fill="#fff" text-anchor="middle">'+ch+'</text>';});return o;}
+var ICON={
+  code:'<rect x="6" y="6" width="68" height="8" rx="4" fill="var(--dna)" opacity=".8"/><path d="M40 16 V22" stroke="var(--muted)" stroke-width="2"/>'+letters("AUGUUC",4,26),
+  codon:letters("AUGUUC",4,26,true)+'<path d="M4 22 V18 H35 V22" fill="none" stroke="var(--accent)" stroke-width="2"/><text x="20" y="13" font-size="9" font-weight="800" fill="var(--accent)" text-anchor="middle">1 word</text><path d="M48 12 H58" stroke="var(--accent)" stroke-width="2"/>'+'<circle cx="68" cy="12" r="7" fill="var(--amino)"/>',
+  trna:'<circle cx="40" cy="9" r="7" fill="var(--amino)"/><rect x="36" y="15" width="8" height="16" rx="3" fill="var(--trna)"/><rect x="20" y="29" width="40" height="8" rx="4" fill="var(--trna)"/>'+'<g>'+[0,1,2].map(function(j){return '<rect x="'+(22+j*12.5)+'" y="38" width="11" height="10" rx="2" fill="var(--surface)" stroke="var(--trna)" stroke-width="1.5"/>';}).join("")+'</g>',
+  stop:'<path d="M28 6 H52 L64 18 V32 L52 44 H28 L16 32 V18 Z" fill="var(--stop)"/><text x="40" y="29" font-size="12" font-weight="800" fill="#fff" text-anchor="middle">STOP</text>',
+  dna:helix(25,8,72,9),
+  mrna:wave(25,6,74,6,R),
+  ribo:ribo(40,26,1.3),
+  aa:bead(18,25,C[0],7)+bead(34,25,C[1],7)+bead(50,25,C[2],7)+bead(66,25,C[3],7),
+  unzip:'<path d="M4 21 H30 C44 21 50 8 76 6" fill="none" stroke="'+B+'" stroke-width="4" stroke-linecap="round"/><path d="M4 29 H30 C44 29 50 42 76 44" fill="none" stroke="'+B2+'" stroke-width="4" stroke-linecap="round"/>'+[9,17,25].map(function(x){return '<line x1="'+x+'" x2="'+x+'" y1="22" y2="28" stroke="'+M+'" stroke-width="2"/>';}).join(""),
+  copy:'<line x1="6" x2="74" y1="12" y2="12" stroke="'+B+'" stroke-width="4" stroke-linecap="round"/>'+[14,26,38,50,62].map(function(x){return '<line x1="'+x+'" x2="'+x+'" y1="15" y2="29" stroke="'+M+'" stroke-width="2" stroke-dasharray="2 2"/>';}).join("")+wave(34,6,70,4,R),
+  closed:helix(17,8,72,7,3.5)+wave(40,14,70,4,R)+'<path d="M40 27 V33" stroke="'+M+'" stroke-width="2"/>',
+  lock:helix(32,6,74,8,3.5)+'<path d="M34 14 V9 a6 6 0 0 1 12 0 V14" fill="none" stroke="'+AC+'" stroke-width="3"/><rect x="30" y="13" width="20" height="15" rx="3" fill="'+AC+'"/>',
+  pore:'<path d="M40 2 V18 M40 32 V48" stroke="'+W+'" stroke-width="6" stroke-linecap="round"/>'+wave(25,4,68,4,R)+'<path d="M68 19 L76 25 L68 31" fill="none" stroke="'+R+'" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>',
+  blocked:'<path d="M48 2 V18 M48 32 V48" stroke="'+W+'" stroke-width="6" stroke-linecap="round"/>'+helix(25,4,38,13,4)+'<path d="M58 15 L72 35 M72 15 L58 35" stroke="var(--rna)" stroke-width="4" stroke-linecap="round"/>',
+  outside:'<path d="M18 2 V48" stroke="'+W+'" stroke-width="6" stroke-linecap="round"/>'+ribo(52,26,1.2)+'<path d="M24 25 H34" stroke="'+R+'" stroke-width="3" stroke-linecap="round"/>',
+  sit:wave(32,4,76,3,R)+ribo(40,30,1.2),
+  read:wave(34,4,76,3,R)+[[8,28],[32,52],[56,76]].map(function(g,i){return '<path d="M'+g[0]+' 22 V18 H'+g[1]+' V22" fill="none" stroke="'+(i===0?AC:M)+'" stroke-width="2.5"/>';}).join("")+'<text x="18" y="13" font-size="10" font-weight="700" fill="'+AC+'">3</text>',
+  join:'<path d="M8 25 H44" stroke="'+M+'" stroke-width="2"/>'+bead(10,25,C[0])+bead(22,25,C[2])+bead(34,25,C[1])+'<path d="M50 25 H58" stroke="'+AC+'" stroke-width="2.5"/><path d="M54 21 L58 25 L54 29" fill="none" stroke="'+AC+'" stroke-width="2.5"/>'+bead(68,25,C[3],6),
+  folded:(function(){var o="",pts=[[14,34],[22,40],[32,42],[42,38],[48,30],[46,21],[38,15],[29,15],[24,22],[30,29],[40,28],[56,14],[66,10],[72,16]];pts.forEach(function(p,i){o+=bead(p[0],p[1],C[i%4],4.5);});return o;})(),
+  order:'<g>'+[0,2,1,3].map(function(c,i){return bead(10+i*13,15,C[c],5);}).join("")+'<path d="M62 15 l4 4 l8 -9" fill="none" stroke="var(--accent)" stroke-width="3" stroke-linecap="round"/></g><g>'+[3,0,2,1].map(function(c,i){return bead(10+i*13,37,C[c],5);}).join("")+'<path d="M63 31 l10 11 M73 31 l-10 11" stroke="var(--rna)" stroke-width="3" stroke-linecap="round"/></g>'
+};
+var NARR={
+  0:{tag:"Meet the players",what:"Each colour has one job.",how:[["dna","DNA = the instructions"],["mrna","mRNA = the message"],["ribo","Ribosome = the builder"],["aa","Amino acids = the blocks"]],why:["lock","Press 1, 2, 3, 4 or Play all"],static:true},
+  1:{tag:"1 · Transcription",what:"DNA → mRNA, inside the nucleus",how:[["unzip","DNA opens"],["copy","A copy is made"],["closed","DNA closes, copy is free"]],why:["lock","DNA stays safe at home. Only the copy goes out."]},
+  2:{tag:"2 · mRNA leaves",what:"Nucleus → cytoplasm",how:[["pore","mRNA fits through the pore"],["blocked","DNA is too big"]],why:["outside","The builders (ribosomes) are outside."]},
+  4:{tag:"4 · Zoom in: reading the code",what:"Letters don't turn into amino acids. They give the order.",how:[["code","The gene's letters are copied into mRNA"],["codon","3 letters = 1 codon (one word)"],["trna","tRNA brings the matching amino acid"],["stop","A STOP codon ends the chain"]],why:["order","Same letters, same order, same protein every time."],
+     key:[["AUG","var(--amino)","Met (start)"],["UUC","var(--aa3)","Phe"],["GGA","var(--aa2)","Gly"],["UAA","var(--stop)","STOP"]]},
+  3:{tag:"3 · Translation",what:"mRNA → protein, in the cytoplasm",how:[["sit","Ribosome sits on mRNA"],["read","Reads 3 letters at a time"],["join","Adds the right amino acid"],["folded","Chain folds into a protein"]],why:["order","Right order = working protein. Wrong order = broken."]}
+};
+function narrate(n,times,whyAt){
+  var d=NARR[n];
+  var h='<div class="tag">'+d.tag+'</div><p class="what">'+d.what+'</p><div class="tiles">'+
+    d.how.map(function(t,i){return '<div class="tile">'+(d.static?'':'<i>'+(i+1)+'</i>')+sv(ICON[t[0]])+'<span>'+t[1]+'</span></div>';}).join("")+
+    '</div>'+(d.key?'<div class="key"><span class="k">CODON KEY</span>'+d.key.map(function(r){return '<span class="cod">'+r[0]+'</span><span class="dot" style="background:'+r[1]+'"></span><span>'+r[2]+'</span>';}).join("")+'</div>':'')+(d.static?'<div class="why seen"><span>'+d.why[1]+'</span></div>':'<div class="why">'+sv(ICON[d.why[0]])+'<span><b>WHY?</b>'+d.why[1]+'</span></div>');
+  var box=$("narr");box.innerHTML=h;box.scrollTop=0;
+  var tl=box.querySelectorAll(".tile"),why=box.querySelector(".why");
+  if(!times){tl.forEach(function(l){l.classList.add("seen");});why.classList.add("seen");return;}
+  times.forEach(function(t,i){later(function(){tl.forEach(function(l,j){l.classList.toggle("now",j===i);if(j<i)l.classList.add("seen");});},t);});
+  later(function(){tl.forEach(function(l){l.classList.remove("now");l.classList.add("seen");});why.classList.add("seen");},whyAt);
+}
+// colour legend under the scene
+$("legend").innerHTML=[["dna","DNA","instructions"],["mrna","mRNA","message"],["ribo","Ribosome","builder"],["aa","Amino acids","blocks"]].map(function(c){return '<span class="chip">'+sv(ICON[c[0]])+'<span><b>'+c[1]+'</b> = '+c[2]+'</span></span>';}).join("");
+function cap(a,b){$("cap").innerHTML=a+(b?"<small>"+b+"</small>":"");}
+function on(id,v){$(id).classList.toggle("on",v!==false);}
+function drawOn(id){var e=$(id);e.classList.remove("done","on");void e.getBoundingClientRect();e.classList.add(reduce?"done":"on");}
+function drawOff(id){$(id).classList.remove("on","done");}
+function pressed(s){document.querySelectorAll(".step").forEach(function(b){b.setAttribute("aria-pressed",+b.dataset.s===s?"true":"false");});}
+
+var timers=[],raf=null;
+function clearAll(){timers.forEach(clearTimeout);timers=[];if(raf)cancelAnimationFrame(raf);raf=null;}
+function later(fn,ms){timers.push(setTimeout(fn,reduce?0:ms));}
+
+// ---------- step 4: zoom view ----------
+var Z={},ZSEQ="AUGUUCGGAUAA".split(""),ZAA=[["Met","var(--amino)"],["Phe","var(--aa3)"],["Gly","var(--aa2)"]],ANTI=["UAC","AAG","CCU"];
+function zx(i){return 52+i*48+Math.floor(i/3)*18;}
+function zc(c){return zx(c*3)+70;}
+(function(){
+  var g=el("g",{id:"zoom"},$("svg"));Z.g=g;
+  el("rect",{x:0,y:0,width:720,height:560,fill:"var(--cyto)"},g);
+  var t=el("text",{x:24,y:40,"font-size":20,fill:"var(--ink)"},g);t.textContent="Zoom in: the ribosome reads the mRNA";
+  var t2=el("text",{x:24,y:96,"font-size":15,fill:"var(--muted)"},g);t2.textContent="Protein chain";
+  Z.ribo=el("g",{class:"zr"},g);
+  el("ellipse",{cx:0,cy:356,rx:100,ry:76,fill:"var(--ribo2)",opacity:.35},Z.ribo);
+  el("ellipse",{cx:0,cy:476,rx:88,ry:32,fill:"var(--ribo)",opacity:.35},Z.ribo);
+  var rl=el("text",{x:0,y:550,"text-anchor":"middle","font-size":15,fill:"var(--ribo)"},Z.ribo);rl.textContent="Ribosome";
+  Z.chain=el("g",{class:"zb"},g);
+  ZSEQ.forEach(function(ch,i){
+    el("rect",{x:zx(i),y:400,width:44,height:50,rx:8,fill:"var(--rna)"},g);
+    var tt=el("text",{class:"ztile",x:zx(i)+22,y:425,fill:"#fff"},g);tt.textContent=ch;
+  });
+  var ml=el("text",{x:24,y:432,"font-size":15,fill:"var(--rna)"},g);ml.textContent="";
+  Z.br=el("path",{d:"M-70 462 V470 H70 V462",fill:"none",stroke:"var(--accent)","stroke-width":3,class:"zr",opacity:0},g);
+  Z.brl=el("text",{class:"zr",x:0,y:492,"text-anchor":"middle","font-size":14,fill:"var(--accent)",opacity:0},g);Z.brl.textContent="codon";
+  Z.under=el("g",{},g);
+  Z.trna=el("g",{},g);
+  Z.stop=el("g",{opacity:0,class:"zr"},g);
+  el("path",{d:"M-34 272 H34 L50 288 V312 L34 328 H-34 L-50 312 V288 Z",fill:"var(--stop)"},Z.stop);
+  var st=el("text",{x:0,y:307,"text-anchor":"middle","font-size":20,fill:"#fff"},Z.stop);st.textContent="STOP";
+  Z.done=el("text",{x:300,y:186,"font-size":18,fill:"var(--accent)",opacity:0,class:"zr"},g);Z.done.textContent="Protein released!";
+})();
+function zt(e,x,y){e.style.transform="translate("+x+"px,"+y+"px)";}
+function zoomOff(){Z.g.classList.remove("on");}
+function zoomReset(){Z.chain.innerHTML="";Z.under.innerHTML="";Z.trna.innerHTML="";Z.stop.setAttribute("opacity",0);Z.done.setAttribute("opacity",0);Z.br.setAttribute("opacity",0);Z.brl.setAttribute("opacity",0);zt(Z.chain,0,0);[Z.ribo,Z.br,Z.brl,Z.stop].forEach(function(e){e.style.transition="none";zt(e,zc(0),0);void e.getBoundingClientRect();e.style.transition="";});}
+function makeTrna(c){
+  var g=el("g",{class:"zt",opacity:0},Z.trna);
+  el("rect",{x:-12,y:262,width:24,height:62,rx:8,fill:"var(--trna)"},g);
+  el("rect",{x:-76,y:318,width:152,height:24,rx:10,fill:"var(--trna)"},g);
+  ANTI[c].split("").forEach(function(ch,j){
+    el("rect",{x:-70+j*48,y:344,width:44,height:46,rx:8,fill:"var(--surface)",stroke:"var(--trna)","stroke-width":3},g);
+    var t=el("text",{class:"ztile",x:-48+j*48,y:367,fill:"var(--trna)"},g);t.textContent=ch;
+  });
+  var b=el("g",{},g);
+  el("circle",{cx:0,cy:236,r:26,fill:ZAA[c][1]},b);
+  var bt=el("text",{x:0,y:241,"text-anchor":"middle","font-size":14,fill:"#fff"},b);bt.textContent=ZAA[c][0];
+  var tl=el("text",{x:84,y:300,"font-size":14,fill:"var(--trna)"},g);tl.textContent="tRNA";
+  g.style.transition="none";zt(g,zc(c),-220);void g.getBoundingClientRect();g.style.transition="";
+  return {g:g,b:b};
+}
+function step4(){
+  pressed(4);cap("Step 4 · Zoom in: how the ribosome reads","Each 3 letters (a codon) asks for one amino acid.");
+  narrate(4,[0,700,1300,7900],9400);
+  zoomReset();Z.g.classList.add("on");
+  later(function(){Z.br.setAttribute("opacity",1);Z.brl.setAttribute("opacity",1);},600);
+  [0,1,2].forEach(function(c){
+    var t0=900+c*2300,tr;
+    later(function(){[Z.ribo,Z.br,Z.brl].forEach(function(e){zt(e,zc(c),0);});tr=makeTrna(c);},t0);
+    later(function(){tr.g.setAttribute("opacity",1);zt(tr.g,zc(c),0);},t0+150);
+    later(function(){
+      tr.b.setAttribute("opacity",0);
+      var tx=70+c*64,ty=140;
+      if(c>0)Z.chain.insertBefore(el("line",{x1:tx-64,y1:ty,x2:tx,y2:ty,stroke:"var(--ribo)","stroke-width":5}),Z.chain.firstChild);
+      var nb=el("g",{},Z.chain);
+      el("circle",{cx:tx,cy:ty,r:26,fill:ZAA[c][1]},nb);
+      var nt=el("text",{x:tx,y:ty+5,"text-anchor":"middle","font-size":14,fill:"#fff"},nb);nt.textContent=ZAA[c][0];
+      nb.style.transition="none";zt(nb,zc(c)-tx,236-ty);void nb.getBoundingClientRect();
+      nb.style.transition="transform .8s cubic-bezier(.45,0,.25,1)";zt(nb,0,0);
+      var u=el("text",{x:zc(c),y:512,"text-anchor":"middle","font-size":16,fill:ZAA[c][1],class:"pop"},Z.under);u.textContent="→ "+ZAA[c][0];
+    },t0+1150);
+    later(function(){tr.g.setAttribute("opacity",0);zt(tr.g,zc(c),-220);},t0+1900);
+  });
+  var ts=900+3*2300;
+  later(function(){[Z.ribo,Z.br,Z.brl,Z.stop].forEach(function(e){zt(e,zc(3),0);});},ts);
+  later(function(){Z.stop.setAttribute("opacity",1);var u=el("text",{x:zc(3),y:512,"text-anchor":"middle","font-size":16,fill:"var(--stop)"},Z.under);u.textContent="→ STOP";},ts+500);
+  later(function(){zt(Z.chain,30,40);Z.done.setAttribute("opacity",1);},ts+1300);
+}
+
+function reset(){
+  clearAll();pressed(0);zoomOff();
+  ["m1","m2","m3"].forEach(drawOff);
+  ["arrow1","lM1","lPore","lM2","ribo","lRibo","lAA","lPoly","b1","b2","b3"].forEach(function(i){on(i,false);});
+  $("m1").classList.remove("dim");$("m2").classList.remove("dim");
+  $("chain").innerHTML="";showFree(false);setRibo(380);
+  cap("Press <b>1</b>, <b>2</b>, <b>3</b> or <b>Play all</b>.","Tap any part of the cell to see what it is.");narrate(0);
+}
+
+function step1(){
+  zoomOff();pressed(1);cap("Step 1 · Transcription","Tap any part of the cell to see what it is.");narrate(1,[0,1000,2000],3000);
+  on("b1");on("arrow1");drawOn("m1");later(function(){on("lM1");},1600);
+}
+function step2(){
+  zoomOff();pressed(2);cap("Step 2 · mRNA leaves the nucleus","Tap any part of the cell to see what it is.");narrate(2,[0,1200],2500);
+  if(!$("m1").classList.contains("on")&&!$("m1").classList.contains("done")){$("m1").classList.add("done");on("lM1");on("arrow1");on("b1");}
+  $("m1").classList.add("dim");on("b2");on("lPore");drawOn("m2");later(function(){on("lM2");},1800);
+}
+function setRibo(x){$("ribo").setAttribute("transform","translate("+x+" 0)");$("lRibo").setAttribute("x",x);}
+function step3(){
+  zoomOff();pressed(3);cap("Step 3 · Translation","Tap any part of the cell to see what it is.");narrate(3,[1300,2400,3600,5600],7500);
+  ["m1","m2"].forEach(function(i){var e=$(i);if(!e.classList.contains("on"))e.classList.add("done");e.classList.add("dim");});
+  on("b1");on("b2");on("b3");on("arrow1");on("lPore");
+  $("chain").innerHTML="";setRibo(380);showFree(true);
+  drawOn("m3");on("lAA");
+  later(function(){on("ribo");on("lRibo");translate();},1300);
+}
+function translate(){
+  var start=null,dur=reduce?1:6000,x0=380,x1=640,beads=0,max=16;
+  var chain=$("chain");
+  function frame(t){
+    if(!start)start=t;var k=Math.min(1,(t-start)/dur),x=x0+(x1-x0)*k;
+    setRibo(x);
+    var want=Math.floor(k*max);
+    while(beads<want){
+      beads++;
+      // new bead appears at the ribosome; older beads trail behind in a gentle curve
+      var bx=x-30,by=528+6*Math.sin(beads*0.9);
+      el("circle",{cx:bx,cy:by,r:7,fill:AAC[SEQ[(beads-1)%16]]},chain);
+      var f=free[(beads-1)%free.length];
+      if(beads<=5){f.style.opacity=0;}
+    }
+    if(k<1)raf=requestAnimationFrame(frame);
+    else{on("lPoly");cap("Done! The amino acids joined in order to make a protein.","DNA is the original instruction, mRNA is the copied message, protein is the final product.");}
+  }
+  raf=requestAnimationFrame(frame);
+}
+
+document.querySelectorAll(".step").forEach(function(b){b.onclick=function(){clearAll();({1:step1,2:step2,3:step3,4:step4})[b.dataset.s]();};});
+$("reset").onclick=reset;
+$("play").onclick=function(){reset();step1();later(step2,7000);later(step3,13500);later(step4,22500);};
+
+// tap a part to see what it is
+document.querySelectorAll(".hot").forEach(function(h){
+  h.addEventListener("click",function(e){e.stopPropagation();var d=h.dataset.info.split("|");cap("<span style=\"color:var(--accent)\">"+d[0]+"</span> · "+d[1]);});
+});
+reset();
+})();
+</script>
+
+</body></html>
