@@ -1,0 +1,522 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>DNA &amp; RNA Lab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,800&family=Lexend:wght@400;600;700&display=swap">
+<style>
+/* Layout: level map on top, one level card (instruction, play area, feedback), footer with next. Molecule colours are fixed meanings across all levels. */
+:root{
+  --bg:#f3f6f6; --surface:#ffffff; --ink:#1b2a2e; --muted:#5a6b6f; --line:#d4dfe0;
+  --accent:#0f6e6a; --accent-soft:#dcefed; --good:#1f7a3f; --bad:#b3362b; --gold:#e0a21a;
+  --bA:#2e9e5b; --bT:#e07b1f; --bG:#4f6fd6; --bC:#d6457f; --bU:#b8392a;
+  --phos:#e9b23a; --sugar:#8fb3e6; --old:#2f7fc4; --new:#f08a24; --aa:#7f78d6;
+  --rna:#cf3b2b; --trna:#3f9a4a; --ribo:#7a4b38; --ribofill:#e7c9b3;
+  --tiletext:#ffffff; --sugartext:#1b2a2e;
+  --f-display:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;
+  --f-body:"Lexend","Segoe UI",system-ui,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0f181a; --surface:#172427; --ink:#e5eeee; --muted:#9db0b2; --line:#2a3b3e;
+  --accent:#4fc3b9; --accent-soft:#1c3a39; --good:#5fcf86; --bad:#ff8a7d; --gold:#f2c14e;
+  --bA:#5fd08a; --bT:#ffa14a; --bG:#8ea4ff; --bC:#ff7ab0; --bU:#ff7a62;
+  --phos:#f2c14e; --sugar:#8fb3e6; --old:#6cb6f2; --new:#ffa14a; --aa:#a7a1ff;
+  --rna:#ff7a62; --trna:#7fd17a; --ribo:#d9a487; --ribofill:#4f3a2e;
+  --tiletext:#10181a; --sugartext:#10181a; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0f181a; --surface:#172427; --ink:#e5eeee; --muted:#9db0b2; --line:#2a3b3e;
+  --accent:#4fc3b9; --accent-soft:#1c3a39; --good:#5fcf86; --bad:#ff8a7d; --gold:#f2c14e;
+  --bA:#5fd08a; --bT:#ffa14a; --bG:#8ea4ff; --bC:#ff7ab0; --bU:#ff7a62;
+  --phos:#f2c14e; --sugar:#8fb3e6; --old:#6cb6f2; --new:#ffa14a; --aa:#a7a1ff;
+  --rna:#ff7a62; --trna:#7fd17a; --ribo:#d9a487; --ribofill:#4f3a2e;
+  --tiletext:#10181a; --sugartext:#10181a; color-scheme:dark}
+
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.5;padding-inline:16px;padding-block:18px 40px}
+.wrap{max-width:900px;margin:0 auto;display:flex;flex-direction:column;gap:14px}
+h1{font-family:var(--f-display);font-weight:800;font-size:clamp(1.7rem,5vw,2.3rem);margin:0;line-height:1.1}
+h1 span{color:var(--accent)}
+.sub{margin:2px 0 0;color:var(--muted)}
+button{font:inherit;cursor:pointer;color:inherit}
+button:focus-visible,[tabindex]:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+
+.map{display:grid;grid-template-columns:repeat(10,minmax(0,1fr));gap:5px}
+.lv{border:1.5px solid var(--line);background:var(--surface);border-radius:10px;padding:5px 2px 4px;display:flex;flex-direction:column;align-items:center;gap:0;min-width:0}
+.lv b{font-family:var(--f-display);font-size:1rem}
+.lv small{font-size:.62rem;color:var(--gold);letter-spacing:.05em;min-height:1em}
+.lv.on{border-color:var(--accent);background:var(--accent-soft)}
+.lv.done b{color:var(--accent)}
+
+.card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:18px;display:flex;flex-direction:column;gap:14px}
+.lh{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 12px}
+.lh h2{font-family:var(--f-display);font-weight:800;font-size:1.5rem;margin:0}
+.lh .n{font-size:.78rem;font-weight:700;letter-spacing:.12em;color:var(--muted);text-transform:uppercase}
+.task{margin:0;font-size:1.05rem}
+.task b{color:var(--accent)}
+.area{display:flex;flex-direction:column;gap:14px;min-width:0}
+.fb{margin:0;padding:10px 14px;border-radius:12px;background:var(--bg);min-height:2.9em;font-weight:600}
+.fb.good{color:var(--good)} .fb.bad{color:var(--bad)}
+.fb.win{background:var(--accent-soft);color:var(--ink)}
+.foot{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.stars{font-size:1.4rem;color:var(--gold);letter-spacing:.1em;min-width:4em}
+.nextL{margin-left:auto;border:none;border-radius:12px;padding:11px 20px;font-weight:700;background:var(--line);color:var(--muted)}
+.nextL.ready{background:var(--accent);color:var(--bg);animation:nudge 1s ease 2}
+@keyframes nudge{50%{transform:translateX(4px)}}
+.skip{border:none;background:none;color:var(--muted);text-decoration:underline;padding:6px}
+
+/* drag + drop */
+.tray{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;padding:10px;border-radius:14px;background:var(--bg);min-height:64px}
+.drag{display:inline-flex;align-items:center;justify-content:center;gap:6px;border:1.5px solid var(--line);background:var(--surface);border-radius:12px;padding:6px 10px;cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none;font-weight:600;font-size:.95rem;min-height:52px}
+.drag.sel{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.drag.lifted{opacity:.3}
+.ghost{position:fixed;pointer-events:none;z-index:50;transform:scale(1.06);box-shadow:0 10px 24px rgba(0,0,0,.18);margin:0}
+.zone{border:2px dashed var(--line);border-radius:12px;transition:background .2s,border-color .2s}
+.zone.hover{background:var(--accent-soft);border-color:var(--accent)}
+svg .zone{fill:transparent;stroke:var(--line);stroke-width:2;stroke-dasharray:6 5}
+svg .zone.hover{fill:var(--accent-soft);stroke:var(--accent)}
+.shake{animation:shake .4s}
+@keyframes shake{20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}
+.pop{animation:pop .35s ease}
+@keyframes pop{from{opacity:0;transform:scale(.5)}to{opacity:1;transform:scale(1)}}
+svg text{font-family:var(--f-body)}
+
+/* L1 nucleotide */
+.nt{display:flex;align-items:center;justify-content:center;gap:0;flex-wrap:wrap}
+.slot{width:120px;height:120px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;text-align:center;font-size:.8rem;color:var(--muted);font-weight:600;padding:6px}
+.slot.full{border-style:solid;border-color:var(--accent)}
+.slot svg{height:56px;width:auto}
+.link{width:22px;height:4px;background:var(--line);border-radius:2px}
+.plate{text-align:center;font-family:var(--f-display);font-weight:800;font-size:1.25rem;min-height:1.6em;color:var(--muted)}
+.plate.hi{color:var(--accent)}
+
+/* MCQ */
+.mcq{display:flex;flex-direction:column;gap:8px}
+.mcq p{margin:0;font-weight:700}
+.opts{display:flex;flex-wrap:wrap;gap:8px}
+.opt{border:1.5px solid var(--line);background:var(--surface);border-radius:99px;padding:7px 16px;font-weight:600}
+.opt.right{border-color:var(--good);color:var(--good)}
+.opt.wrong{border-color:var(--bad);color:var(--bad)}
+
+/* baskets */
+.bins{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.bin{min-height:130px;padding:10px;display:flex;flex-direction:column;gap:8px}
+.bin h3{margin:0;font-family:var(--f-display);font-weight:800;font-size:1.1rem}
+.bin small{color:var(--muted);font-weight:600}
+.bin .got{display:flex;flex-wrap:wrap;gap:6px}
+.bin .got .drag{cursor:default;min-height:40px;padding:3px 8px;font-size:.85rem}
+
+/* L3 sugar */
+.sugarbox{display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:center}
+.sugarbox svg{width:230px;max-width:100%;height:auto}
+.sgtext{display:flex;flex-direction:column;gap:6px;min-width:0;max-width:300px}
+.sgtext b{font-family:var(--f-display);font-size:1.4rem}
+.btn{border:1.5px solid var(--accent);background:var(--accent-soft);color:var(--ink);border-radius:12px;padding:9px 16px;font-weight:700;align-self:flex-start}
+
+/* L5 + L6 tiles */
+.row{display:flex;align-items:center;justify-content:center;gap:6px;flex-wrap:wrap}
+.end{font-family:var(--f-display);font-weight:800;color:var(--muted);width:30px;text-align:center}
+.tile{width:46px;height:46px;border-radius:10px;display:inline-grid;place-items:center;font-family:var(--f-display);font-weight:800;font-size:1.4rem;color:var(--tiletext);border:none}
+.tile.empty{background:transparent;border:2px dashed var(--line);color:var(--muted)}
+.tile.cur{border-color:var(--accent);background:var(--accent-soft)}
+.bonds{display:flex;justify-content:center;gap:6px}
+.bond{width:46px;display:flex;justify-content:center;gap:5px;height:18px;align-items:center}
+.bond i{width:3px;height:14px;background:var(--muted);border-radius:2px;opacity:.7}
+.codon{display:flex;gap:4px;padding:6px;border-radius:12px;background:var(--bg)}
+.prot{display:flex;justify-content:center;gap:10px;flex-wrap:wrap}
+.bead{min-width:64px;height:40px;border-radius:20px;display:inline-grid;place-items:center;font-weight:700;color:var(--tiletext);padding:0 10px;transition:background .3s}
+.label{font-size:.78rem;font-weight:700;letter-spacing:.12em;color:var(--muted);text-transform:uppercase;text-align:center}
+
+/* L7 replication */
+.rep{display:flex;justify-content:center;gap:6px;overflow-x:auto;padding:4px}
+.col{display:flex;flex-direction:column;align-items:center;width:46px;flex:0 0 46px}
+.gap{height:22px;width:46px;display:flex;flex-direction:column;align-items:center;justify-content:space-between;transition:height .5s ease}
+.col.open .gap{height:118px}
+.gap .bond{transition:opacity .3s}
+.col.open .gap .bond{opacity:0;height:0}
+.gap .ns{display:none}
+.col.open .gap .ns{display:grid}
+.ns.tile{width:40px;height:40px;font-size:1.2rem}
+.slider{display:flex;align-items:center;gap:10px;justify-content:center;flex-wrap:wrap;font-weight:700}
+input[type=range]{width:min(320px,70vw);accent-color:var(--accent)}
+.twin{display:flex;gap:18px;justify-content:center;flex-wrap:wrap}
+.mini{display:flex;flex-direction:column;gap:3px;align-items:center}
+.mini .row{gap:3px}
+.mini .tile{width:30px;height:30px;font-size:1rem;border-radius:7px}
+
+/* L8 */
+.team{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px}
+.worker{padding:10px;display:flex;flex-direction:column;align-items:center;gap:6px;min-height:170px;text-align:center}
+.worker svg{width:90px;height:56px}
+.worker h3{margin:0;font-family:var(--f-display);font-weight:800}
+.worker .got{display:flex;flex-direction:column;gap:5px;width:100%}
+.worker .got .drag{cursor:default;min-height:34px;font-size:.82rem;padding:4px 8px}
+
+/* L9 ruler */
+.ruler{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+.binr{min-height:110px;padding:8px;display:flex;flex-direction:column;gap:6px}
+.binr h3{margin:0;font-size:.9rem;font-family:var(--f-display);font-weight:800}
+.bar{position:relative;height:56px;border-radius:12px;background:var(--bg);margin-top:4px}
+.bar .tick{position:absolute;top:0;bottom:0;width:2px;background:var(--line)}
+.bar .dot{position:absolute;top:8px;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;font-size:.7rem;font-weight:700;white-space:nowrap}
+.bar .dot i{width:14px;height:14px;border-radius:50%;background:var(--accent)}
+
+.recap{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px}
+.big{font-family:var(--f-display);font-weight:800;font-size:2.4rem;color:var(--gold);text-align:center}
+
+@media (max-width:640px){.map{grid-template-columns:repeat(5,minmax(0,1fr))}.ruler{grid-template-columns:repeat(2,minmax(0,1fr))}.slot{width:96px;height:110px}}
+@media (prefers-reduced-motion:reduce){.shake,.pop,.nextL.ready{animation:none}.gap{transition:none}}
+</style>
+
+<main class="wrap">
+  <header>
+    <h1>DNA <span>&amp;</span> RNA Lab</h1>
+    <p class="sub">10 quick levels. Drag, tap and build. About 8 minutes.</p>
+  </header>
+  <nav class="map" id="map" aria-label="Levels"></nav>
+  <section class="card">
+    <div class="lh"><span class="n" id="lnum"></span><h2 id="ltitle"></h2></div>
+    <p class="task" id="task"></p>
+    <div class="area" id="area"></div>
+    <p class="fb" id="fb" aria-live="polite"></p>
+    <div class="foot">
+      <span class="stars" id="stars" aria-label="Stars for this level"></span>
+      <button class="skip" id="skip">Skip level</button>
+      <button class="nextL" id="nextL" disabled>Next level →</button>
+    </div>
+  </section>
+</main>
+
+<script>
+(function(){
+var $=function(i){return document.getElementById(i);};
+var area=$("area");
+
+/* ---------- shapes ---------- */
+var BC={A:"var(--bA)",T:"var(--bT)",G:"var(--bG)",C:"var(--bC)",U:"var(--bU)"};
+var PUR={A:1,G:1};
+function ring(cx,cy,r,n,rot){var p=[];for(var i=0;i<n;i++){var a=rot+i*2*Math.PI/n;p.push([cx+r*Math.cos(a),cy+r*Math.sin(a)]);}return p;}
+function pts(a){return a.map(function(p){return p[0].toFixed(1)+","+p[1].toFixed(1);}).join(" ");}
+function baseSVG(L,h){
+  h=h||44;var pur=!!PUR[L],r=12,hex=ring(16,20,r,6,-Math.PI/2),o="";
+  if(pur){var pent=[hex[1],hex[2]],d=[0,1],p=hex[2].slice(),th=72*Math.PI/180;
+    for(var k=0;k<3;k++){d=[d[0]*Math.cos(th)+d[1]*Math.sin(th),-d[0]*Math.sin(th)+d[1]*Math.cos(th)];p=[p[0]+d[0]*r,p[1]+d[1]*r];pent.push(p);}
+    o+='<polygon points="'+pts(pent)+'" fill="'+BC[L]+'" opacity=".75" stroke="var(--surface)" stroke-width="1.5"/>';}
+  return '<svg viewBox="0 0 '+(pur?46:32)+' 40" height="'+h+'" aria-hidden="true"><polygon points="'+pts(hex)+'" fill="'+BC[L]+'" stroke="var(--surface)" stroke-width="1.5"/>'+o+'<text x="16" y="21" text-anchor="middle" dominant-baseline="central" font-size="13" font-weight="800" fill="var(--tiletext)">'+L+'</text></svg>';
+}
+function phosSVG(h){return '<svg viewBox="0 0 40 40" height="'+(h||44)+'" aria-hidden="true"><circle cx="20" cy="20" r="16" fill="var(--phos)"/><text x="20" y="21" text-anchor="middle" dominant-baseline="central" font-size="15" font-weight="800" fill="var(--sugartext)">P</text></svg>';}
+function sugarSVG(h){var p=ring(20,21,15,5,-Math.PI/2);return '<svg viewBox="0 0 40 40" height="'+(h||44)+'" aria-hidden="true"><polygon points="'+pts(p)+'" fill="var(--sugar)"/><text x="20" y="9" text-anchor="middle" font-size="8" font-weight="800" fill="var(--sugartext)">O</text><text x="20" y="25" text-anchor="middle" font-size="9" font-weight="700" fill="var(--sugartext)">5C</text></svg>';}
+function aaSVG(h){return '<svg viewBox="0 0 40 40" height="'+(h||44)+'" aria-hidden="true"><circle cx="20" cy="20" r="16" fill="var(--aa)"/><text x="20" y="21" text-anchor="middle" dominant-baseline="central" font-size="11" font-weight="800" fill="var(--tiletext)">aa</text></svg>';}
+function ntSVG(L,h){return '<svg viewBox="0 0 96 60" height="'+(h||46)+'" aria-hidden="true"><line x1="22" y1="40" x2="40" y2="40" stroke="var(--muted)" stroke-width="3"/><line x1="52" y1="30" x2="52" y2="20" stroke="var(--muted)" stroke-width="3"/><circle cx="14" cy="40" r="11" fill="var(--phos)"/><text x="14" y="41" text-anchor="middle" dominant-baseline="central" font-size="11" font-weight="800" fill="var(--sugartext)">P</text><polygon points="'+pts(ring(52,41,13,5,-Math.PI/2))+'" fill="var(--sugar)"/><rect x="40" y="2" width="24" height="20" rx="5" fill="'+BC[L]+'"/><text x="52" y="12.5" text-anchor="middle" dominant-baseline="central" font-size="12" font-weight="800" fill="var(--tiletext)">'+L+'</text></svg>';}
+
+/* ---------- feedback + scoring ---------- */
+var cur=0,mist=0,finished=false,stars=[0,0,0,0,0,0,0,0,0,0];
+function say(m,k){var f=$("fb");f.className="fb"+(k?" "+k:"");f.innerHTML=m;}
+function bad(m,el){mist++;say(m,"bad");if(el)shake(el);}
+function good(m){say(m,"good");}
+function win(m){
+  if(finished)return;finished=true;
+  var s=mist===0?3:mist<=2?2:1;stars[cur]=Math.max(stars[cur],s);
+  say("<b>Level complete!</b> "+m,"win");$("stars").textContent="★★★".slice(0,s)+"☆☆☆".slice(0,3-s);
+  var n=$("nextL");n.disabled=false;n.classList.add("ready");renderMap();
+}
+function shake(el){el.classList.remove("shake");void el.getBoundingClientRect();el.classList.add("shake");}
+
+/* ---------- drag and drop (drag OR tap-then-tap) ---------- */
+var SEL=null,DROP=null,HOV=null;
+function unsel(){if(SEL)SEL.classList.remove("sel");SEL=null;}
+function zoneAt(x,y){var e=document.elementFromPoint(x,y);return e&&e.closest?e.closest(".zone"):null;}
+function hover(z){if(HOV&&HOV!==z)HOV.classList.remove("hover");HOV=z;if(z)z.classList.add("hover");}
+function bindDrag(ch){
+  ch.setAttribute("tabindex","0");ch.setAttribute("role","button");
+  ch.addEventListener("pointerdown",function(e){
+    if(ch.dataset.locked)return;e.preventDefault();
+    var sx=e.clientX,sy=e.clientY,moved=false,g=null,r=ch.getBoundingClientRect();
+    function mv(ev){
+      if(!moved&&Math.hypot(ev.clientX-sx,ev.clientY-sy)>6){moved=true;unsel();g=ch.cloneNode(true);g.classList.add("ghost");g.style.width=r.width+"px";document.body.appendChild(g);ch.classList.add("lifted");}
+      if(moved){g.style.left=(ev.clientX-(sx-r.left))+"px";g.style.top=(ev.clientY-(sy-r.top))+"px";hover(zoneAt(ev.clientX,ev.clientY));}
+    }
+    function up(ev){
+      window.removeEventListener("pointermove",mv);window.removeEventListener("pointerup",up);window.removeEventListener("pointercancel",up);
+      if(moved){g.remove();ch.classList.remove("lifted");var z=zoneAt(ev.clientX,ev.clientY);hover(null);if(z&&DROP)DROP(ch,z);}
+      else{if(SEL===ch)unsel();else{unsel();SEL=ch;ch.classList.add("sel");}}
+    }
+    window.addEventListener("pointermove",mv);window.addEventListener("pointerup",up);window.addEventListener("pointercancel",up);
+  });
+  ch.addEventListener("keydown",function(e){if(e.key==="Enter"||e.key===" "){e.preventDefault();if(SEL===ch)unsel();else{unsel();SEL=ch;ch.classList.add("sel");}}});
+}
+function bindZone(z){
+  if(z.tagName.toLowerCase()!=="rect"){z.setAttribute("tabindex","0");}
+  z.addEventListener("click",function(){if(SEL&&DROP){var c=SEL;unsel();DROP(c,z);}});
+  z.addEventListener("keydown",function(e){if((e.key==="Enter"||e.key===" ")&&SEL&&DROP){e.preventDefault();var c=SEL;unsel();DROP(c,z);}});
+}
+function dnd(onDrop){DROP=onDrop;SEL=null;area.querySelectorAll(".drag").forEach(bindDrag);area.querySelectorAll(".zone").forEach(bindZone);}
+function chip(k,inner,extra){return '<div class="drag'+(extra?" "+extra:"")+'" data-k="'+k+'">'+inner+'</div>';}
+
+/* ---------- multiple choice ---------- */
+function mcq(box,q,opts,right,why,cb){
+  var d=document.createElement("div");d.className="mcq pop";
+  d.innerHTML='<p>'+q+'</p><div class="opts">'+opts.map(function(o,i){return '<button class="opt" data-i="'+i+'">'+o+'</button>';}).join("")+'</div>';
+  box.appendChild(d);var done=false;
+  d.querySelectorAll(".opt").forEach(function(b){b.onclick=function(){
+    if(done)return;
+    if(+b.dataset.i===right){done=true;b.classList.add("right");good(why);if(cb)setTimeout(cb,500);}
+    else{b.classList.add("wrong");bad("Not quite. Try again.",b);}
+  };});
+}
+
+/* ---------- LEVELS ---------- */
+var LV=[];
+
+/* 1. Build a nucleotide */
+LV.push({t:"Build a nucleotide",s:"Nucleotide",task:"Drag each shape into the right part of the nucleotide. One shape does <b>not</b> belong.",
+build:function(){
+  area.innerHTML='<div class="nt"><div class="slot zone" data-k="P">1 · Phosphate group</div><div class="link"></div><div class="slot zone" data-k="S">2 · Pentose sugar (5 carbons)</div><div class="link"></div><div class="slot zone" data-k="B">3 · Nitrogenous base</div></div>'+
+    '<div class="plate" id="plate">Empty</div>'+
+    '<div class="tray">'+chip("S",sugarSVG())+chip("X",aaSVG())+chip("B",baseSVG("A"))+chip("P",phosSVG())+'</div><div id="qb" class="area"></div>';
+  var got={};
+  dnd(function(c,z){
+    var k=c.dataset.k;
+    if(k==="X"){bad("That is an <b>amino acid</b>. It builds proteins, not nucleotides.",c);return;}
+    if(k!==z.dataset.k){bad("Not that spot. Look at the shape: circle = phosphate, pentagon = sugar, ring = base.",c);return;}
+    z.innerHTML=c.innerHTML+'<span>'+z.textContent+'</span>';z.classList.add("full");c.remove();got[k]=1;
+    var p=$("plate");
+    if(got.S&&got.B&&!got.P){p.textContent="Sugar + base = NUCLEOSIDE";p.className="plate hi";good("You made a <b>nucleoside</b>. It has no phosphate yet.");}
+    else if(got.S&&got.B&&got.P){p.textContent="Phosphate + sugar + base = NUCLEOTIDE";p.className="plate hi";good("A nucleotide is one bead on the DNA or RNA chain.");
+      mcq($("qb"),"Quick check: sugar + base = ?",["Nucleoside","Nucleotide"],0,"Right: sugar + base = nucleoside.",function(){
+        mcq($("qb"),"Sugar + base + phosphate = ?",["Nucleoside","Nucleotide"],1,"",function(){win("A nucleotide is the monomer of nucleic acids.");});});}
+    else good("Good. Keep building.");
+  });
+}});
+
+/* 2. Purines vs pyrimidines */
+LV.push({t:"Purines or pyrimidines?",s:"Bases",task:"Count the rings. Drag each base into the right basket.",
+build:function(){
+  area.innerHTML='<div class="bins"><div class="bin zone" data-k="pur"><h3>Purines</h3><small>two rings</small><div class="got"></div></div><div class="bin zone" data-k="pyr"><h3>Pyrimidines</h3><small>one ring</small><div class="got"></div></div></div>'+
+    '<div class="tray">'+["C","A","U","G","T"].map(function(L){return chip(L,baseSVG(L,48));}).join("")+'</div>';
+  var n=0,NM={A:"Adenine",G:"Guanine",C:"Cytosine",T:"Thymine",U:"Uracil"};
+  dnd(function(c,z){
+    var L=c.dataset.k,ok=(PUR[L]?"pur":"pyr")===z.dataset.k;
+    if(!ok){bad(NM[L]+" has "+(PUR[L]?"<b>two</b> rings, so it is a purine.":"<b>one</b> ring, so it is a pyrimidine."),c);return;}
+    c.dataset.locked=1;c.classList.remove("sel");z.querySelector(".got").appendChild(c);c.innerHTML+=NM[L];n++;
+    good(NM[L]+" is a "+(PUR[L]?"purine.":"pyrimidine."));
+    if(n===5)win('Tricks: <b>"Pure As Gold"</b> = purines are A and G. <b>"CUT"</b> = C, U, T are pyrimidines.');
+  });
+}});
+
+/* 3. DNA vs RNA */
+LV.push({t:"DNA or RNA?",s:"Sugars",task:"Tap <b>Swap</b> to change the group on carbon 2′. Then sort the cards.",
+build:function(){
+  var rib=true;
+  area.innerHTML='<div class="sugarbox"><svg viewBox="0 0 220 200" aria-label="Sugar ring with numbered carbons">'+
+    '<polygon points="110,40 165,78 145,138 75,138 55,78" fill="var(--sugar)" stroke="var(--sugartext)" stroke-width="2"/>'+
+    '<text x="110" y="36" text-anchor="middle" font-size="15" font-weight="800" fill="var(--ink)">O</text>'+
+    '<line x1="55" y1="78" x2="28" y2="45" stroke="var(--ink)" stroke-width="2"/><text x="20" y="38" font-size="13" font-weight="700" fill="var(--muted)">5′</text>'+
+    '<line x1="165" y1="78" x2="198" y2="78" stroke="var(--ink)" stroke-width="2"/><text x="172" y="98" font-size="13" font-weight="700" fill="var(--muted)">1′</text><text x="200" y="74" font-size="13" font-weight="700" fill="var(--ink)">base</text>'+
+    '<line x1="75" y1="138" x2="75" y2="166" stroke="var(--ink)" stroke-width="2"/><text x="75" y="184" text-anchor="middle" font-size="16" font-weight="800" fill="var(--ink)">OH</text><text x="52" y="134" font-size="13" font-weight="700" fill="var(--muted)">3′</text>'+
+    '<line x1="145" y1="138" x2="145" y2="166" stroke="var(--accent)" stroke-width="3"/><text id="g2" x="145" y="186" text-anchor="middle" font-size="20" font-weight="800" fill="var(--accent)">OH</text><text x="152" y="134" font-size="13" font-weight="700" fill="var(--muted)">2′</text>'+
+    '<text x="38" y="80" font-size="13" font-weight="700" fill="var(--muted)">4′</text></svg>'+
+    '<div class="sgtext"><b id="sgn">Ribose · in RNA</b><span id="sgd">Has OH on the 2′ carbon.</span><button class="btn" id="swap">Swap 2′ group</button></div></div>'+
+    '<div class="bins"><div class="bin zone" data-k="dna"><h3>DNA</h3><small>master copy</small><div class="got"></div></div><div class="bin zone" data-k="both"><h3>Both</h3><small>in DNA and RNA</small><div class="got"></div></div><div class="bin zone" data-k="rna"><h3>RNA</h3><small>working copy</small><div class="got"></div></div></div>'+
+    '<div class="tray">'+[["Deoxyribose sugar","dna"],["Uracil (U)","rna"],["Phosphate group","both"],["Master copy: stores the information","dna"],["Ribose sugar","rna"],["Thymine (T)","dna"],["Working copy: carries or uses the information","rna"],["Adenine (A)","both"]]
+      .map(function(c){return chip(c[1],c[0]);}).join("")+'</div>';
+  var swapped=false,n=0;
+  $("swap").onclick=function(){rib=!rib;swapped=true;$("g2").textContent=rib?"OH":"H";$("sgn").textContent=rib?"Ribose · in RNA":"Deoxyribose · in DNA";$("sgd").textContent=rib?"Has OH on the 2′ carbon.":"Has only H on the 2′ carbon. Deoxy = one oxygen less!";check();};
+  function check(){if(n===8&&swapped)win("DNA: deoxyribose + T. RNA: ribose + U. A, G, C and phosphate are in both.");else if(n===8)say("All sorted! Now tap <b>Swap</b> to see the other sugar.","good");}
+  dnd(function(c,z){
+    if(c.dataset.k!==z.dataset.k){bad({dna:"Hint: that one belongs to DNA.",rna:"Hint: that one belongs to RNA.",both:"Hint: both DNA and RNA have this."}[c.dataset.k],c);return;}
+    c.dataset.locked=1;c.classList.remove("sel");z.querySelector(".got").appendChild(c);n++;good("Correct.");check();
+  });
+}});
+
+/* 4. Link the chain */
+LV.push({t:"Link the chain",s:"Backbone",task:"Add two nucleotides to the chain. Drag the new nucleotide to the end where it can join.",
+build:function(){
+  var letters=["A","C"],adds=["G","T"],quiz=false,qi=0;
+  area.innerHTML='<div style="overflow-x:auto"><svg id="ch" viewBox="0 0 480 200" style="width:100%;min-width:420px;height:auto"></svg></div><div class="tray" id="tr">'+chip("n",ntSVG("G",52)+"New nucleotide")+'</div>';
+  var Q=[["5e","Tap the <b>5′ end</b> (the phosphate side)."],["3e","Tap the <b>3′ end</b> (the free OH side)."],["base","Tap a <b>base</b>."],["bb","Tap the <b>sugar-phosphate backbone</b>."]];
+  function draw(flash){
+    var s="",n=letters.length,x0=110;
+    for(var i=0;i<n;i++){var x=x0+i*90,f=i===0,l=i===n-1;
+      if(i>0)s+='<line x1="'+(x-20)+'" y1="140" x2="'+(x+1)+'" y2="140" stroke="'+(flash&&i===n-1?"var(--accent)":"var(--muted)")+'" stroke-width="'+(flash&&i===n-1?5:3)+'"/>';
+      s+='<line x1="'+(x+27)+'" y1="140" x2="'+(x+36)+'" y2="140" stroke="var(--muted)" stroke-width="3"/><line x1="'+(x+52)+'" y1="122" x2="'+(x+52)+'" y2="96" stroke="var(--muted)" stroke-width="3"/>';
+      s+='<g data-r="bb'+(f?" 5e":"")+'" style="cursor:pointer"><circle cx="'+(x+14)+'" cy="140" r="14" fill="var(--phos)"/><text x="'+(x+14)+'" y="141" text-anchor="middle" dominant-baseline="central" font-size="13" font-weight="800" fill="var(--sugartext)">P</text></g>';
+      s+='<g data-r="bb'+(l?" 3e":"")+'" style="cursor:pointer"><polygon points="'+pts(ring(x+52,141,19,5,-Math.PI/2))+'" fill="var(--sugar)"/>'+(l?'<text x="'+(x+74)+'" y="146" font-size="14" font-weight="800" fill="var(--accent)">OH</text>':'')+'</g>';
+      s+='<g data-r="base" style="cursor:pointer"><rect x="'+(x+36)+'" y="62" width="32" height="34" rx="7" fill="'+BC[letters[i]]+'"/><text x="'+(x+52)+'" y="80" text-anchor="middle" dominant-baseline="central" font-size="17" font-weight="800" fill="var(--tiletext)">'+letters[i]+'</text></g>';
+    }
+    s+='<text x="'+(x0-6)+'" y="146" text-anchor="end" font-size="16" font-weight="800" fill="var(--muted)">5′</text>';
+    var xe=x0+(n-1)*90;s+='<text x="'+(xe+52)+'" y="186" text-anchor="middle" font-size="16" font-weight="800" fill="var(--muted)">3′</text>';
+    if(flash)s+='<text class="pop" x="'+(xe-10)+'" y="125" text-anchor="middle" font-size="13" font-weight="700" fill="var(--accent)">phosphodiester bond</text>';
+    if(!quiz&&adds.length){s+='<rect class="zone" data-k="5" x="10" y="56" width="84" height="110" rx="12"/><rect class="zone" data-k="3" x="'+(xe+96)+'" y="56" width="84" height="110" rx="12"/>';}
+    s+='<text x="240" y="24" text-anchor="middle" font-size="13" font-weight="700" fill="var(--muted)">'+(quiz?"Bases stick out like leaves on a stem.":"backbone = phosphate – sugar – phosphate – sugar")+'</text>';
+    $("ch").innerHTML=s;
+    if(!quiz&&adds.length)$("ch").querySelectorAll(".zone").forEach(bindZone);
+    if(quiz)$("ch").querySelectorAll("[data-r]").forEach(function(g){g.addEventListener("click",function(){
+      if(qi>=Q.length)return;
+      if(g.getAttribute("data-r").split(" ").indexOf(Q[qi][0])>-1){qi++;if(qi<Q.length)say("Correct! "+Q[qi][1],"good");else win("New nucleotides join the 3′ OH with their 5′ phosphate. That link is a <b>phosphodiester bond</b>.");}
+      else bad("Not that one. "+Q[qi][1],g);
+    });});
+  }
+  draw(false);
+  dnd(function(c,z){
+    if(z.dataset.k==="5"){bad("That end has a phosphate. The new nucleotide joins the free <b>3′ OH</b> on the other end.",c);return;}
+    letters.push(adds.shift());
+    if(!adds.length){quiz=true;$("tr").remove();}
+    draw(true);
+    if(quiz)say("Chain built! Now label it. "+Q[0][1],"good");else good("Joined! The 3′ OH bonded to the new 5′ phosphate. Add one more.");
+  });
+}});
+
+/* 5. Sequence = message */
+var CODE="FFLLSSSSYY**CC*WLLLLPPPPHHQQRRRRIIIMTTTTNNKKSSRRVVVVAAAADDEEGGGG",ORD="TCAG";
+var AN={F:"Phe",L:"Leu",S:"Ser",Y:"Tyr","*":"Stop",C:"Cys",W:"Trp",P:"Pro",H:"His",Q:"Gln",R:"Arg",I:"Ile",M:"Met",T:"Thr",N:"Asn",K:"Lys",V:"Val",A:"Ala",D:"Asp",E:"Glu",G:"Gly"};
+var ACOL=["var(--aa)","var(--bA)","var(--bT)","var(--bG)","var(--bC)","var(--bU)"];
+function aa(c){return CODE[ORD.indexOf(c[0])*16+ORD.indexOf(c[1])*4+ORD.indexOf(c[2])];}
+LV.push({t:"Sequence = message",s:"Information",task:"Tap a letter to change it. Turn Message 1 into <b>Message 2: ATG GGA TTT</b>.",
+build:function(){
+  var seq="ATGCCATTT".split(""),CYC=["A","T","G","C"],target="ATGGGATTT";
+  area.innerHTML='<div class="label">DNA sequence</div><div class="row" id="sq"></div><div class="label">Message it gives (amino acids)</div><div class="prot" id="pr"></div>';
+  function draw(){
+    var h="";for(var c=0;c<3;c++){h+='<div class="codon">';for(var j=0;j<3;j++){var i=c*3+j;h+='<button class="tile" data-i="'+i+'" style="background:'+BC[seq[i]]+'" aria-label="Base '+seq[i]+', tap to change">'+seq[i]+'</button>';}h+='</div>';}
+    $("sq").innerHTML=h;
+    var p="";for(var c2=0;c2<3;c2++){var a=aa(seq.slice(c2*3,c2*3+3).join(""));p+='<span class="bead" style="background:'+ACOL["FLSYCWPHQRIMTNKVADEG*".indexOf(a)%6]+'">'+AN[a]+'</span>';}
+    $("pr").innerHTML=p;
+    $("sq").querySelectorAll(".tile").forEach(function(b){b.onclick=function(){var i=+b.dataset.i;
+      if(finished)return;
+      if(i<3||i>5){bad("Only change the <b>middle</b> part. The first and last parts stay the same.",b);return;}
+      seq[i]=CYC[(CYC.indexOf(seq[i])+1)%4];draw();
+      if(seq.join("")===target)win("Only the middle part changed, but the message changed from <b>Pro</b> to <b>Gly</b>. Different sequence = different information.");
+      else say("The message is now: "+[0,1,2].map(function(c){return AN[aa(seq.slice(c*3,c*3+3).join(""))];}).join(" – "));
+    };});
+  }
+  draw();
+}});
+
+/* 6. Complementary strand */
+LV.push({t:"Build the partner strand",s:"Base pairing",task:"Drag (or tap) a base for each empty spot. Rule: <b>A–T</b> and <b>G–C</b>.",
+build:function(){
+  var top="ATGCCA".split(""),PAIR={A:"T",T:"A",G:"C",C:"G"},bot=[];
+  area.innerHTML='<div class="row"><span class="end">5′</span>'+top.map(function(b){return '<span class="tile" style="background:'+BC[b]+'">'+b+'</span>';}).join("")+'<span class="end">3′</span></div>'+
+    '<div class="bonds" id="bd" style="padding-inline:36px">'+top.map(function(){return '<span class="bond"></span>';}).join("")+'</div>'+
+    '<div class="row"><span class="end" id="e1">?</span>'+top.map(function(b,i){return '<span class="tile empty zone" data-i="'+i+'">?</span>';}).join("")+'<span class="end" id="e2">?</span></div>'+
+    '<div class="tray">'+["A","T","G","C"].map(function(L){return chip(L,baseSVG(L,44));}).join("")+'</div><div id="qb" class="area"></div>';
+  var n=0;
+  dnd(function(c,z){
+    var i=+z.dataset.i,L=c.dataset.k;
+    if(z.dataset.done)return;
+    if(PAIR[top[i]]!==L){bad(top[i]+" pairs with <b>"+PAIR[top[i]]+"</b>, not "+L+".",z);return;}
+    z.dataset.done=1;z.className="tile pop";z.style.background=BC[L];z.textContent=L;
+    var hb=top[i]==="G"||top[i]==="C"?3:2;$("bd").children[i].innerHTML=new Array(hb+1).join("<i></i>");
+    n++;good(top[i]+"–"+L+" pair: "+hb+" hydrogen bonds.");
+    if(n===6){say("Strand complete! G–C has 3 hydrogen bonds, A–T has 2. These bonds are weak, so strands can separate.","good");
+      mcq($("qb"),"The strands are <b>antiparallel</b>. Which end is on the LEFT of the new strand?",["5′","3′"],1,"",function(){$("e1").textContent="3′";$("e2").textContent="5′";win("New strand: <b>3′ TACGGT 5′</b>. Antiparallel = the two strands run in opposite directions.");});}
+  });
+}});
+
+/* 7. Copy the DNA */
+LV.push({t:"Copy the DNA",s:"Replication",task:"Drag the slider to <b>unzip</b> the DNA. Then add the new (orange) nucleotides.",
+build:function(){
+  var top="ATGCAG".split(""),PAIR={A:"T",T:"A",G:"C",C:"G"},bot=top.map(function(b){return PAIR[b];});
+  area.innerHTML='<div class="rep" id="rep">'+top.map(function(b,i){return '<div class="col" id="c'+i+'"><span class="tile" style="background:var(--old)">'+b+'</span><div class="gap"><span class="ns tile empty zone" data-i="'+i+'">?</span><span class="bond">'+(b==="G"||b==="C"?"<i></i><i></i><i></i>":"<i></i><i></i>")+'</span><span class="ns tile empty" id="b'+i+'">?</span></div><span class="tile" style="background:var(--old)">'+bot[i]+'</span></div>';}).join("")+'</div>'+
+    '<div class="slider"><label for="zip">Unzip →</label><input id="zip" type="range" min="0" max="6" step="0.1" value="0"></div>'+
+    '<div class="tray" id="tr" hidden>'+["A","T","G","C"].map(function(L){return chip(L,'<span class="tile" style="background:var(--new);width:40px;height:40px;font-size:1.2rem">'+L+'</span>');}).join("")+'</div><div id="qb" class="area"></div>';
+  var opened=false,n=0;
+  $("zip").oninput=function(){
+    var v=+this.value;for(var i=0;i<6;i++)$("c"+i).classList.toggle("open",i<v);
+    if(v>=6&&!opened){opened=true;this.disabled=true;$("tr").hidden=false;good("Hydrogen bonds broke and the strands separated. Now fill the new strand under the top strand.");}
+  };
+  dnd(function(c,z){
+    var i=+z.dataset.i,L=c.dataset.k;if(z.dataset.done)return;
+    if(PAIR[top[i]]!==L){bad(top[i]+" pairs with <b>"+PAIR[top[i]]+"</b>.",z);return;}
+    z.dataset.done=1;z.className="ns tile pop";z.style.background="var(--new)";z.textContent=L;n++;
+    if(n<6){good("Good. "+(6-n)+" to go.");return;}
+    $("tr").hidden=true;good("The other strand gets its partner too…");
+    top.forEach(function(b,j){setTimeout(function(){var e=$("b"+j);e.className="ns tile pop";e.style.background="var(--new)";e.textContent=top[j];},j*160);});
+    setTimeout(function(){mcq($("qb"),"Look at the colours. Each new DNA molecule has…",["2 old strands","1 old + 1 new strand","2 new strands"],1,"",function(){
+      var tw=document.createElement("div");tw.className="twin pop";
+      var m=function(a,ac,b,bc){return '<div class="mini"><div class="row">'+a.map(function(x){return '<span class="tile" style="background:'+ac+'">'+x+'</span>';}).join("")+'</div><div class="row">'+b.map(function(x){return '<span class="tile" style="background:'+bc+'">'+x+'</span>';}).join("")+'</div></div>';};
+      tw.innerHTML=m(top,"var(--old)",bot,"var(--new)")+m(top,"var(--new)",bot,"var(--old)");$("qb").appendChild(tw);
+      win("<b>Semiconservative replication</b>: each new DNA keeps 1 old strand (blue) and gets 1 new strand (orange).");
+    });},1200);
+  });
+}});
+
+/* 8. RNA team */
+function wv(){var d="M8 28";for(var x=8;x<84;x+=8)d+=" q4 "+(((x-8)/8)%2?7:-7)+" 8 0";return '<svg viewBox="0 0 92 56" aria-hidden="true"><path d="'+d+'" fill="none" stroke="var(--rna)" stroke-width="5" stroke-linecap="round"/></svg>';}
+function tr(){return '<svg viewBox="0 0 92 56" aria-hidden="true"><circle cx="46" cy="9" r="8" fill="var(--aa)"/><rect x="42" y="16" width="8" height="16" rx="3" fill="var(--trna)"/><rect x="24" y="30" width="44" height="9" rx="4" fill="var(--trna)"/>'+[0,1,2].map(function(j){return '<rect x="'+(25+j*15)+'" y="42" width="12" height="12" rx="3" fill="var(--surface)" stroke="var(--trna)" stroke-width="2"/>';}).join("")+'</svg>';}
+function rb(){return '<svg viewBox="0 0 92 56" aria-hidden="true"><ellipse cx="46" cy="20" rx="30" ry="17" fill="var(--ribofill)" stroke="var(--ribo)" stroke-width="2"/><ellipse cx="46" cy="44" rx="25" ry="9" fill="var(--ribofill)" stroke="var(--ribo)" stroke-width="2"/><path d="M30 18 q4 -5 8 0 q4 5 8 0 q4 -5 8 0 q4 5 8 0" fill="none" stroke="var(--ribo)" stroke-width="2.5"/></svg>';}
+LV.push({t:"The RNA team",s:"3 kinds of RNA",task:"Give each RNA worker its <b>job</b> and its <b>nickname</b>. Drag 6 cards.",
+build:function(){
+  area.innerHTML='<div class="team"><div class="worker zone" data-k="m">'+wv()+'<h3>mRNA</h3><small>messenger RNA</small><div class="got"></div></div><div class="worker zone" data-k="t">'+tr()+'<h3>tRNA</h3><small>transfer RNA</small><div class="got"></div></div><div class="worker zone" data-k="r">'+rb()+'<h3>rRNA</h3><small>ribosomal RNA</small><div class="got"></div></div></div>'+
+    '<div class="tray">'+[["t","Brings amino acids"],["r","The factory"],["m","Carries the message from DNA"],["t","The delivery truck"],["r","Forms part of the ribosome"],["m","The messenger"]].map(function(c){return chip(c[0],c[1]);}).join("")+'</div>';
+  var n=0,H={m:"mRNA carries the message.",t:"tRNA delivers amino acids.",r:"rRNA builds the ribosome (the factory)."};
+  dnd(function(c,z){
+    if(c.dataset.k!==z.dataset.k){bad("Not this worker. Hint: "+H[c.dataset.k],c);return;}
+    c.dataset.locked=1;c.classList.remove("sel");z.querySelector(".got").appendChild(c);n++;good("Correct!");
+    if(n===6)win("The ribosome has a <b>large</b> and a <b>small</b> subunit, made of rRNA and protein. All three RNAs help make proteins.");
+  });
+}});
+
+/* 9. Evolution tape measure */
+LV.push({t:"Evolution tape measure",s:"Evolution",task:"Hemoglobin (β chain, 146 amino acids). Drag each animal to its number of <b>differences from humans</b>.",
+build:function(){
+  var SP=[["Mouse",27],["Gorilla",1],["Frog",67],["Rhesus monkey",8],["Gibbon",2]];
+  function bin(v){return v<=5?0:v<=15?1:v<=40?2:3;}
+  area.innerHTML='<div class="ruler">'+[["0–5","very close"],["6–15","close"],["16–40","far"],["41–70","very far"]].map(function(b,i){return '<div class="binr zone" data-k="'+i+'"><h3>'+b[0]+' differences</h3><small>'+b[1]+'</small><div class="got"></div></div>';}).join("")+'</div>'+
+    '<div class="tray">'+SP.map(function(s){return chip(String(bin(s[1])),s[0]+" · "+s[1]);}).join("")+'</div><div id="qb" class="area"></div>';
+  var n=0;
+  dnd(function(c,z){
+    if(c.dataset.k!==z.dataset.k){bad("Check the number on the card and the range on the ruler.",c);return;}
+    c.dataset.locked=1;c.classList.remove("sel");z.querySelector(".got").appendChild(c);n++;good("Placed.");
+    if(n===5){
+      var bar=document.createElement("div");bar.className="bar pop";
+      var all=[["Human",0]].concat(SP);
+      bar.innerHTML=all.map(function(s){return '<span class="dot" style="left:'+(4+s[1]/67*90)+'%"><i></i>'+(s[0]==="Rhesus monkey"?"Rhesus":s[0])+'</span>';}).join("");
+      $("qb").appendChild(bar);
+      mcq($("qb"),"Fewer differences from human hemoglobin means…",["a closer relative","a more distant relative"],0,"",function(){
+        mcq($("qb"),"Which animal is the closest relative to humans here?",["Gibbon","Gorilla","Mouse"],1,"",function(){win("DNA and protein sequences work like a <b>tape measure of evolution</b>: the more similar, the closer the relatives.");});});
+    }
+  });
+}});
+
+/* 10. Exit ticket */
+LV.push({t:"Exit ticket",s:"Review",task:"Five quick questions from the lesson.",
+build:function(){
+  area.innerHTML='<div id="qb" class="area"></div>';
+  var Q=[
+    ["What are the 3 parts of a nucleotide?",["Sugar, base, amino acid","Phosphate, sugar, base","Phosphate, protein, base"],1],
+    ["DNA uses T. RNA uses…",["U","A","G"],0],
+    ["Which bases are purines?",["C and T","A and G","U and C"],1],
+    ["What does antiparallel mean?",["The strands are identical","The strands run in opposite directions","The strands never pair"],1],
+    ["Complete the partner strand: 5′ A G T C 3′",["3′ T C A G 5′","5′ T C A G 3′","3′ A G T C 5′"],0]
+  ],i=0;
+  function next(){if(i>=Q.length){win("You finished the DNA &amp; RNA Lab!");return;}var q=Q[i++];mcq($("qb"),i+". "+q[0],q[1],q[2],"Correct!",next);}
+  next();
+}});
+
+/* ---------- shell ---------- */
+function renderMap(){
+  $("map").innerHTML=LV.map(function(l,i){return '<button class="lv'+(i===cur?" on":"")+(stars[i]?" done":"")+'" data-i="'+i+'" title="'+l.t+'" aria-label="Level '+(i+1)+': '+l.t+'"><b>'+(i+1)+'</b><small>'+(stars[i]?"★★★".slice(0,stars[i]):"")+'</small></button>';}).join("");
+  $("map").querySelectorAll(".lv").forEach(function(b){b.onclick=function(){go(+b.dataset.i);};});
+}
+function go(i){
+  cur=i;mist=0;finished=false;unsel();
+  var l=LV[i];$("lnum").textContent="Level "+(i+1)+" of 10 · "+l.s;$("ltitle").textContent=l.t;$("task").innerHTML=l.task;
+  $("stars").textContent="";say("");var n=$("nextL");n.disabled=true;n.classList.remove("ready");n.textContent=i===9?"See results →":"Next level →";
+  $("skip").hidden=false;
+  l.build();renderMap();
+}
+function results(){
+  cur=-1;unsel();renderMap();
+  var tot=stars.reduce(function(a,b){return a+b;},0);
+  $("lnum").textContent="Results";$("ltitle").textContent="What you learned";$("task").textContent="";
+  area.innerHTML='<div class="big">'+tot+' / 30 ★</div><ul class="recap"><li>DNA stores genetic information. RNA carries or uses it. Proteins are made using it.</li><li>Nucleotide = phosphate + sugar + base. Nucleoside = sugar + base.</li><li>Purines (A, G) have two rings. Pyrimidines (C, T, U) have one.</li><li>DNA has deoxyribose and T. RNA has ribose and U.</li><li>Phosphodiester bonds join the 3′ OH to the next 5′ phosphate.</li><li>The base sequence is the message.</li><li>mRNA = messenger, tRNA = delivery truck, rRNA = factory (ribosome).</li><li>DNA pairs A–T and G–C, and its strands are antiparallel.</li><li>DNA replication is semiconservative.</li><li>Similar sequences mean closer relatives.</li></ul><button class="btn" id="again">Play again</button>';
+  say("Tap any level number above to replay it.");$("stars").textContent="";$("skip").hidden=true;
+  var n=$("nextL");n.disabled=true;n.classList.remove("ready");n.textContent="Done";
+  $("again").onclick=function(){stars=[0,0,0,0,0,0,0,0,0,0];go(0);};
+}
+$("nextL").onclick=function(){if(cur>=9)results();else go(cur+1);};
+$("skip").onclick=function(){if(cur>=9)results();else go(cur+1);};
+go(0);
+})();
+</script>
+
+</body></html>
