@@ -1,0 +1,498 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Preparing CuSO₄ Solutions</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Kalam:wght@400;700&display=swap">
+<style>
+/* Layout: a lab-video stage (fixed light "bench" palette) framed by quiet, theme-aware controls */
+:root{
+  --bg:#eef2f6; --panel:#ffffff; --fg:#1c2733; --muted:#5a6a7a; --line:#d3dce5;
+  --accent:#1b6cc2; --accent-ink:#ffffff; --chip:#e4ecf4;
+  --ui:'Atkinson Hyperlegible',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --hand:'Kalam','Comic Sans MS',cursive;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#10161c; --panel:#18212a; --fg:#e3eaf1; --muted:#94a4b3; --line:#2b3743;
+  --accent:#5aa7ef; --accent-ink:#08131e; --chip:#22303d; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#10161c; --panel:#18212a; --fg:#e3eaf1; --muted:#94a4b3; --line:#2b3743;
+  --accent:#5aa7ef; --accent-ink:#08131e; --chip:#22303d; color-scheme:dark}
+body{background:var(--bg);color:var(--fg);font-family:var(--ui);font-size:15px;line-height:1.5}
+.wrap{max-width:1120px;margin:0 auto;padding-inline:16px;padding-block:28px 48px;display:grid;gap:18px}
+header{display:grid;gap:6px}
+.eyebrow{margin:0;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:700}
+h1{margin:0;font-family:var(--hand);font-weight:700;font-size:clamp(28px,4.4vw,42px);line-height:1.1;text-wrap:balance}
+.lede{margin:0;max-width:68ch;color:var(--muted)}
+.stage{position:relative;border-radius:14px;overflow:hidden;border:1px solid var(--line);background:#eef3f7;aspect-ratio:16/9;max-width:100%}
+.stage svg{display:block;width:100%;height:100%}
+.controls{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+button,select{font:inherit;font-size:14px;color:var(--fg);background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:7px 12px;cursor:pointer}
+button:hover{border-color:var(--accent)}
+button:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+button.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:700;min-width:84px}
+#scrub{flex:1 1 220px;min-width:0;accent-color:var(--accent)}
+.time{font-variant-numeric:tabular-nums;color:var(--muted);font-size:14px;min-width:92px}
+label{display:flex;gap:6px;align-items:center;color:var(--muted);font-size:14px}
+.steps{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:8px}
+.steps button{width:100%;text-align:left;display:flex;gap:10px;align-items:center;background:var(--panel)}
+.steps .n{flex:none;width:24px;height:24px;border-radius:50%;display:grid;place-items:center;background:var(--chip);font-size:12px;font-weight:700;font-variant-numeric:tabular-nums}
+.steps button.on{border-color:var(--accent);box-shadow:inset 3px 0 0 var(--accent)}
+.steps button.on .n{background:var(--accent);color:var(--accent-ink)}
+.tip{margin:0;color:var(--muted);font-size:14px;max-width:75ch}
+.exit{display:none}
+body.rec{overflow:hidden}
+body.rec header,body.rec .controls,body.rec .steps,body.rec .tip{display:none}
+body.rec .stage{position:fixed;inset:0;z-index:10;border:0;border-radius:0;aspect-ratio:auto;background:#000;display:grid;place-items:center}
+body.rec .stage svg{width:min(100vw,177.78vh);height:auto}
+body.rec .exit{display:block;position:absolute;top:12px;right:12px;opacity:0;transition:opacity .2s}
+body.rec .exit:hover,body.rec .exit:focus-visible{opacity:1}
+@media (prefers-reduced-motion: reduce){.exit{transition:none}}
+</style>
+
+<div class="wrap">
+  <header>
+    <p class="eyebrow">Experiment 3 · General Chemistry Lab</p>
+    <h1>Preparing a CuSO<sub>4</sub> Solution</h1>
+    <p class="lede">The whole experiment animated step by step: 50 mL of 1 M CuSO<sub>4</sub> from the solid, then 25 mL of 0.1 M by dilution. Each flask is finished by covering it with parafilm and inverting it to mix.</p>
+  </header>
+
+  <div id="stageWrap" class="stage">
+    <svg id="stage" viewBox="0 0 1280 720" role="img" aria-label="Animated experiment: preparing and diluting a copper sulfate solution"></svg>
+    <button id="exitRec" class="exit">Exit recording mode (Esc)</button>
+  </div>
+
+  <div class="controls">
+    <button id="play" class="primary">Play</button>
+    <button id="restart">Restart</button>
+    <button id="prev" aria-label="Previous step">‹ Step</button>
+    <button id="next" aria-label="Next step">Step ›</button>
+    <input type="range" id="scrub" min="0" max="1000" value="0" aria-label="Timeline">
+    <span id="time" class="time">0:00 / 0:00</span>
+    <label for="speed">Speed
+      <select id="speed"><option value="0.5">0.5×</option><option value="0.75">0.75×</option><option value="1" selected>1×</option><option value="1.5">1.5×</option><option value="2">2×</option></select>
+    </label>
+    <button id="rec">Recording mode</button>
+    <button id="fs">Fullscreen</button>
+  </div>
+
+  <ol id="steps" class="steps"></ol>
+
+  <p class="tip">To make the video: press <b>Recording mode</b> (the controls disappear and the animation restarts after a second), then capture the screen with your recorder (Windows: Win + Alt + R, Mac: Cmd + Shift + 5, or the phone's screen recorder). Press Esc to leave. Space plays or pauses, the arrow keys jump between steps.</p>
+</div>
+
+<script>
+const BENCH=540;
+const DEEP='#1b6cc2', PALE='#9ccbef', WATER='#dceef9', TOPPALE='#c3e2f7', POWDER='#e4e9e7';
+const GLASS='#4b5b6d', GLASSFILL='rgba(214,232,244,0.38)', AIR='#eef3f7';
+const clamp=(v,a=0,b=1)=>Math.min(b,Math.max(a,v));
+const lerp=(a,b,t)=>a+(b-a)*t;
+const ez=t=>t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
+const seg=(t,a,b)=>ez(clamp((t-a)/(b-a)));
+const lin=(t,a,b)=>clamp((t-a)/(b-a));
+const h2r=h=>[0,2,4].map(i=>parseInt(h.slice(1+i,3+i),16));
+function mix(a,b,t){const A=h2r(a),B=h2r(b);return '#'+A.map((v,i)=>Math.round(lerp(v,B[i],t)).toString(16).padStart(2,'0')).join('');}
+const SUBS='₀₁₂₃₄₅₆₇₈₉';
+const sub=s=>s.replace(/[₀-₉]/g,m=>`<tspan baseline-shift="sub" font-size="65%">${SUBS.indexOf(m)}</tspan>`);
+const FONTS={hand:"Kalam,'Comic Sans MS',cursive",ui:"'Atkinson Hyperlegible',system-ui,sans-serif",mono:"'Courier New',ui-monospace,monospace"};
+function T(x,y,str,o={}){const {size=28,fill='#1f2a36',anchor='start',weight=400,op=1,font='hand',rot=0}=o;
+  return `<text x="${x}" y="${y}" font-family="${FONTS[font]}" font-size="${size}" fill="${fill}" text-anchor="${anchor}" font-weight="${weight}" opacity="${op}"${rot?` transform="rotate(${rot} ${x} ${y})"`:''}>${sub(str)}</text>`;}
+function rotPt(px,py,cx,cy,deg){const a=deg*Math.PI/180,c=Math.cos(a),s=Math.sin(a),dx=px-cx,dy=py-cy;return [cx+dx*c-dy*s,cy+dx*s+dy*c];}
+function kf(t,K){if(t<=K[0][0])return K[0].slice(1);for(let i=1;i<K.length;i++){if(t<=K[i][0]){const a=ez((t-K[i-1][0])/(K[i][0]-K[i-1][0]));return [lerp(K[i-1][1],K[i][1],a),lerp(K[i-1][2],K[i][2],a)];}}return K[K.length-1].slice(1);}
+
+/* ---------- scenery ---------- */
+const DEFS=`<defs><linearGradient id="wall" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="0" y2="540"><stop offset="0" stop-color="#f6f9fb"/><stop offset="1" stop-color="#e5ecf2"/></linearGradient></defs>`;
+function bg(){return `<rect width="1280" height="720" fill="url(#wall)"/><rect y="${BENCH}" width="1280" height="${720-BENCH}" fill="#cdd6de"/><rect y="${BENCH}" width="1280" height="5" fill="#b2bfcb"/>`;}
+function board(){let s=`<rect width="1280" height="720" fill="url(#wall)"/><rect x="150" y="50" width="980" height="556" rx="14" fill="#ffffff" stroke="#cfd8e0" stroke-width="2"/>`;
+  for(let y=142;y<590;y+=48)s+=`<line x1="182" x2="1098" y1="${y}" y2="${y}" stroke="#e8eef4" stroke-width="1.5"/>`;return s;}
+
+/* ---------- glassware ---------- */
+function flaskGeo(x,bottom,R,nw,nh){const cy=bottom-R*.92,y0=cy-Math.sqrt(R*R-nw*nw),top=y0-nh,mark=top+nh*.35,bx=R*.39;
+  const d=`M${x-nw},${top} L${x-nw},${y0} A${R},${R} 0 0 0 ${x-bx},${bottom} L${x+bx},${bottom} A${R},${R} 0 0 0 ${x+nw},${y0} L${x+nw},${top}`;
+  return {cy,y0,top,mark,bx,d};}
+function flask(o){
+  const {x,bottom=BENCH,R=78,nw=13,nh=150,id,level=0,col=DEEP,colTop,rot=0,lift=0,mixMode=false,m=1,ph=0,film=0,label='50 mL'}=o;
+  const g=flaskGeo(x,bottom,R,nw,nh), ct=colTop||col;
+  let s=`<g transform="translate(0,${-lift}) rotate(${rot} ${x} ${g.cy})"><defs><clipPath id="c${id}"><path d="${g.d} Z"/></clipPath>`;
+  let liq='';
+  if(mixMode){
+    const topC=mix(ct,col,m);
+    s+=`<linearGradient id="g${id}" gradientUnits="userSpaceOnUse" x1="0" y1="${bottom}" x2="0" y2="${g.mark}"><stop offset="0" stop-color="${col}"/><stop offset="1" stop-color="${topC}"/></linearGradient></defs>`;
+    liq+=`<rect x="${x-R-4}" y="${g.top-6}" width="${2*R+8}" height="${bottom-g.top+10}" fill="url(#g${id})"/>`;
+    const sw=(1-m)*Math.min(1,rot/30);
+    if(sw>0.01){for(let k=0;k<3;k++){const yk=g.cy+(k-1)*R*.42;let p=`M${x-R},${yk}`;for(let xx=-R+12;xx<=R;xx+=12)p+=` L${x+xx},${(yk+Math.sin(xx*.07+ph*4+k*2)*9).toFixed(1)}`;
+      liq+=`<path d="${p}" stroke="${ct}" stroke-width="7" fill="none" stroke-linecap="round" opacity="${(sw*.6).toFixed(3)}"/>`;}}
+    const th=rot*Math.PI/180,c=Math.cos(th),sn=Math.sin(th),f=clamp((0.25-c)/0.5);
+    const airH=(g.mark-g.top)*(1-f);
+    if(airH>0.5)liq+=`<rect x="${x-nw-2}" y="${g.top-6}" width="${2*nw+4}" height="${airH+6}" fill="${AIR}"/>`;
+    if(f>0.01){const bx=x-sn*R*.72,by=g.cy-c*R*.72;liq+=`<ellipse cx="${bx}" cy="${by}" rx="${6+16*f}" ry="${5+11*f}" fill="${AIR}" stroke="#ffffff" stroke-width="1.5" opacity="${.4+.6*f}"/>`;}
+  } else {
+    const ly=lerp(bottom,g.mark,level);
+    s+=`<linearGradient id="g${id}" gradientUnits="userSpaceOnUse" x1="0" y1="${bottom}" x2="0" y2="${Math.min(ly,bottom-1)}"><stop offset="0" stop-color="${col}"/><stop offset="1" stop-color="${ct}"/></linearGradient></defs>`;
+    if(level>0.002){
+      if(ly<g.y0){liq+=`<rect x="${x-R-4}" y="${ly-5}" width="${2*R+8}" height="${bottom-ly+9}" fill="url(#g${id})"/><path d="M${x-nw-1},${ly-5} Q${x},${ly+5} ${x+nw+1},${ly-5} Z" fill="${AIR}"/>`;}
+      else liq+=`<rect x="${x-R-4}" y="${ly}" width="${2*R+8}" height="${bottom-ly+4}" fill="url(#g${id})"/>`;
+    }
+  }
+  s+=`<path d="${g.d} Z" fill="${GLASSFILL}"/><g clip-path="url(#c${id})">${liq}</g>`;
+  s+=`<path d="${g.d}" fill="none" stroke="${GLASS}" stroke-width="2.6" stroke-linejoin="round"/>`;
+  s+=`<path d="M${x-R*.62},${g.cy-R*.35} A${R*.72},${R*.72} 0 0 0 ${x-R*.55},${g.cy+R*.45}" stroke="#ffffff" stroke-width="4" fill="none" opacity=".65" stroke-linecap="round"/>`;
+  s+=`<line x1="${x-nw-5}" x2="${x+nw+5}" y1="${g.mark}" y2="${g.mark}" stroke="#c8322f" stroke-width="2.5"/>`;
+  s+=`<rect x="${x-nw-5}" y="${g.top-6}" width="${2*nw+10}" height="7" rx="3" fill="#e8eef3" stroke="${GLASS}" stroke-width="2"/>`;
+  s+=T(x,g.cy+R*.5,label,{size:R>70?18:15,fill:'#2b3a4a',anchor:'middle',font:'ui',weight:700});
+  if(film>0){const a=seg(film,0,.5),b=seg(film,.5,1),w=lerp(80,2*nw+14,b),h=lerp(4,28,b),y=g.top-8-lerp(100,0,a);
+    s+=`<rect x="${x-w/2}" y="${y}" width="${w}" height="${h}" rx="3" fill="rgba(255,255,255,0.86)" stroke="#8d9aa8" stroke-width="1.4" opacity="${Math.min(1,film*4)}"/>`;
+    if(b>.6)s+=`<path d="M${x-w/2+4},${y+h-3} L${x-w/2+7},${y+5} M${x+w/2-4},${y+h-3} L${x+w/2-7},${y+5} M${x-3},${y+h-2} L${x-1},${y+8}" stroke="#aab5c1" stroke-width="1.2" fill="none"/>`;}
+  return s+'</g>';
+}
+function beaker(o){
+  const {x,bottom=BENCH,w=170,h=200,id,surf=null,lvl=0,col=WATER,rot=0,px=0,py=0,powder=0}=o;
+  const l=x-w/2,r=x+w/2,t=bottom-h;
+  const d=`M${l-7},${t-3} Q${l},${t} ${l},${t+10} L${l},${bottom-10} Q${l},${bottom} ${l+10},${bottom} L${r-10},${bottom} Q${r},${bottom} ${r},${bottom-10} L${r},${t+10} Q${r},${t} ${r+8},${t-5}`;
+  const tr=rot?`rotate(${rot} ${px} ${py})`:'';
+  const sy=surf!=null?surf:bottom-lvl;
+  let s=`<defs><clipPath id="c${id}"><path d="${d} Z" transform="${tr}"/></clipPath></defs><g transform="${tr}"><path d="${d} Z" fill="${GLASSFILL}"/></g>`;
+  if(surf!=null||lvl>0.5)s+=`<rect x="${x-700}" y="${sy}" width="1400" height="1400" fill="${col}" clip-path="url(#c${id})"/>`;
+  s+=`<g transform="${tr}">`;
+  if(powder>0.01)s+=`<path d="M${x-12-34*powder},${bottom-2} Q${x},${bottom-4-34*powder} ${x+12+34*powder},${bottom-2} Z" fill="${POWDER}" stroke="#b6c0c6"/>`;
+  for(let i=1;i<=4;i++){const y=bottom-i*h/5;s+=`<line x1="${l+6}" x2="${l+(i%2?22:32)}" y1="${y}" y2="${y}" stroke="${GLASS}" stroke-width="1.5" opacity=".7"/>`;}
+  s+=`<path d="${d}" fill="none" stroke="${GLASS}" stroke-width="2.6" stroke-linejoin="round"/>`;
+  s+=`<line x1="${r-14}" x2="${r-14}" y1="${t+22}" y2="${bottom-22}" stroke="#fff" stroke-width="4" opacity=".55" stroke-linecap="round"/>`;
+  s+=T(x+10,t+40,'250 mL',{size:13,fill:'#4b5b6d',anchor:'middle',font:'ui'});
+  return s+'</g>';
+}
+function washBottle(x,bottom,rot){
+  const cx=x,cy=bottom-60;
+  const g=`<g transform="rotate(${rot} ${cx} ${cy})">
+   <rect x="${x-36}" y="${bottom-122}" width="72" height="122" rx="18" fill="rgba(242,248,252,0.95)" stroke="#7d8c9a" stroke-width="2"/>
+   <rect x="${x-33}" y="${bottom-78}" width="66" height="75" rx="14" fill="${WATER}"/>
+   <rect x="${x-15}" y="${bottom-136}" width="30" height="16" rx="3" fill="#e4eaef" stroke="#7d8c9a" stroke-width="1.5"/>
+   <path d="M${x},${bottom-136} L${x},${bottom-170} Q${x},${bottom-182} ${x-12},${bottom-182} L${x-58},${bottom-182}" stroke="#7d8c9a" stroke-width="5" fill="none" stroke-linecap="round"/>
+   <rect x="${x-24}" y="${bottom-110}" width="48" height="24" rx="4" fill="#ffffff" stroke="#9aa7b4"/>
+   ${T(x,bottom-92,'D.W',{size:13,fill:'#1b6cc2',anchor:'middle',font:'ui',weight:700})}</g>`;
+  return {svg:g,tip:rotPt(x-60,bottom-182,cx,cy,rot)};
+}
+function squirt(x1,y1,x2,y2,t,op=1){const cx=(x1+x2)/2,cy=Math.min(y1,y2)-34;
+  return `<path d="M${x1},${y1} Q${cx},${cy} ${x2},${y2}" stroke="#86c2e8" stroke-width="4" fill="none" stroke-linecap="round" stroke-dasharray="14 8" stroke-dashoffset="${(-t*130).toFixed(1)}" opacity="${op}"/>`;}
+function pour(x1,y1,x2,y2,col,t){const p=`M${x1},${y1} Q${x1+8},${(y1+y2)/2} ${x2},${y2}`;
+  return `<path d="${p}" stroke="${col}" stroke-width="7" fill="none" stroke-linecap="round"/><path d="${p}" stroke="#ffffff" stroke-width="2" fill="none" stroke-dasharray="6 18" stroke-dashoffset="${(-t*90).toFixed(1)}" opacity=".5"/>`;}
+function funnel(x,top){return `<path d="M${x-64},${top} L${x+64},${top} L${x+7},${top+60} L${x+5},${top+110} L${x-5},${top+110} L${x-7},${top+60} Z" fill="rgba(214,232,244,0.45)" stroke="${GLASS}" stroke-width="2.2" stroke-linejoin="round"/>`;}
+function dropper(x,tipY,sq=0){return `<path d="M${x-2},${tipY} L${x+2},${tipY} L${x+6},${tipY-28} L${x+6},${tipY-110} L${x-6},${tipY-110} L${x-6},${tipY-28} Z" fill="rgba(240,247,252,0.95)" stroke="#8a97a4" stroke-width="1.5"/><rect x="${x-4}" y="${tipY-62}" width="8" height="34" fill="${TOPPALE}"/><ellipse cx="${x}" cy="${tipY-132}" rx="${13+sq*3}" ry="${24-sq*5}" fill="#6b4f7a"/>`;}
+function rod(x1,y1,x2,y2,op=1){return `<g opacity="${op}"><line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#bcd3e3" stroke-width="8" stroke-linecap="round"/><line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#ffffff" stroke-width="2" opacity=".8"/></g>`;}
+function boat(x,y,heap,rot=0,op=1){return `<g transform="rotate(${rot} ${x} ${y})" opacity="${op}"><path d="M${x-34},${y} L${x+34},${y} L${x+24},${y+12} L${x-24},${y+12} Z" fill="#f4f6f8" stroke="#8796a5" stroke-width="1.5"/>${heap>.01?`<path d="M${x-8-20*heap},${y} Q${x},${y-2-26*heap} ${x+8+20*heap},${y} Z" fill="${POWDER}" stroke="#b6c0c6"/>`:''}</g>`;}
+function spatula(tx,ty,rot,load){return `<g transform="rotate(${rot} ${tx} ${ty})"><line x1="${tx+12}" y1="${ty-1}" x2="${tx+96}" y2="${ty-66}" stroke="#9aa6b1" stroke-width="4" stroke-linecap="round"/><line x1="${tx+72}" y1="${ty-47}" x2="${tx+112}" y2="${ty-78}" stroke="#3d4b59" stroke-width="10" stroke-linecap="round"/><rect x="${tx-15}" y="${ty-4}" width="30" height="7" rx="3" fill="#b9c3cc" stroke="#7f8b96"/>${load>.01?`<path d="M${tx-13},${ty-4} Q${tx},${ty-6-16*load} ${tx+13},${ty-4} Z" fill="${POWDER}" stroke="#b6c0c6"/>`:''}</g>`;}
+function bottle(x,bottom,capOff){
+  const cx=lerp(x-40,x+70,capOff),cy=lerp(bottom-166,bottom-24,capOff);
+  return `<rect x="${x-52}" y="${bottom-130}" width="104" height="130" rx="12" fill="rgba(245,249,252,0.92)" stroke="#7d8c9a" stroke-width="2"/>
+  <rect x="${x-49}" y="${bottom-70}" width="98" height="67" rx="9" fill="${POWDER}"/>
+  <rect x="${x-34}" y="${bottom-144}" width="68" height="16" fill="rgba(245,249,252,0.92)" stroke="#7d8c9a" stroke-width="2"/>
+  <rect x="${x-38}" y="${bottom-114}" width="76" height="32" rx="4" fill="#ffffff" stroke="#9aa7b4"/>
+  ${T(x,bottom-92,'CuSO₄',{size:17,fill:'#1b6cc2',anchor:'middle',font:'ui',weight:700})}
+  <rect x="${cx}" y="${cy}" width="80" height="24" rx="5" fill="#c8322f"/>`;
+}
+function balance(x,reading,hl,tare){
+  let s=`<rect x="${x-140}" y="262" width="280" height="208" fill="rgba(214,232,244,0.22)" stroke="#9fb0c0" stroke-width="2"/><rect x="${x-146}" y="252" width="292" height="12" rx="3" fill="#dfe5ea" stroke="#9fb0c0"/>`;
+  s+=`<line x1="${x-120}" y1="280" x2="${x-120}" y2="450" stroke="#ffffff" stroke-width="3" opacity=".6"/>`;
+  s+=`<rect x="${x-5}" y="455" width="10" height="16" fill="#9aa6b1"/><ellipse cx="${x}" cy="455" rx="58" ry="7" fill="#c9d2da" stroke="#8a97a4"/>`;
+  s+=`<rect x="${x-160}" y="468" width="320" height="72" rx="10" fill="#e6eaee" stroke="#8a97a4" stroke-width="2"/><rect x="${x-72}" y="482" width="144" height="38" rx="5" fill="#1f2c38"/>`;
+  s+=T(x+62,509,reading,{size:22,fill:hl?'#a6ffbe':'#7fe0a0',anchor:'end',font:'mono',weight:700});
+  s+=`<circle cx="${x+110}" cy="498" r="10" fill="${tare?'#f2c94c':'#b9c3cc'}" stroke="#8a97a4"/>`+T(x+110,526,'TARE',{size:11,fill:'#4b5b6d',anchor:'middle',font:'ui',weight:700});
+  s+=T(x-146,512,'d = 0.001 g',{size:12,fill:'#5a6a7a',font:'ui'});
+  return s;
+}
+function pipette(tx,ty,press,fill){
+  let s=`<g transform="translate(${tx},${ty}) scale(0.6)">`;
+  s+=`<path d="M-2.5,0 L2.5,0 L8,-70 L-8,-70 Z" fill="rgba(245,249,252,0.95)" stroke="#9aa7b3" stroke-width="1.5"/>`;
+  if(fill>.01){const hf=60*fill,w=2.5+5.5*hf/70;s+=`<path d="M-2.5,0 L2.5,0 L${w},${-hf} L${-w},${-hf} Z" fill="${DEEP}"/>`;}
+  s+=`<rect x="-10" y="-130" width="20" height="62" rx="3" fill="#dfe4e9" stroke="#8a97a4" stroke-width="1.5"/>`;
+  s+=`<rect x="-24" y="-312" width="48" height="184" rx="16" fill="#eef1f4" stroke="#8a97a4" stroke-width="2"/>`;
+  for(let i=0;i<5;i++)s+=`<line x1="-18" x2="18" y1="${-200+i*12}" y2="${-200+i*12}" stroke="#cfd6dd" stroke-width="2"/>`;
+  s+=`<rect x="-17" y="-294" width="34" height="50" rx="4" fill="#1f2c38"/>`+T(0,-272,'2.50',{size:14,fill:'#7fe0a0',anchor:'middle',font:'mono',weight:700})+T(0,-254,'mL',{size:11,fill:'#7fe0a0',anchor:'middle',font:'ui'});
+  s+=`<path d="M24,-300 Q46,-300 44,-280" stroke="#8a97a4" stroke-width="6" fill="none" stroke-linecap="round"/>`;
+  s+=`<rect x="-6" y="${-348+press}" width="12" height="40" fill="#9aa6b1"/><rect x="-16" y="${-362+press}" width="32" height="15" rx="5" fill="#1b6cc2"/>`;
+  return s+'</g>';
+}
+function eye(x,y){return `<path d="M${x-26},${y} Q${x},${y-20} ${x+26},${y} Q${x},${y+20} ${x-26},${y} Z" fill="#fff" stroke="#2b3a4a" stroke-width="2"/><circle cx="${x+5}" cy="${y}" r="7" fill="#2b3a4a"/>`;}
+function check(x,y,str,op=1){return `<g opacity="${op}"><circle cx="${x}" cy="${y-8}" r="15" fill="#1e8a4a"/><path d="M${x-7},${y-8} L${x-2},${y-3} L${x+7},${y-14}" stroke="#fff" stroke-width="3.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>${T(x+26,y,str,{size:26,fill:'#1e8a4a',weight:700})}</g>`;}
+const GLOVE='#8f7ad6',GLOVE_D='#6a55b0',SKIN='#e3b48c';
+/* gloved hand gripping at (x,y); lab-coat sleeve runs off in direction `arm` */
+function hand(x,y,arm,rot=0,op=1,len=620){if(op<=0)return '';return `<g transform="translate(${x.toFixed(1)},${y.toFixed(1)})" opacity="${op.toFixed(3)}"><g transform="rotate(${arm.toFixed(1)})"><rect x="16" y="-23" width="${len}" height="46" fill="#ffffff" stroke="#a3afbb" stroke-width="2"/><rect x="14" y="-21" width="24" height="42" rx="6" fill="${GLOVE}" stroke="${GLOVE_D}" stroke-width="1.5"/></g><g transform="rotate(${rot.toFixed(1)})"><rect x="-22" y="-26" width="44" height="52" rx="16" fill="${GLOVE}" stroke="${GLOVE_D}" stroke-width="2"/><path d="M-20,-8 L6,-8 M-20,5 L6,5 M-18,16 L4,16" stroke="${GLOVE_D}" stroke-width="1.6" stroke-linecap="round"/><ellipse cx="-4" cy="-26" rx="16" ry="9" fill="${GLOVE}" stroke="${GLOVE_D}" stroke-width="2"/></g></g>`;}
+/* student in lab coat, goggles and gloves, standing behind the bench */
+function person(x,y=BENCH){
+  return `${hand(x-150,y-14,-57,0,1,40)}${hand(x+150,y-14,-123,0,1,40)}<path d="M${x-150},${y} Q${x-130},${y-60} ${x-82},${y-118}" stroke="#ffffff" stroke-width="44" fill="none" stroke-linecap="round"/>
+  <path d="M${x+150},${y} Q${x+130},${y-60} ${x+82},${y-118}" stroke="#ffffff" stroke-width="44" fill="none" stroke-linecap="round"/>
+  <path d="M${x-150},${y} Q${x-130},${y-60} ${x-82},${y-118}" stroke="#a3afbb" stroke-width="2" fill="none"/>
+  <path d="M${x+150},${y} Q${x+130},${y-60} ${x+82},${y-118}" stroke="#a3afbb" stroke-width="2" fill="none"/>
+  <path d="M${x-92},${y} L${x-82},${y-118} Q${x},${y-156} ${x+82},${y-118} L${x+92},${y} Z" fill="#ffffff" stroke="#a3afbb" stroke-width="2"/>
+  <path d="M${x-24},${y-142} L${x},${y-84} L${x+24},${y-142} Z" fill="#4f78a6"/>
+  <path d="M${x-26},${y-142} L${x-4},${y-80} L${x-34},${y-100} Z M${x+26},${y-142} L${x+4},${y-80} L${x+34},${y-100} Z" fill="#f1f4f7" stroke="#a3afbb" stroke-width="1.5"/>
+  <rect x="${x+36}" y="${y-78}" width="34" height="30" rx="3" fill="none" stroke="#a3afbb" stroke-width="1.5"/><line x1="${x+44}" y1="${y-90}" x2="${x+44}" y2="${y-60}" stroke="#1b6cc2" stroke-width="3"/>
+  <rect x="${x-12}" y="${y-162}" width="24" height="24" fill="${SKIN}"/>
+  <ellipse cx="${x}" cy="${y-196}" rx="34" ry="40" fill="${SKIN}"/>
+  <path d="M${x-36},${y-192} Q${x-40},${y-246} ${x},${y-247} Q${x+40},${y-246} ${x+36},${y-192} Q${x+30},${y-224} ${x},${y-226} Q${x-30},${y-224} ${x-36},${y-192} Z" fill="#3b2a22"/>
+  <circle cx="${x}" cy="${y-250}" r="14" fill="#3b2a22"/>
+  <line x1="${x-36}" y1="${y-200}" x2="${x+36}" y2="${y-200}" stroke="#3d5a73" stroke-width="3"/>
+  <rect x="${x-31}" y="${y-212}" width="62" height="22" rx="9" fill="rgba(170,215,240,0.65)" stroke="#3d5a73" stroke-width="3"/>
+  <path d="M${x-12},${y-172} Q${x},${y-164} ${x+12},${y-172}" stroke="#7a4a35" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+`;
+}
+function writeLine(t,at,x,y,str,o={}){const a=seg(t,at,at+.6);if(a<=0)return '';let s=T(x,y+(1-a)*12,str,{...o,op:a});
+  if(o.box)s+=`<rect x="${x-16}" y="${y-o.size-4}" width="${o.box}" height="${o.size+22}" rx="10" fill="none" stroke="${o.fill}" stroke-width="3" opacity="${a}"/>`;return s;}
+
+/* ---------- scenes ---------- */
+const RED='#c8322f', BLUE='#1f5fbf', GREEN='#1e8a4a', INK='#1f2a36', PURPLE='#7b3fa0';
+function sTitle(t){
+  let s=bg();
+  s+=person(170);
+  s+=flask({x:1020,id:'ta',mixMode:true,m:1,col:DEEP,film:1,label:'50 mL'});
+  s+=flask({x:1170,id:'tb',R:62,nw:11,nh:125,mixMode:true,m:1,col:PALE,film:1,label:'25 mL'});
+  s+=T(600,180,'Experiment 3',{size:36,fill:RED,anchor:'middle',weight:700});
+  s+=T(600,258,'Preparation of a Solution',{size:56,fill:INK,anchor:'middle',weight:700});
+  s+=T(600,318,'CuSO₄ from the solid, then by dilution',{size:32,fill:BLUE,anchor:'middle'});
+  s+=T(600,380,'prepared by Massa Zahdeh',{size:24,fill:'#5a6a7a',anchor:'middle'});
+  s+=T(600,440,'Safety first: lab coat · goggles · gloves',{size:24,fill:'#6a55b0',anchor:'middle',weight:700});
+  return s;
+}
+function sCalcA(t){
+  let s=board();const x=220;
+  s+=writeLine(t,.3,x,118,'Goal: 50 mL of 1 M CuSO₄ from solid CuSO₄ and water',{size:32,fill:RED,weight:700});
+  s+=writeLine(t,1.3,x,184,'① Number of moles of solute (n)',{size:30,fill:BLUE,weight:700});
+  s+=writeLine(t,2.1,x,232,'M = n ÷ V    so    n = M × V',{size:30,fill:INK});
+  s+=writeLine(t,3.1,x,280,'n = 1 mol/L × (50 ÷ 1000) L',{size:30,fill:INK});
+  s+=writeLine(t,4.1,x,336,'n = 0.05 mol',{size:34,fill:GREEN,weight:700,box:250});
+  s+=writeLine(t,5.3,x,412,'② Mass of solute to weigh',{size:30,fill:BLUE,weight:700});
+  s+=writeLine(t,6.1,x,460,'Mass = n × M.wt = 0.05 mol × 159.5 g/mol',{size:30,fill:INK});
+  s+=writeLine(t,7.1,x,526,'Mass = 7.975 g',{size:38,fill:GREEN,weight:700,box:300});
+  const a=seg(t,3.1,3.7);if(a>0)s+=T(930,250,'1 L = 1000 mL',{size:30,fill:PURPLE,rot:-12,op:a,weight:700});
+  return s;
+}
+function sWeigh(t){
+  let s=bg();
+  s+=bottle(200,BENCH,seg(t,.4,1.2));
+  const heaps=[.45,.35,.20];let heap=0,load=0,sx=200,sy=420,srot=0;
+  for(let k=0;k<3;k++){const u=(t-(3+2*k))/2;
+    if(u>=1)heap+=heaps[k];
+    else if(u>=0){
+      if(u<.45){const a=ez(u/.45);sx=lerp(200,560,a);sy=lerp(420,425,a)-Math.sin(Math.PI*a)*150;load=heaps[k];}
+      else if(u<.62){const a=(u-.45)/.17;sx=560;sy=425;srot=-50*ez(a);load=heaps[k]*(1-a);heap+=heaps[k]*a;}
+      else{const a=ez((u-.62)/.38);sx=lerp(560,200,a);sy=lerp(425,420,a)-Math.sin(Math.PI*a)*150;srot=-50*(1-Math.min(1,a*3));heap+=heaps[k];}
+    }}
+  const boatIn=seg(t,1,2);let r=0;
+  if(t>=2&&t<2.6)r=.412;if(t>=2.6)r=7.975*heap;
+  const hl=t>9;
+  s+=balance(560,r.toFixed(3)+' g',hl,t>2.35&&t<2.8);
+  s+=boat(560,lerp(300,441,boatIn),heap,0,Math.min(1,t*2));
+  s+=spatula(sx,sy,srot,load);
+  {const hp=rotPt(sx+92,sy-62,sx,sy,srot);s+=hand(hp[0],hp[1],-60,srot);}
+  if(t>2.35&&t<3.2)s+=T(760,300,'Tare to 0.000 g',{size:26,fill:BLUE,op:seg(t,2.35,2.6)*(1-seg(t,2.9,3.2))});
+  if(hl)s+=check(770,300,'7.975 g',seg(t,9,9.4));
+  s+=T(560,596,'Analytical balance',{size:22,fill:'#4b5b6d',anchor:'middle'});
+  return s;
+}
+function sDissolve(t){
+  let s=bg();const bx=640;
+  const pin=seg(t,1.7,2.8),pdis=seg(t,5.6,9),lvl=lerp(0,58,seg(t,3.4,5.4));
+  const wr=-38*seg(t,3,3.4)+38*seg(t,5.4,5.8),wb=washBottle(940,BENCH,wr);
+  s+=beaker({x:bx,id:'b1',lvl,col:mix(WATER,DEEP,pdis),powder:pin*(1-pdis)});
+  const bm=seg(t,.3,1.3),bxp=lerp(420,600,bm),byp=lerp(330,300,bm),brot=48*seg(t,1.3,1.8)*(1-seg(t,2.9,3.3));
+  s+=boat(bxp,byp,1-seg(t,1.6,2.8),brot,1-seg(t,3,3.6));
+  {const hp=rotPt(bxp+34,byp+6,bxp,byp,brot);s+=hand(hp[0],hp[1],-20,brot,1-seg(t,3,3.6));}
+  for(let k=0;k<14;k++){const st=1.55+k*.08,u=lin(t,st,st+.6);if(u>0&&u<1){const px=bxp+18+((k%5)-2)*5,py=lerp(byp+14,BENCH-8,u*u);s+=`<circle cx="${px}" cy="${py}" r="3.2" fill="${POWDER}" stroke="#aab4ba"/>`;}}
+  if(t>3.4&&t<5.4)s+=squirt(wb.tip[0],wb.tip[1],bx+20,BENCH-lvl-4,t);
+  s+=wb.svg;
+  {const hp=rotPt(944,BENCH-30,940,BENCH-60,wr);s+=hand(hp[0],hp[1],wr,wr,seg(t,2.6,3)*(1-seg(t,5.6,6)));}
+  if(t>5.2){const dx=Math.sin(t*5)*40*(1-seg(t,9,9.5)),op=seg(t,5.2,5.6);s+=rod(bx+dx,BENCH-12,bx+dx*.2+74,292,op);s+=hand(bx+dx*.2+70,300,-50,0,op);}
+  s+=T(bx,596,'Beaker',{size:22,fill:'#4b5b6d',anchor:'middle'});
+  if(t>5.6)s+=T(250,300,'stir with a glass rod',{size:26,fill:PURPLE,op:seg(t,5.6,6)*(1-seg(t,9.3,9.8))});
+  return s;
+}
+function pourPose(t,t0,t1){return {mv:seg(t,t0,t0+1.1)-seg(t,t1+.5,t1+1.5),tl:seg(t,t0+.9,t0+1.5)-seg(t,t1,t1+.6)};}
+function sTransfer(t){
+  let s=bg();const fx=820,fg=flaskGeo(fx,BENCH,78,13,150);
+  const lv=.5*seg(t,2.3,4.6)+.08*seg(t,8.9,9.9);
+  s+=flask({x:fx,id:'f1',level:lv,col:DEEP});
+  const p1=pourPose(t,.8,4.6),p2=pourPose(t,7.6,9.9),mv=Math.max(p1.mv,p2.mv),tl=Math.max(p1.tl,p2.tl);
+  const bx0=470,w=170,h=200,sp0=[bx0+w/2+8,BENCH-h-5],tg=[fx-40,fg.top-80];
+  const dx=(tg[0]-sp0[0])*mv,dy=(tg[1]-sp0[1])*mv,px=sp0[0]+dx,py=sp0[1]+dy,bb=BENCH+dy;
+  const amt=t<4.6?lerp(58,4,seg(t,2.3,4.6)):(t<7.6?lerp(4,30,seg(t,6.2,7.2)):lerp(30,4,seg(t,8.9,9.9)));
+  const col=t<5.5?DEEP:'#3f88d0';
+  const flowing=(t>2.3&&t<4.6)||(t>8.9&&t<9.9);
+  if(flowing&&tl>.9){s+=pour(px+2,py+2,fx,fg.top+44,col,t);s+=`<line x1="${fx}" y1="${fg.top+44}" x2="${fx}" y2="${lerp(BENCH,fg.mark,lv)}" stroke="${col}" stroke-width="5"/>`;}
+  s+=funnel(fx,fg.top-62);
+  s+=beaker({x:bx0+dx,bottom:bb,id:'b2',surf:lerp(bb-amt,py+3,tl),col,rot:82*tl,px,py});
+  {const hp=rotPt(bx0+dx-w/2-6,bb-95,px,py,82*tl);s+=hand(hp[0],hp[1],160,82*tl,Math.max(seg(t,.4,.8)*(1-seg(t,5.6,6)),seg(t,7.2,7.6)));}
+  const wo=seg(t,5.6,6)*(1-seg(t,7.2,7.6));
+  if(wo>0){const wr=-34*seg(t,5.9,6.2),wb=washBottle(700,BENCH,wr);{const hp=rotPt(704,BENCH-30,700,BENCH-60,wr);s+=hand(hp[0],hp[1],wr,wr,wo);}if(t>6.2&&t<7.2)s+=squirt(wb.tip[0],wb.tip[1],bx0+10,BENCH-amt-4,t);s+=`<g opacity="${wo}">${wb.svg}</g>`;}
+  if(t>5.8&&t<7.6)s+=T(330,250,'rinse the beaker',{size:26,fill:PURPLE,op:seg(t,5.8,6.2)*(1-seg(t,7.2,7.6))});
+  s+=T(fx,596,'Funnel + 50 mL volumetric flask',{size:22,fill:'#4b5b6d',anchor:'middle'});
+  return s;
+}
+function sFill50(t){
+  let s=bg();const fx=640,g=flaskGeo(fx,BENCH,78,13,150);
+  const k=seg(t,1,5),lv=lerp(.58,.93,k),ly=lerp(BENCH,g.mark,lv);
+  const wr=-40*seg(t,.5,1)+40*seg(t,5,5.5),wb=washBottle(870,BENCH,wr);
+  s+=flask({x:fx,id:'f2',level:lv,col:DEEP,colTop:mix(DEEP,TOPPALE,k)});
+  if(t>1&&t<5){s+=squirt(wb.tip[0],wb.tip[1],fx+3,g.top+4,t);s+=`<line x1="${fx}" y1="${g.top+4}" x2="${fx}" y2="${ly-4}" stroke="#86c2e8" stroke-width="3" stroke-dasharray="10 6" stroke-dashoffset="${-t*120}"/>`;}
+  s+=wb.svg;
+  {const hp=rotPt(874,BENCH-30,870,BENCH-60,wr);s+=hand(hp[0],hp[1],wr,wr);}
+  if(t>5){const a=seg(t,5,5.4);s+=`<path d="M${fx-120},${g.mark+18} L${fx-30},${g.mark+18}" stroke="${PURPLE}" stroke-width="2.5" opacity="${a}"/>`+T(fx-130,g.mark+26,'just below the line',{size:26,fill:PURPLE,anchor:'end',op:a});}
+  return s;
+}
+function sDropper(t){
+  let s=bg();const fx=430,g=flaskGeo(fx,BENCH,78,13,150);
+  let prog=0;for(let k=0;k<5;k++)prog+=seg(t,1.4+1.2*k,1.7+1.2*k)/5;
+  const lv=lerp(.93,1,prog),ly=lerp(BENCH,g.mark,lv);
+  s+=flask({x:fx,id:'f3',level:lv,col:DEEP,colTop:TOPPALE});
+  let sq=0;
+  for(let k=0;k<5;k++){const st=1+1.2*k,u=lin(t,st,st+.45);if(u>0&&u<1)s+=`<circle cx="${fx}" cy="${lerp(g.top-26,ly,u*u)}" r="4.5" fill="${TOPPALE}" stroke="#7fb7e0" stroke-width="1.5"/>`;if(t>st-.25&&t<st)sq=1-Math.abs((t-st+.125)/.125);}
+  s+=dropper(fx,g.top-28,Math.max(0,sq))+hand(fx,g.top-28-148,-60,0);
+  const cx=940,cy=320,r=190,yb=cy+70*(1-prog);
+  s+=`<g stroke="#8a97a4" stroke-width="1.5" stroke-dasharray="5 6"><line x1="${fx+16}" y1="${g.mark-22}" x2="${cx-r*.86}" y2="${cy-r*.5}"/><line x1="${fx+16}" y1="${g.mark+22}" x2="${cx-r*.86}" y2="${cy+r*.5}"/></g>`;
+  s+=`<defs><clipPath id="zoom"><circle cx="${cx}" cy="${cy}" r="${r}"/></clipPath></defs><g clip-path="url(#zoom)"><rect x="${cx-r}" y="${cy-r}" width="${2*r}" height="${2*r}" fill="${AIR}"/>`;
+  s+=`<rect x="${cx-70}" y="${yb-16}" width="140" height="400" fill="${TOPPALE}"/><path d="M${cx-71},${yb-16} Q${cx},${yb+16} ${cx+71},${yb-16} Z" fill="${AIR}"/>`;
+  s+=`<line x1="${cx-70}" y1="${cy-r}" x2="${cx-70}" y2="${cy+r}" stroke="${GLASS}" stroke-width="6"/><line x1="${cx+70}" y1="${cy-r}" x2="${cx+70}" y2="${cy+r}" stroke="${GLASS}" stroke-width="6"/>`;
+  s+=`<line x1="${cx-86}" x2="${cx+86}" y1="${cy}" y2="${cy}" stroke="#c8322f" stroke-width="4"/></g><circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${GLASS}" stroke-width="3"/>`;
+  s+=eye(680,cy)+`<line x1="712" y1="${cy}" x2="${cx-86}" y2="${cy}" stroke="#2b3a4a" stroke-width="1.5" stroke-dasharray="6 6"/>`+T(680,cy+50,'eye level',{size:24,fill:INK,anchor:'middle'});
+  s+=T(cx+r-10,cy-r+6,'zoom',{size:20,fill:'#5a6a7a',anchor:'end',font:'ui'});
+  if(prog>.99)s+=check(cx-180,592,'bottom of meniscus on the line',seg(t,7.3,7.7));
+  return s;
+}
+function invertScene(t,o){
+  let s=bg();const {x=640,R=78,nw=13,nh=150,id,col,colTop,label,lift=150,ready}=o;
+  const film=seg(t,.8,3.2);let rot=0,n=0;
+  if(t>4&&t<10.6){const u=(t-4)/2.2;n=Math.floor(u)+1;rot=180*(.5-.5*Math.cos(2*Math.PI*u));}
+  const lf=lift*seg(t,3.4,4)*(1-seg(t,10.6,11.2)),m=seg(t,4,10.4);
+  s+=flask({x,R,nw,nh,id,col,colTop,label,mixMode:true,m,ph:t,film,rot,lift:lf});
+  {const g=flaskGeo(x,BENCH,R,nw,nh),hop=seg(t,3.1,3.5)*(1-seg(t,11.1,11.5));const a=rotPt(x,g.top-4,x,g.cy,rot),b=rotPt(x+R+4,g.cy+12,x,g.cy,rot);
+   s+=hand(b[0],b[1]-lf,rot+15,rot,hop)+hand(a[0],a[1]-lf,rot-125,rot,hop);}
+  if(t>.8&&t<3.6)s+=T(x+120,250,'parafilm',{size:28,fill:PURPLE,op:seg(t,.8,1.2)*(1-seg(t,3.2,3.6))});
+  if(t>3.4&&t<4.4)s+=T(x+150,250,'hold the top with your thumb',{size:26,fill:PURPLE,op:seg(t,3.4,3.7)*(1-seg(t,4.1,4.4))});
+  if(n>0)s+=T(x+180,330,`invert × ${n}`,{size:34,fill:BLUE,weight:700});
+  if(t>4.2&&t<10.6)s+=T(x+180,370,'(10 to 15 times in the lab)',{size:20,fill:'#5a6a7a',font:'ui'});
+  if(t>11)s+=check(x-170,600,ready,seg(t,11,11.4));
+  return s;
+}
+const sMix50=t=>invertScene(t,{id:'m50',col:DEEP,colTop:TOPPALE,label:'50 mL',ready:'50 mL of 1 M CuSO₄ is ready'});
+function sCalcB(t){
+  let s=board();const x=220;
+  s+=writeLine(t,.3,x,118,'Dilution: 25 mL of 0.1 M from the 1 M solution',{size:32,fill:RED,weight:700});
+  s+=writeLine(t,1.3,x,196,'M₁ × V₁ = M₂ × V₂',{size:40,fill:BLUE,weight:700});
+  s+=writeLine(t,2.3,x,262,'M₁ = 1 M (stock)          V₁ = ?',{size:30,fill:INK});
+  s+=writeLine(t,3,x,310,'M₂ = 0.1 M (diluted)      V₂ = 25 mL',{size:30,fill:INK});
+  s+=writeLine(t,4,x,380,'1 × V₁ = 0.1 × 25',{size:32,fill:INK});
+  s+=writeLine(t,5.1,x,450,'V₁ = 2.5 mL',{size:40,fill:GREEN,weight:700,box:260});
+  s+=writeLine(t,6.2,x,532,'Take 2.5 mL of the 1 M solution, then add water up to 25 mL',{size:26,fill:PURPLE});
+  return s;
+}
+function sPipette(t){
+  let s=bg();const A=360,B=880;
+  const asp=seg(t,3,3.8),dsp=seg(t,6.8,7.8);
+  s+=flask({x:A,id:'pa',level:1-.05*asp,col:DEEP});
+  s+=flask({x:B,id:'pb',R:62,nw:11,nh:125,level:.09*dsp,col:DEEP,label:'25 mL'});
+  const K=[[0,620,210],[1,620,210],[2.2,A,210],[3,A,330],[3.8,A,330],[4.6,A,210],[6,B,210],[6.8,B,405],[7.8,B,405],[9,B,210]];
+  const [px,py]=kf(t,K);
+  const press=12*seg(t,1.5,2.2)-12*seg(t,3,3.8)+18*seg(t,6.8,7.8)-18*seg(t,8.4,9);
+  s+=pipette(px,py,press,asp-dsp)+hand(px,py-132,-45,0);
+  s+=T(A,596,'1 M CuSO₄ (stock)',{size:22,fill:'#4b5b6d',anchor:'middle'});
+  s+=T(B,596,'25 mL volumetric flask',{size:22,fill:'#4b5b6d',anchor:'middle'});
+  if(t>2.4&&t<4.2)s+=T(A+110,170,'draw up 2.5 mL',{size:26,fill:PURPLE,op:seg(t,2.4,2.8)*(1-seg(t,3.9,4.2))});
+  if(t>6.8&&t<8.4)s+=T(B-120,170,'release it',{size:26,fill:PURPLE,anchor:'end',op:seg(t,6.8,7.2)*(1-seg(t,8.1,8.4))});
+  return s;
+}
+function sFill25(t){
+  let s=bg();const fx=640,g=flaskGeo(fx,BENCH,62,11,125);
+  const k=seg(t,1,5.2);let prog=seg(t,6.5,6.8)/2+seg(t,7.5,7.8)/2;
+  const lv=lerp(.1,.93,k)+.07*prog,ly=lerp(BENCH,g.mark,lv);
+  const wr=-40*seg(t,.5,1)+40*seg(t,5.2,5.7),wb=washBottle(860,BENCH,wr);
+  s+=flask({x:fx,id:'f25',R:62,nw:11,nh:125,level:lv,col:mix(DEEP,PALE,k),colTop:mix(DEEP,'#e0f0fb',k),label:'25 mL'});
+  if(t>1&&t<5.2){s+=squirt(wb.tip[0],wb.tip[1],fx+3,g.top+4,t);s+=`<line x1="${fx}" y1="${g.top+4}" x2="${fx}" y2="${ly-4}" stroke="#86c2e8" stroke-width="3" stroke-dasharray="10 6" stroke-dashoffset="${-t*120}"/>`;}
+  s+=wb.svg;
+  {const hp=rotPt(864,BENCH-30,860,BENCH-60,wr);s+=hand(hp[0],hp[1],wr,wr,1-seg(t,5.4,5.8));}
+  const dop=seg(t,5.6,6)*(1-seg(t,8.4,8.8));
+  if(dop>0){let sq=0;for(const st of [6.1,7.1]){const u=lin(t,st,st+.4);if(u>0&&u<1)s+=`<circle cx="${fx}" cy="${lerp(g.top-26,ly,u*u)}" r="4.5" fill="#e0f0fb" stroke="#7fb7e0" stroke-width="1.5"/>`;if(t>st-.25&&t<st)sq=1-Math.abs((t-st+.125)/.125);}
+    s+=`<g opacity="${dop}">${dropper(fx,g.top-28,Math.max(0,sq))}</g>`+hand(fx,g.top-28-148,-60,0,dop);}
+  if(t>8.2)s+=check(fx+120,g.mark+8,'on the line',seg(t,8.2,8.6));
+  return s;
+}
+const sMix25=t=>invertScene(t,{id:'m25',R:62,nw:11,nh:125,lift:130,col:PALE,colTop:'#e0f0fb',label:'25 mL',ready:'25 mL of 0.1 M CuSO₄ is ready'});
+function sEnd(t){
+  let s=bg();
+  s+=person(640);
+  s+=T(640,120,'Both solutions are ready',{size:52,fill:INK,anchor:'middle',weight:700});
+  s+=flask({x:430,id:'ea',mixMode:true,m:1,col:DEEP,film:1,label:'50 mL'});
+  s+=flask({x:850,id:'eb',R:62,nw:11,nh:125,mixMode:true,m:1,col:PALE,film:1,label:'25 mL'});
+  s+=T(430,594,'1 M CuSO₄ · 50 mL',{size:26,fill:DEEP,anchor:'middle',weight:700});
+  s+=T(850,594,'0.1 M CuSO₄ · 25 mL',{size:26,fill:'#3d86c9',anchor:'middle',weight:700});
+  return s;
+}
+
+const SC=[
+ {d:5,f:sTitle,n:0,title:'Experiment 3 · Preparation of a Solution',detail:'Part A: 50 mL of 1 M CuSO₄ from the solid.  Part B: dilute it to 25 mL of 0.1 M.'},
+ {d:10,f:sCalcA,n:1,title:'Calculate the mass of CuSO₄',detail:'n = M × V = 0.05 mol, then mass = n × M.wt = 0.05 × 159.5 = 7.975 g'},
+ {d:10,f:sWeigh,n:2,title:'Weigh 7.975 g of CuSO₄',detail:'Put a weighing boat on the analytical balance, press Tare, then add the solid with a spatula'},
+ {d:10.5,f:sDissolve,n:3,title:'Dissolve in a beaker',detail:'Add a minimum amount of distilled water and stir with a glass rod until all the solid dissolves'},
+ {d:11.5,f:sTransfer,n:4,title:'Transfer to the 50 mL volumetric flask',detail:'Pour through a funnel, then rinse the beaker with distilled water and pour the rinse in too'},
+ {d:6.5,f:sFill50,n:5,title:'Add distilled water',detail:'Fill with distilled water until the liquid is just below the line on the neck'},
+ {d:8.5,f:sDropper,n:6,title:'Make up to the mark with a dropper',detail:'Add drop by drop until the bottom of the meniscus sits on the line, read at eye level'},
+ {d:12.5,f:sMix50,n:7,title:'Cover with parafilm and mix',detail:'Stretch parafilm over the mouth, hold it with your thumb and invert the flask several times'},
+ {d:8,f:sCalcB,n:8,title:'Dilution: find V₁',detail:'M₁ × V₁ = M₂ × V₂, so 1 × V₁ = 0.1 × 25 and V₁ = 2.5 mL'},
+ {d:9.5,f:sPipette,n:9,title:'Pipette 2.5 mL of the 1 M solution',detail:'Take 2.5 mL from the 50 mL flask and release it into a 25 mL volumetric flask'},
+ {d:9,f:sFill25,n:10,title:'Fill to the mark',detail:'Add distilled water, then use the dropper for the last drops up to the line'},
+ {d:12.5,f:sMix25,n:11,title:'Cover with parafilm and mix',detail:'Invert the flask several times until the colour is the same all through'},
+ {d:6,f:sEnd,n:0,title:'Done',detail:'50 mL of 1 M CuSO₄ and 25 mL of 0.1 M CuSO₄ (diluted) are ready'}
+];
+function caption(i,t){
+  const c=SC[i];let s=`<rect y="628" width="1280" height="92" fill="#1b2631"/><rect y="626" width="${1280*clamp(t/c.d)}" height="3" fill="#5aa7ef"/>`;
+  let tx=40;if(c.n){s+=`<circle cx="70" cy="674" r="25" fill="#1b6cc2"/>`+T(70,683,String(c.n),{size:24,fill:'#fff',anchor:'middle',font:'ui',weight:700});tx=114;}
+  return s+T(tx,664,c.title,{size:26,fill:'#ffffff',font:'ui',weight:700})+T(tx,698,c.detail,{size:18,fill:'#b9c9d8',font:'ui'});
+}
+
+/* ---------- player ---------- */
+const svg=document.getElementById('stage');
+const starts=[];let tot=0;SC.forEach(c=>{starts.push(tot);tot+=c.d;});
+let T0=0,playing=false,speed=1,last=null,dirty=true,activeStep=-1;
+const $=id=>document.getElementById(id);
+const fmt=s=>{s=Math.floor(s);return Math.floor(s/60)+':'+String(s%60).padStart(2,'0');};
+const stepsEl=$('steps');
+SC.forEach((c,i)=>{const li=document.createElement('li');const b=document.createElement('button');b.id='step'+i;
+  b.innerHTML=`<span class="n">${c.n||(i===0?'▶':'✓')}</span><span>${c.title.replace(/([₀-₉])/g,m=>'<sub>'+SUBS.indexOf(m)+'</sub>')}</span>`;
+  b.onclick=()=>{T0=starts[i]+(i?0.36:0);dirty=true;};li.appendChild(b);stepsEl.appendChild(li);});
+function sceneAt(T){for(let k=0;k<SC.length;k++)if(T<starts[k]+SC[k].d)return k;return SC.length-1;}
+function render(){
+  const i=sceneAt(T0),t=Math.min(T0-starts[i],SC[i].d);
+  let s=DEFS+SC[i].f(t),fade=0;
+  if(i>0)fade=Math.max(fade,1-lin(t,0,.35));
+  if(i<SC.length-1)fade=Math.max(fade,lin(t,SC[i].d-.3,SC[i].d));
+  if(fade>0)s+=`<rect width="1280" height="628" fill="#eef3f7" opacity="${fade.toFixed(3)}"/>`;
+  svg.innerHTML=s+caption(i,t);
+  $('scrub').value=Math.round(T0/tot*1000);
+  $('time').textContent=fmt(T0)+' / '+fmt(tot);
+  if(i!==activeStep){if(activeStep>=0)$('step'+activeStep).classList.remove('on');$('step'+i).classList.add('on');activeStep=i;}
+}
+function setPlay(p){playing=p;$('play').textContent=p?'Pause':'Play';}
+function loop(ts){
+  if(last==null)last=ts;const dt=Math.min(.1,(ts-last)/1000);last=ts;
+  if(playing){T0+=dt*speed;if(T0>=tot){T0=tot;setPlay(false);}dirty=true;}
+  if(dirty){render();dirty=false;}
+  requestAnimationFrame(loop);
+}
+$('play').onclick=()=>{if(T0>=tot)T0=0;setPlay(!playing);};
+$('restart').onclick=()=>{T0=0;dirty=true;setPlay(true);};
+const jump=d=>{const i=sceneAt(T0),j=clamp(i+d,0,SC.length-1);T0=starts[j]+(j?0.36:0);dirty=true;};
+$('prev').onclick=()=>jump(T0-starts[sceneAt(T0)]>1.2?0:-1);
+$('next').onclick=()=>jump(1);
+$('scrub').oninput=e=>{T0=e.target.value/1000*tot;dirty=true;};
+$('speed').onchange=e=>{speed=parseFloat(e.target.value);};
+$('fs').onclick=()=>{const el=$('stageWrap');try{const p=el.requestFullscreen&&el.requestFullscreen();if(p&&p.catch)p.catch(()=>{});}catch(e){}};
+$('rec').onclick=()=>{document.body.classList.add('rec');T0=0;dirty=true;setPlay(false);setTimeout(()=>setPlay(true),1200);};
+const exitRec=()=>{document.body.classList.remove('rec');};
+$('exitRec').onclick=exitRec;
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape')exitRec();
+  else if(e.key===' '&&!['INPUT','SELECT','BUTTON'].includes(document.activeElement.tagName)){e.preventDefault();$('play').click();}
+  else if(e.key==='ArrowRight'&&document.activeElement.tagName!=='INPUT')jump(1);
+  else if(e.key==='ArrowLeft'&&document.activeElement.tagName!=='INPUT')jump(-1);
+});
+document.fonts&&document.fonts.ready.then(()=>{dirty=true;});
+requestAnimationFrame(loop);
+</script>
+
+</body></html>
