@@ -1,0 +1,1177 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Tooth Word Lab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+Bhaijaan+2:wght@500;600;700;800&family=Noto+Sans:wght@400;600;700&family=Noto+Sans+Arabic:wght@400;600;700&display=swap">
+<style>
+/* Layout: one-screen game. Home = practice path + clinic + challenge; play view = question card (+ patient chart on case levels). Colours follow the lecture slides: yellow prefix, blue root, teal combining vowel, coral suffix. */
+:root{
+  --bg:#f4f8fd; --card:#ffffff; --soft:#eaf2fd; --line:#cfdff3;
+  --ink:#14213d; --muted:#5a6a86; --navy:#0f3d91; --red:#c62f2a;
+  --pre:#f5cd5f; --root:#86c3fb; --cv:#25b598; --suf:#ec6767; --onpart:#14213d; --oncv:#ffffff;
+  --good:#1f9a5a; --goodbg:#dcf3e6; --bad:#c62f2a; --badbg:#fde4e2; --warnbg:#fff4d6;
+  --tooth:#fffaf2; --shadow:0 2px 0 #14213d;
+  --f-display:"Baloo Bhaijaan 2","Noto Sans Arabic",system-ui,sans-serif;
+  --f-body:"Noto Sans","Noto Sans Arabic",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-ar:"Noto Sans Arabic","Baloo Bhaijaan 2",system-ui,sans-serif;
+  --fs:1rem;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0c1525; --card:#14223a; --soft:#1a2c4a; --line:#2a3f63;
+  --ink:#e8effc; --muted:#9fb1cf; --navy:#9cc0ff; --red:#ff8a7c;
+  --good:#5fd497; --goodbg:#163b2a; --bad:#ff8a7c; --badbg:#41201f; --warnbg:#3a3220;
+  --tooth:#f6f0e4; --shadow:0 2px 0 #050a14; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0c1525; --card:#14223a; --soft:#1a2c4a; --line:#2a3f63;
+  --ink:#e8effc; --muted:#9fb1cf; --navy:#9cc0ff; --red:#ff8a7c;
+  --good:#5fd497; --goodbg:#163b2a; --bad:#ff8a7c; --badbg:#41201f; --warnbg:#3a3220;
+  --tooth:#f6f0e4; --shadow:0 2px 0 #050a14; color-scheme:dark}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:var(--fs);line-height:1.5}
+body.present{--fs:1.22rem}
+*{box-sizing:border-box}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,input:focus-visible{outline:3px solid var(--navy);outline-offset:2px}
+.wrap{max-width:1120px;margin:0 auto;padding-inline:16px;padding-block:14px 48px}
+.ar{font-family:var(--f-ar);direction:rtl}
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;border-bottom:2px solid var(--line);padding-bottom:10px}
+.brand{font-family:var(--f-display);font-weight:700;color:var(--navy);font-size:1.15em;line-height:1.2}
+.tools{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.pill{border:2px solid var(--ink);background:var(--card);border-radius:999px;padding:4px 12px;font-weight:700;font-size:.85em;box-shadow:var(--shadow);font-variant-numeric:tabular-nums;white-space:nowrap}
+.pill[aria-pressed="true"]{background:var(--navy);color:var(--card)}
+/* hero */
+.hero{display:grid;grid-template-columns:auto 1fr;gap:20px;align-items:center;padding-block:22px 8px}
+.hero h1{font-family:var(--f-display);font-weight:800;font-size:clamp(2.1rem,5vw,3.4rem);line-height:1.02;margin:0;color:var(--navy);text-wrap:balance}
+.hero h1 .w1{color:var(--suf)} .hero h1 .w2{color:var(--root)} .hero h1 .w3{color:var(--pre)}
+.hero h1 span{-webkit-text-stroke:2px var(--ink);paint-order:stroke fill}
+.hero .sub{margin:6px 0 0;color:var(--muted);max-width:60ch}
+.hero .sub b{color:var(--ink)}
+.flow{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+.flow span{font-weight:700;font-size:.78em;letter-spacing:.06em;padding:4px 10px;border-radius:8px;color:var(--onpart)}
+.flow .a{background:var(--pre)}.flow .b{background:var(--root)}.flow .c{background:var(--suf)}.flow .d{background:var(--root)}.flow .e{background:var(--pre)}
+.toothy{width:110px;height:auto;flex:none}
+.toothy.big{width:130px}
+.toothy .bob{animation:bob 3s ease-in-out infinite;transform-origin:50% 100%}
+@keyframes bob{50%{transform:translateY(-4px) rotate(-2deg)}}
+.namebox{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:12px}
+.namebox input{border:2px solid var(--line);background:var(--card);color:var(--ink);border-radius:10px;padding:6px 10px;font:inherit;min-width:0;width:220px;max-width:100%}
+/* sections */
+.sechead{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin:26px 0 10px;flex-wrap:wrap}
+.sechead h2{font-family:var(--f-display);font-size:1.25em;margin:0;color:var(--red);font-weight:700}
+.sechead .lab{font-size:.75em;letter-spacing:.12em;text-transform:uppercase;font-weight:700;color:var(--muted)}
+.grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(230px,1fr))}
+.lvl{position:relative;text-align:start;background:var(--card);border:1.5px solid var(--line);border-inline-start:6px solid var(--k,var(--root));border-radius:14px;padding:12px 14px;display:flex;flex-direction:column;gap:4px;min-width:0;transition:transform .15s,border-color .15s}
+.lvl:hover{transform:translateY(-2px);border-color:var(--navy)}
+.lvl .eb{font-size:.68em;letter-spacing:.12em;font-weight:700;text-transform:uppercase;color:var(--muted)}
+.lvl .t{font-family:var(--f-display);font-weight:700;font-size:1.15em;line-height:1.15}
+.lvl .ta{font-family:var(--f-ar);font-weight:600;color:var(--navy);font-size:.92em;direction:rtl;text-align:right}
+.lvl .d{font-size:.84em;color:var(--muted)}
+.lvl .meta{display:flex;justify-content:space-between;align-items:center;gap:6px;margin-top:4px;font-size:.78em;flex-wrap:wrap}
+.tag{font-weight:700;font-size:.85em;padding:2px 8px;border-radius:6px;letter-spacing:.04em}
+.tag.easy{background:var(--goodbg);color:var(--good)}.tag.medium{background:var(--warnbg);color:#a16b00}.tag.hard{background:var(--badbg);color:var(--bad)}.tag.expert{background:var(--soft);color:var(--navy)}
+:root[data-theme="dark"] .tag.medium{color:#f5cd5f}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .tag.medium{color:#f5cd5f}}
+.stars{letter-spacing:2px;color:var(--line);font-size:1.05em}
+.stars .on{color:#e9a400}
+.plan{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:6px;margin-top:8px}
+.plan div{border-radius:10px;padding:6px 4px;text-align:center;font-size:.72em;font-weight:700;color:var(--onpart)}
+.plan b{display:block;font-family:var(--f-display);font-size:1.4em;line-height:1}
+@media (max-width:700px){.plan{grid-template-columns:repeat(4,minmax(0,1fr))}.hero{grid-template-columns:1fr}.toothy.big{width:90px}}
+.note{font-size:.8em;color:var(--muted);margin-top:18px}
+/* play */
+.bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding-block:6px}
+.bar h2{font-family:var(--f-display);margin:0;font-size:1.25em;color:var(--navy);flex:1;min-width:0;line-height:1.2}
+.dots{display:flex;gap:4px;flex-wrap:wrap;margin:6px 0 10px}
+.dots i{width:12px;height:12px;border-radius:50%;border:2px solid var(--line);display:block}
+.dots i.cur{border-color:var(--navy);background:var(--soft)}
+.dots i.ok{background:var(--good);border-color:var(--good)}
+.dots i.no{background:var(--bad);border-color:var(--bad)}
+.dots i.hint{background:#e9a400;border-color:#e9a400}
+.playgrid{display:grid;grid-template-columns:minmax(0,1fr);gap:16px}
+.playgrid.case{grid-template-columns:minmax(0,5fr) minmax(0,6fr)}
+@media (max-width:820px){.playgrid.case{grid-template-columns:minmax(0,1fr)}}
+.qcard{background:var(--card);border:2px solid var(--ink);border-radius:18px;padding:18px;box-shadow:0 4px 0 var(--ink);min-width:0}
+.speech{display:flex;gap:12px;align-items:center;margin-bottom:10px}
+.speech .toothy{width:58px}
+.bubble{border:2px solid var(--line);border-radius:14px;padding:8px 12px;font-size:.9em;flex:1;min-width:0}
+.qnum{font-size:.72em;letter-spacing:.12em;font-weight:700;text-transform:uppercase;color:var(--muted)}
+.q{font-family:var(--f-display);font-weight:700;font-size:1.35em;line-height:1.25;margin:4px 0 0;text-wrap:balance}
+.qa{font-family:var(--f-ar);direction:rtl;text-align:right;color:var(--navy);font-weight:600;margin:4px 0 0}
+.show{display:flex;justify-content:center;flex-wrap:wrap;gap:6px;margin:16px 0 6px}
+.bigword{font-family:var(--f-display);font-weight:800;font-size:clamp(1.8rem,5.5vw,2.8rem);letter-spacing:.01em;text-align:center;line-height:1.1;word-break:break-word;margin:14px 0 4px}
+.bigword .seg{border-radius:8px;padding:0 2px}
+.chip{display:inline-flex;flex-direction:column;align-items:center;justify-content:center;border-radius:10px;padding:6px 14px;font-family:var(--f-display);font-weight:700;font-size:1.3em;line-height:1.1;color:var(--onpart);border:2px solid var(--ink);box-shadow:var(--shadow);min-width:44px}
+.chip small{font-family:var(--f-body);font-size:.5em;font-weight:600;opacity:.85}
+.p{background:var(--pre)}.r{background:var(--root)}.v{background:var(--cv);color:var(--oncv)}.s{background:var(--suf)}
+.seg.p{background:var(--pre);color:var(--onpart)}.seg.r{background:var(--root);color:var(--onpart)}.seg.v{background:var(--cv);color:var(--oncv)}.seg.s{background:var(--suf);color:var(--onpart)}
+.opts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:14px}
+@media (max-width:560px){.opts{grid-template-columns:minmax(0,1fr)}}
+.opt{background:var(--card);border:2px solid var(--ink);border-radius:12px;padding:12px;font-weight:700;box-shadow:0 3px 0 var(--ink);text-align:center;transition:transform .08s;min-width:0;overflow-wrap:anywhere}
+.opt:hover:not(:disabled){transform:translateY(-2px)}
+.opt:active:not(:disabled){transform:translateY(2px);box-shadow:0 1px 0 var(--ink)}
+.opt:disabled{cursor:default}
+.opt.ok{background:var(--goodbg);border-color:var(--good);color:var(--good)}
+.opt.no{background:var(--badbg);border-color:var(--bad);color:var(--bad);animation:shake .35s}
+.opt.gone{opacity:.25}
+@keyframes shake{25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:14px}
+.btn{border:2px solid var(--ink);border-radius:12px;padding:8px 16px;font-weight:700;background:var(--card);box-shadow:0 3px 0 var(--ink)}
+.btn.main{background:var(--navy);color:var(--card);border-color:var(--navy);box-shadow:0 3px 0 var(--ink)}
+.btn.go{background:var(--good);color:#fff;border-color:var(--good)}
+.btn.ghost{box-shadow:none;border-color:var(--line)}
+.btn:disabled{opacity:.45;cursor:default}
+.slots{min-height:64px;border:2px dashed var(--line);border-radius:14px;display:flex;gap:6px;flex-wrap:wrap;justify-content:center;align-items:center;padding:8px;margin-top:14px}
+.slots .empty{color:var(--muted);font-size:.85em}
+.bank{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:12px}
+.bank .chip,.slots .chip{cursor:pointer;font-size:1.1em}
+.bank .chip:disabled{opacity:.25;cursor:default}
+.splitword{display:flex;flex-wrap:wrap;justify-content:center;align-items:stretch;margin:18px 0 6px;font-family:var(--f-display);font-weight:800;font-size:clamp(1.6rem,5vw,2.4rem)}
+.splitword .L{padding:0 1px;line-height:1.3}
+.splitword .gap{width:14px;border:none;background:none;padding:0;position:relative}
+.splitword .gap::after{content:"";position:absolute;inset:6px 6px;border-radius:2px;background:var(--line);opacity:0;transition:opacity .1s}
+.splitword .gap:hover::after{opacity:.8}
+.splitword .gap.cut::after{opacity:1;background:var(--red);inset:0 5px}
+.typein{width:100%;border:2px solid var(--ink);background:var(--card);color:var(--ink);border-radius:12px;padding:12px;font:inherit;font-size:1.2em;font-weight:700;margin-top:14px}
+.fb{margin-top:14px;border-radius:14px;padding:12px 14px;border:2px solid}
+.fb.ok{background:var(--goodbg);border-color:var(--good)}
+.fb.no{background:var(--badbg);border-color:var(--bad)}
+.fb h3{margin:0;font-family:var(--f-display);font-size:1.1em}
+.fb p{margin:4px 0 0}
+.breakdown{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.breakdown .chip{font-size:.95em;padding:4px 10px}
+.legend{display:flex;gap:10px;flex-wrap:wrap;font-size:.75em;color:var(--muted);margin-top:12px}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-inline-end:4px;vertical-align:-1px}
+/* chart (case record) */
+.chart{background:var(--card);border:1.5px solid var(--line);border-radius:18px;padding:16px;min-width:0;align-self:start}
+.pt{display:flex;gap:12px;align-items:center}
+.av{width:54px;height:54px;border-radius:50%;display:grid;place-items:center;font-family:var(--f-display);font-weight:800;font-size:1.3em;color:var(--onpart);border:2px solid var(--ink);flex:none}
+.pt .nm{font-family:var(--f-display);font-weight:700;font-size:1.15em;line-height:1.2}
+.pt .sm{font-size:.8em;color:var(--muted)}
+.rec{margin-top:12px;border-top:1.5px dashed var(--line);padding-top:10px;font-size:.93em}
+.rec dt{font-size:.68em;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-top:8px}
+.rec dd{margin:2px 0 0}
+mark.hl{background:var(--warnbg);color:inherit;border-bottom:2px solid #e9a400;padding:0 2px;border-radius:3px;font-weight:600}
+.pain{margin-top:12px}
+.pain .lbl{display:flex;justify-content:space-between;font-size:.78em;font-weight:700;color:var(--muted)}
+.meter{height:12px;border-radius:999px;background:var(--soft);overflow:hidden;border:1.5px solid var(--line)}
+.meter i{display:block;height:100%;background:linear-gradient(90deg,var(--good),#e9a400,var(--bad));transition:width .5s}
+/* results */
+.result{text-align:center;padding-block:24px}
+.result .bigstars{font-size:3rem;letter-spacing:8px;color:var(--line)}
+.result .bigstars .on{color:#e9a400;display:inline-block;animation:pop .5s backwards}
+.result .bigstars .on:nth-child(2){animation-delay:.15s}.result .bigstars .on:nth-child(3){animation-delay:.3s}
+@keyframes pop{0%{transform:scale(0)}70%{transform:scale(1.3)}}
+.result h2{font-family:var(--f-display);font-size:1.8em;margin:4px 0;color:var(--navy)}
+.score{font-variant-numeric:tabular-nums;font-size:1.1em}
+.cert{max-width:560px;margin:20px auto 0;border:3px solid var(--navy);border-radius:18px;padding:20px;background:var(--card);position:relative;text-align:center}
+.cert::before{content:"";position:absolute;inset:6px;border:1.5px dashed var(--line);border-radius:12px;pointer-events:none}
+.cert .who{font-family:var(--f-display);font-weight:800;font-size:1.8em;color:var(--red);line-height:1.2}
+/* glossary */
+.gtools{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:8px 0 14px}
+.gtools input{flex:1;min-width:0;width:100%;max-width:420px;border:2px solid var(--line);border-radius:12px;padding:8px 12px;background:var(--card);color:var(--ink);font:inherit}
+.fchip{border:1.5px solid var(--line);background:var(--card);border-radius:999px;padding:4px 12px;font-size:.82em;font-weight:700}
+.fchip[aria-pressed="true"]{background:var(--navy);color:var(--card);border-color:var(--navy)}
+.glist{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:10px}
+.gitem{background:var(--card);border:1.5px solid var(--line);border-radius:14px;padding:10px 12px;min-width:0;display:flex;flex-direction:column;gap:6px}
+.gitem .gw{font-family:var(--f-display);font-weight:800;font-size:1.3em;line-height:1.1;word-break:break-word}
+.gitem .gm{font-size:.88em}
+.gitem .gma{font-family:var(--f-ar);direction:rtl;text-align:right;font-size:.88em;color:var(--navy)}
+.gitem .gt{font-size:.68em;font-weight:700;letter-spacing:.1em;color:var(--muted);text-transform:uppercase}
+.gitem.hide .gm,.gitem.hide .gma{filter:blur(6px);cursor:pointer}
+.gitem .breakdown .chip{font-size:.8em}
+.mini{font-size:.8em;color:var(--muted)}
+canvas#fx{position:fixed;inset:0;pointer-events:none;z-index:50;width:100%;height:100%}
+.present .qcard .q{font-size:1.7em}
+.reveal{border-style:dashed}
+/* story mode */
+.storyhero{display:grid;grid-template-columns:minmax(0,3fr) minmax(0,2fr);gap:16px;align-items:center;background:var(--card);border:2px solid var(--ink);border-radius:20px;padding:14px;box-shadow:0 4px 0 var(--ink)}
+@media (max-width:760px){.storyhero{grid-template-columns:minmax(0,1fr)}}
+.storyhero h3{font-family:var(--f-display);font-size:1.6em;line-height:1.1;margin:0;color:var(--navy);text-wrap:balance}
+.storyhero p{margin:6px 0 0;color:var(--muted)}
+.stage{position:relative;height:clamp(220px,36vw,340px);border-radius:18px;overflow:hidden;border:2px solid var(--ink);background:#dfeaf7}
+.storyhero .stage{height:clamp(180px,24vw,240px)}
+.stage .bg{position:absolute;inset:0;width:100%;height:100%;display:block}
+.cast{position:absolute;left:0;right:0;bottom:0;display:flex;justify-content:space-evenly;align-items:flex-end;padding-inline:2%}
+.ch{width:clamp(90px,16vw,165px);transition:transform .35s,filter .35s;transform-origin:50% 100%;animation:enter .5s backwards}
+.ch:nth-child(2){animation-delay:.1s}.ch:nth-child(3){animation-delay:.2s}
+@keyframes enter{from{transform:translateY(24px);opacity:0}}
+.ch svg{display:block;width:100%;height:auto}
+.ch.talk{transform:scale(1.07)}
+.ch.dim{filter:saturate(.55) brightness(.82)}
+.dlg{position:relative;margin-top:14px;background:var(--card);border:2px solid var(--ink);border-radius:16px;padding:18px 16px 12px;box-shadow:0 4px 0 var(--ink)}
+.dlg .who{position:absolute;top:-15px;inset-inline-start:16px;color:#fff;border:2px solid var(--ink);border-radius:999px;padding:1px 14px;font-family:var(--f-display);font-weight:700;font-size:.95em}
+.dlg .txt{font-size:1.15em;font-weight:600;margin:4px 0 0;min-height:2.6em}
+.dlg .txa{margin:4px 0 0;color:var(--navy)}
+#sQ .q,#sQ .qa,#sQ .speech{display:none}
+#sQ .qcard{margin-top:14px}
+.chmap{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-top:12px}
+.chc{background:var(--card);border:1.5px solid var(--line);border-radius:14px;padding:8px 10px;text-align:start;display:flex;flex-direction:column;gap:2px;position:relative;min-width:0}
+.chc:hover:not(:disabled){border-color:var(--navy);transform:translateY(-2px)}
+.chc:disabled{opacity:.5;cursor:not-allowed}
+.chc .por{width:62px;height:62px;border-radius:50%;overflow:hidden;background:var(--soft);border:2px solid var(--ink);display:grid;place-items:end center}
+.chc .por svg{width:80px;height:auto;margin-bottom:-14px}
+.chc .tm{font-family:var(--f-display);font-weight:700;color:var(--red);font-size:.9em}
+.chc .t{font-family:var(--f-display);font-weight:700;line-height:1.15}
+.chc .lock{position:absolute;top:8px;inset-inline-end:10px;font-size:.75em;font-weight:700;color:var(--muted)}
+.dia{background:#fdfbf6;border:1.5px solid var(--line);border-radius:14px;padding:8px;display:flex;justify-content:center;margin-top:12px}
+.dia svg{width:100%;max-width:440px;height:auto}
+.hot{fill:transparent;stroke:transparent;stroke-width:3;cursor:pointer}
+.hot:hover{stroke:#0f3d91;stroke-dasharray:6 4;fill:rgba(15,61,145,.08)}
+.hot.ok{fill:rgba(31,154,90,.3);stroke:#1f9a5a;stroke-dasharray:none}
+.hot.no{fill:rgba(198,47,42,.3);stroke:#c62f2a;stroke-dasharray:none}
+.answered .hot{cursor:default}
+.lbls{display:none}
+.labeled .lbls{display:inline}
+.lbls text{font:700 11px "Noto Sans",sans-serif;fill:#14213d;stroke:#fff;stroke-width:3px;paint-order:stroke}
+.chip.n{background:var(--soft);color:var(--ink)}
+.chip.sel{outline:3px solid var(--navy);outline-offset:2px;transform:translateY(-3px)}
+.bins{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:14px}
+.bin{border:2px dashed var(--line);border-radius:14px;padding:10px;min-height:96px;display:flex;flex-direction:column;gap:6px;align-items:center;background:var(--card);font-weight:700}
+.bin .bl{font-size:.75em;letter-spacing:.1em;text-transform:uppercase;padding:2px 10px;border-radius:6px;color:var(--onpart)}
+.bin .in{display:flex;flex-wrap:wrap;gap:6px;justify-content:center}
+.bin .in .chip{font-size:.95em;padding:4px 10px}
+.bin.okb{border-color:var(--good);border-style:solid}.bin.nob{border-color:var(--bad);border-style:solid}
+.mcols{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.4fr);gap:10px;margin-top:14px}
+.mcol{display:flex;flex-direction:column;gap:8px}
+.mb{border:2px solid var(--ink);background:var(--card);border-radius:12px;padding:10px;font-weight:700;text-align:start;box-shadow:0 2px 0 var(--ink);overflow-wrap:anywhere}
+.mb.term{font-family:var(--f-display);font-size:1.1em}
+.mb.sel{background:var(--soft);border-color:var(--navy)}
+.mb.done{background:var(--goodbg);border-color:var(--good);color:var(--good);box-shadow:none;cursor:default}
+.mb.bad{background:var(--badbg);border-color:var(--bad);animation:shake .35s}
+.sent{margin-top:14px;background:var(--warnbg);border-radius:14px;padding:14px;line-height:2.1;font-size:1.05em;border:1.5px solid var(--line)}
+.sent .wd{border:none;background:none;padding:2px 3px;border-radius:6px;font:inherit;color:inherit}
+.sent .wd:hover:not(:disabled){background:var(--card);outline:1.5px dashed var(--navy)}
+.sent .wd.ok{background:var(--goodbg);color:var(--good);font-weight:700}.sent .wd.no{background:var(--badbg);color:var(--bad);text-decoration:line-through}
+.rushbar{height:14px;border-radius:999px;background:var(--soft);border:1.5px solid var(--line);overflow:hidden;margin-top:12px}
+.rushbar i{display:block;height:100%;background:var(--red);transition:width 1s linear}
+.rushq{text-align:center;font-family:var(--f-display);font-weight:800;font-size:clamp(1.6rem,5vw,2.4rem);margin-top:14px}
+.rushs{display:flex;justify-content:space-between;font-weight:700;font-size:.85em;margin-top:6px;font-variant-numeric:tabular-nums}
+.badge{max-width:520px;margin:10px auto 0;text-align:center;border:3px solid var(--navy);border-radius:20px;padding:18px;background:var(--card)}
+.badge .who{font-family:var(--f-display);font-weight:800;font-size:1.9em;color:var(--red);line-height:1.15}
+@media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+<canvas id="fx" aria-hidden="true"></canvas>
+<div class="wrap">
+  <header class="top">
+    <div class="brand">Dental Medical Terminology <span class="ar" style="font-weight:600">· مصطلحات طب الأسنان الطبية</span></div>
+    <div class="tools">
+      <span class="pill" id="ptsPill" title="Total points">0 pts</span>
+      <button class="pill" id="presentBtn" aria-pressed="false" title="Bigger text and a Show answer button for class">Presenter mode</button>
+      <button class="pill" id="soundBtn" aria-pressed="true">Sound on</button>
+    </div>
+  </header>
+
+  <!-- HOME -->
+  <main id="home">
+    <section class="hero">
+      <svg class="toothy big" viewBox="0 0 64 74" aria-hidden="true"><g class="bob"><path d="M14 6c8-5 14 2 18 2s10-7 18-2c9 6 8 20 4 30-3 8-3 31-9 31-5 0-5-19-13-19s-8 19-13 19c-6 0-6-23-9-31C6 26 5 12 14 6z" fill="var(--tooth)" stroke="var(--ink)" stroke-width="3" stroke-linejoin="round"/><circle cx="24" cy="26" r="3" fill="var(--ink)"/><circle cx="40" cy="26" r="3" fill="var(--ink)"/><circle cx="19" cy="33" r="3" fill="#f6a6a6"/><circle cx="45" cy="33" r="3" fill="#f6a6a6"/><path d="M25 34q7 7 14 0" fill="none" stroke="var(--ink)" stroke-width="3" stroke-linecap="round"/></g></svg>
+      <div>
+        <div class="lab mini" style="letter-spacing:.12em;font-weight:700;text-transform:uppercase">Lecture 5 · Word-Decoding Mastery Workshop · <span class="ar">المحاضرة الخامسة · ورشة إتقان تحليل المصطلحات</span></div>
+        <h1><span class="w1">Tooth</span> <span class="w2">Word</span> <span class="w3">Lab</span></h1>
+        <p class="sub">Every word from <b>Lectures 1–4</b> plus <b>new words</b>. Start with the <b>story</b>: spend one day as the new intern at Al-Noor Dental Clinic. Then sharpen your skills in the arcade levels and pass the Mastery Test.</p>
+        <div class="flow" aria-label="Method"><span class="a">RECOGNIZE · تعرّف</span><span class="b">BREAK · قسّم</span><span class="c">DECODE · حلّل</span><span class="d">PREDICT · توقّع</span><span class="e">CONFIRM · تأكّد</span></div>
+        <div class="namebox"><label for="studentName" class="mini">Your name · اسمك</label><input id="studentName" placeholder="e.g. Rahaf" autocomplete="off"></div>
+      </div>
+    </section>
+
+    <div class="sechead"><h2>Story mode · وضع القصة</h2><span class="lab">8 chapters · 08:00 → 17:00 · ≈ 60 min</span></div>
+    <div class="storyhero">
+      <div class="stage" id="heroStage"></div>
+      <div>
+        <h3>A Day at Al-Noor Dental Clinic</h3>
+        <p class="ar" style="color:var(--navy);font-weight:600">يوم في عيادة النور لطب الأسنان</p>
+        <p>It's your first day as an intern. Dr. Huda is your supervisor, Nurse Samir runs the clinic, and six patients are booked. Every chart is full of long words. Decode them to treat everyone before the clinic closes.</p>
+        <div class="row"><button class="btn main" id="storyGo">Start the story ▸</button></div>
+      </div>
+    </div>
+    <div class="chmap" id="chMap"></div>
+
+    <div class="sechead"><h2>Today's game plan · خطة اللعب اليوم</h2><span class="lab">≈ 95 min · from easy to expert</span></div>
+    <div class="plan">
+      <div style="background:var(--soft);color:var(--ink)"><b>8</b>Warm-Up</div>
+      <div class="p"><b>12</b>Stage 1</div>
+      <div class="r"><b>15</b>Stage 2</div>
+      <div class="s"><b>15</b>Stage 3</div>
+      <div style="background:#9a7fe0"><b>12</b>Stage 4</div>
+      <div class="v"><b>15</b>Clinic</div>
+      <div style="background:var(--navy);color:var(--card)"><b>8</b>Boss</div>
+      <div style="background:var(--ink);color:var(--card)"><b>10</b>Mastery</div>
+    </div>
+
+    <div class="sechead"><h2>Practice path · مسار التدريب</h2><span class="lab">Easy → Hard</span></div>
+    <div class="grid" id="pathGrid"></div>
+
+    <div class="sechead"><h2>Clinic · العيادة</h2><span class="lab">6 dental records · new words</span></div>
+    <div class="grid" id="clinicGrid"></div>
+
+    <div class="sechead"><h2>Challenge · التحدي</h2><span class="lab">Review first, then test</span></div>
+    <div class="grid" id="challengeGrid"></div>
+
+    <p class="note">Patients and records are fictional teaching cases written in the style of real clinic notes. Your progress stays on this device only. <button class="btn ghost" id="resetBtn" style="padding:2px 10px;font-size:.95em">Reset my progress</button><span id="resetConfirm" hidden> Sure? <button class="btn ghost" id="resetYes" style="padding:2px 10px">Yes, reset</button></span></p>
+  </main>
+
+  <!-- PLAY -->
+  <main id="play" hidden>
+    <div class="bar">
+      <button class="btn ghost" id="backBtn">← Levels</button>
+      <h2 id="lvlTitle"></h2>
+      <span class="pill" id="streakPill">Streak 0</span>
+      <span class="pill" id="lvlPts">0 pts</span>
+    </div>
+    <div class="dots" id="dots"></div>
+    <div class="playgrid" id="pgrid">
+      <aside class="chart" id="chart" hidden></aside>
+      <section class="qcard" id="qcard"></section>
+    </div>
+  </main>
+
+  <!-- RESULT -->
+  <main id="result" hidden></main>
+
+  <!-- STORY -->
+  <main id="story" hidden>
+    <div class="bar"><button class="btn ghost" id="sBack">← Story map</button><h2 id="sTitle"></h2><span class="pill" id="sProg"></span><span class="pill" id="sPts">0 pts</span></div>
+    <div class="stage" id="stage"></div>
+    <div class="dlg" id="dlg"></div>
+    <div id="sQ"></div>
+  </main>
+
+  <!-- GLOSSARY -->
+  <main id="gloss" hidden>
+    <div class="bar"><button class="btn ghost" id="gBack">← Levels</button><h2>Glossary · المسرد</h2></div>
+    <p class="mini">Every part and term from Lectures 1–5. Each colour shows the job a part does. Turn on self-test to hide meanings; tap a card to peek.</p>
+    <div class="legend"><span><i class="p"></i>Prefix · سابقة</span><span><i class="r"></i>Root · جذر</span><span><i class="v"></i>Combining vowel · حرف ربط</span><span><i class="s"></i>Suffix · لاحقة</span></div>
+    <div class="gtools">
+      <input id="gSearch" placeholder="Search a term, part or meaning…" aria-label="Search glossary">
+      <span id="gFilters" style="display:flex;gap:6px;flex-wrap:wrap"></span>
+      <button class="fchip" id="gHide" aria-pressed="false">Self-test</button>
+    </div>
+    <div class="mini" id="gCount"></div>
+    <div class="glist" id="gList" style="margin-top:8px"></div>
+  </main>
+</div>
+
+<script>
+/* ============ DATA ============ */
+const PARTS={
+'sub-':['below; under','تحت'],'supra-':['above','فوق'],'peri-':['around','حول'],'inter-':['between','بين'],'intra-':['inside; within','داخل'],'extra-':['outside','خارج'],'endo-':['inside; within','داخل'],'trans-':['through; across','عبر'],'hypo-':['below normal; deficient','أقل من الطبيعي'],'hyper-':['excessive; above normal','زيادة'],'micro-':['small','صغير'],'macro-':['large','كبير'],'a-':['without; absence of','بدون / غياب'],'an-':['without; absence of','بدون / غياب'],'oligo-':['few','قليل'],'poly-':['many','متعدد'],'hemi-':['half','نصف'],'dys-':['bad; difficult; abnormal','صعب / غير طبيعي'],'mal-':['bad; poor','سيئ'],'retro-':['behind; backward','خلف'],'pro-':['forward','إلى الأمام'],'post-':['after','بعد'],'ortho-':['straight; correct','مستقيم / صحيح'],
+'o':['combining vowel','حرف ربط'],
+'gingiv':['gingiva; gum','اللثة'],'odont':['tooth','سن'],'dont':['tooth','سن'],'dent':['tooth','سن'],'oste':['bone','عظم'],'myel':['bone marrow','نخاع'],'coron':['crown','تاج'],'pulp':['dental pulp','لب السن'],'apic':['apex; root tip','ذروة الجذر'],'alveol':['alveolus; tooth socket','السنخ'],'cement':['cementum','الملاط'],'amel':['enamel','المينا'],'cheil':['lip','الشفة'],'stomat':['mouth','الفم'],'stom':['mouth','الفم'],'or':['mouth','الفم'],'gloss':['tongue','اللسان'],'palat':['palate','الحنك'],'sial':['saliva; salivary gland','لعاب / غدة لعابية'],'aden':['gland','غدة'],'lith':['stone','حصاة'],'arthr':['joint','مفصل'],'my':['muscle','عضلة'],'tempor':['temporal region','المنطقة الصدغية'],'mandibul':['mandible','الفك السفلي'],'maxill':['maxilla','الفك العلوي'],'faci':['face','الوجه'],'gnath':['jaw','الفك'],'fren':['frenum','اللجام'],'xer':['dry','جاف'],'halit':['breath','النَّفَس'],'leuk':['white','أبيض'],'erythr':['red','أحمر'],'plak':['plate; patch','لويحة'],'candid':['Candida (yeast)','المبيضات'],'necr':['death','موت'],'radi':['radiation; X-rays','إشعاع'],'blast':['forming cell','خلية مكوِّنة'],'geus':['taste','التذوق'],'ankyl':['stiff; bound','متيبس / ملتصق'],'parot':['parotid gland','الغدة النكفية'],'parotid':['parotid gland','الغدة النكفية'],'py':['pus','قيح'],'neur':['nerve','عصب'],'cephal':['head','الرأس'],'fluor':['fluoride','الفلور'],'phag':['swallowing','البلع'],'occlus':['occlusion; bite','الإطباق'],'sect':['cut','قطع'],'muc':['mucus','مخاط'],'esthes':['sensation','الإحساس'],'operat':['operation','عملية'],'plas':['formation; growth','تكوُّن / نمو'],
+'-itis':['inflammation','التهاب'],'-al':['pertaining to','متعلق بـ'],'-ar':['pertaining to','متعلق بـ'],'-ic':['pertaining to','متعلق بـ'],'-ia':['condition','حالة'],'-logy':['study of','علم / دراسة'],'-genic':['originating in; produced by','ناشئ من'],'-algia':['pain','ألم'],'-dynia':['pain','ألم'],'-osis':['condition (abnormal)','حالة غير طبيعية'],'-iasis':['condition','حالة'],'-ectomy':['surgical removal','استئصال جراحي'],'-tomy':['incision; cutting into','شق / فتح'],'-plasty':['surgical repair; reshaping','ترميم / إعادة تشكيل'],'-rrhaphy':['suturing','خياطة'],'-pexy':['surgical fixation','تثبيت جراحي'],'-centesis':['puncture to remove fluid','بزل / سحب سائل'],'-tripsy':['crushing','تفتيت'],'-graphy':['imaging process','تصوير'],'-metry':['measurement','قياس'],'-oma':['tumour; mass','ورم / كتلة'],'-sclerosis':['hardening','تصلّب'],'-genesis':['formation','تكوُّن'],'-blast':['forming cell','خلية مكوِّنة'],'-rrhea':['flow; discharge','سيلان'],'-pathy':['disease','مرض'],'-ism':['condition; process','حالة'],'-ion':['process; condition','عملية / حالة'],'-cele':['swelling; sac','تورّم / كيس'],'-ive':['pertaining to','متعلق بـ']
+};
+/* [word, parts, meaning EN, meaning AR, tag] — tag L1..L4 = lectures, NEW = new today, MEM = memorize whole */
+const TERMS=[
+['gingivitis','gingiv+-itis','inflammation of the gingiva','التهاب اللثة','L1'],
+['gingival','gingiv+-al','pertaining to the gingiva','متعلق باللثة','L2'],
+['subgingival','sub-+gingiv+-al','located below the gingiva','موجود تحت اللثة','L1'],
+['supragingival','supra-+gingiv+-al','located above the gingiva','موجود فوق اللثة','L2'],
+['gingivectomy','gingiv+-ectomy','surgical removal of gingival tissue','استئصال جراحي لأنسجة اللثة','L3'],
+['pericoronitis','peri-+coron+-itis','inflammation of the soft tissue around the crown of a partly erupted tooth','التهاب الأنسجة حول تاج سن بازغ جزئياً','L1'],
+['pericoronal','peri-+coron+-al','around the crown of a tooth','متعلق بالمنطقة المحيطة بتاج السن','L2'],
+['periodontitis','peri-+odont+-itis','inflammation of the tissues supporting the teeth','التهاب الأنسجة الداعمة للأسنان','L1'],
+['periapical','peri-+apic+-al','around the root apex','حول ذروة الجذر','L4'],
+['periosteal','peri-+oste+-al','around the bone','متعلق بما حول العظم','L1'],
+['osteomyelitis','oste+o+myel+-itis','inflammation of bone and bone marrow','التهاب العظم ونخاع العظم','L1'],
+['osteology','oste+o+-logy','study of bone','علم العظام','L1'],
+['osteotomy','oste+o+-tomy','cutting into bone','شق العظم','L3'],
+['osteosclerosis','oste+o+-sclerosis','hardening of bone','تصلّب العظم','L4'],
+['temporomandibular','tempor+o+mandibul+-ar','pertaining to the temporal bone and the mandible','متعلق بالعظم الصدغي والفك السفلي','L1'],
+['odontogenic','odont+o+-genic','originating in a tooth or tooth-forming tissue','ناشئ من السن','L1'],
+['odontology','odont+o+-logy','study of teeth','علم الأسنان','L2'],
+['odontalgia','odont+-algia','tooth pain','ألم السن','L4'],
+['odontoma','odont+-oma','tumour-like mass of tooth tissue','ورم من أنسجة السن','L4'],
+['endodontic','endo-+dont+-ic','pertaining to the inside of the tooth','متعلق بداخل السن','L1'],
+['polyodontia','poly-+odont+-ia','more teeth than normal','تعدد الأسنان','L2'],
+['pulpitis','pulp+-itis','inflammation of the dental pulp','التهاب لب السن','L2'],
+['pulpotomy','pulp+o+-tomy','cutting into the pulp; removal of the crown part of the pulp','شق لب السن / إزالة الجزء التاجي من اللب','L3'],
+['cheilitis','cheil+-itis','inflammation of the lip','التهاب الشفة','L3'],
+['stomatitis','stomat+-itis','inflammation of the mouth / oral mucosa','التهاب الفم','L3'],
+['apicoectomy','apic+o+-ectomy','surgical removal of the root apex','استئصال ذروة الجذر','L3'],
+['alveoloplasty','alveol+o+-plasty','surgical reshaping of the alveolar bone','إعادة تشكيل العظم السنخي','L3'],
+['microdontia','micro-+dont+-ia','abnormally small teeth','صغر حجم الأسنان','L3'],
+['hypodontia','hypo-+dont+-ia','fewer teeth than normal','نقص عدد الأسنان','L3'],
+['anodontia','an-+odont+-ia','absence of teeth','غياب الأسنان','L4'],
+['oligodontia','oligo-+dont+-ia','many teeth missing (few teeth)','قلة عدد الأسنان','L4'],
+['macrodontia','macro-+dont+-ia','abnormally large teeth','كبر حجم الأسنان','L4'],
+['sialadenitis','sial+aden+-itis','inflammation of a salivary gland','التهاب الغدة اللعابية','L3'],
+['sialolithiasis','sial+o+lith+-iasis','condition of salivary stones','حالة وجود حصوات لعابية','L4'],
+['sialorrhea','sial+o+-rrhea','excessive flow of saliva','سيلان اللعاب الزائد','L4'],
+['sialolithotripsy','sial+o+lith+o+-tripsy','crushing of a salivary stone','تفتيت الحصاة اللعابية','L4'],
+['hypercementosis','hyper-+cement+-osis','excessive cementum on the root','فرط تكوّن الملاط','L4'],
+['cementoblast','cement+o+-blast','cementum-forming cell','خلية مكوِّنة للملاط','L4'],
+['amelogenesis','amel+o+-genesis','formation of enamel','تكوّن المينا','L4'],
+['glossitis','gloss+-itis','inflammation of the tongue','التهاب اللسان','L4'],
+['glossodynia','gloss+o+-dynia','tongue pain (burning tongue)','ألم اللسان','L4'],
+['glossopexy','gloss+o+-pexy','surgical fixation of the tongue','تثبيت اللسان جراحياً','L4'],
+['dysphagia','dys-+phag+-ia','difficulty swallowing','صعوبة البلع','L4'],
+['palatoplasty','palat+o+-plasty','surgical repair of the palate','ترميم الحنك','L4'],
+['palatorrhaphy','palat+o+-rrhaphy','suturing of the palate','خياطة الحنك','L4'],
+['arthrocentesis','arthr+o+-centesis','puncture of a joint to remove fluid','بزل المفصل','L4'],
+['arthralgia','arthr+-algia','joint pain','ألم المفصل','L4'],
+['myalgia','my+-algia','muscle pain','ألم العضلات','L4'],
+['cephalometry','cephal+o+-metry','measurement of the head (on X-ray)','قياس الرأس','L4'],
+['radiography','radi+o+-graphy','X-ray imaging','التصوير الشعاعي','L4'],
+['fluorosis','fluor+-osis','condition caused by too much fluoride','التسمم بالفلور','L4'],
+['prognathism','pro-+gnath+-ism','jaw positioned forward','بروز الفك','L4'],
+['retrognathia','retro-+gnath+-ia','jaw positioned backward','تراجع الفك','L4'],
+['malocclusion','mal-+occlus+-ion','poor bite','سوء الإطباق','L4'],
+['interdental','inter-+dent+-al','between the teeth','بين الأسنان','L4'],
+['intraoral','intra-+or+-al','inside the mouth','داخل الفم','L4'],
+['extraoral','extra-+or+-al','outside the mouth','خارج الفم','L4'],
+['transalveolar','trans-+alveol+-ar','through the alveolar bone','عبر العظم السنخي','L4'],
+['hemisection','hemi-+sect+-ion','cutting a two-rooted tooth in half','قطع السن إلى نصفين','L4'],
+['parotidectomy','parotid+-ectomy','removal of the parotid gland','استئصال الغدة النكفية','L4'],
+['pyogenic','py+o+-genic','pus-producing','مولّد للقيح','L4'],
+['neuropathy','neur+o+-pathy','disease of a nerve','اعتلال العصب','L4'],
+['maxillofacial','maxill+o+faci+-al','pertaining to the jaws and face','متعلق بالفكين والوجه','L4'],
+['mucocele','muc+o+-cele','mucus-filled swelling','كيس مخاطي','L4'],
+/* NEW today */
+['gingivoplasty','gingiv+o+-plasty','surgical reshaping of the gingiva','إعادة تشكيل اللثة جراحياً','NEW'],
+['gingivostomatitis','gingiv+o+stomat+-itis','inflammation of the gums and the mouth lining','التهاب اللثة والفم','NEW'],
+['frenectomy','fren+-ectomy','surgical removal of a frenum','استئصال اللجام','NEW'],
+['frenotomy','fren+o+-tomy','cutting a frenum (tongue-tie release)','شق اللجام','NEW'],
+['ankyloglossia','ankyl+o+gloss+-ia','tongue-tie; tongue bound to the floor of the mouth','ربط اللسان','NEW'],
+['xerostomia','xer+o+stom+-ia','dry mouth','جفاف الفم','NEW'],
+['halitosis','halit+-osis','bad breath','رائحة الفم الكريهة','NEW'],
+['leukoplakia','leuk+o+plak+-ia','white patch on the oral mucosa','لويحة بيضاء','NEW'],
+['erythroplakia','erythr+o+plak+-ia','red patch on the oral mucosa','لويحة حمراء','NEW'],
+['candidiasis','candid+-iasis','Candida (yeast) infection; oral thrush','داء المبيضات (السُّلاق)','NEW'],
+['dysgeusia','dys-+geus+-ia','distorted sense of taste','اضطراب التذوق','NEW'],
+['ageusia','a-+geus+-ia','loss of taste','فقدان التذوق','NEW'],
+['osteoradionecrosis','oste+o+radi+o+necr+-osis','death of bone caused by radiation','موت العظم بسبب الإشعاع','NEW'],
+['ameloblastoma','amel+o+blast+-oma','tumour of enamel-forming cells','ورم الخلايا المكوِّنة للمينا','NEW'],
+['pulpectomy','pulp+-ectomy','removal of the entire dental pulp','استئصال اللب بالكامل','NEW'],
+['hyperdontia','hyper-+dont+-ia','extra teeth (more than normal)','زيادة عدد الأسنان','NEW'],
+['alveolitis','alveol+-itis','inflammation of the tooth socket (dry socket)','التهاب السنخ (السنخ الجاف)','NEW'],
+['glossectomy','gloss+-ectomy','surgical removal of (part of) the tongue','استئصال اللسان','NEW'],
+['cheiloplasty','cheil+o+-plasty','surgical repair of the lip','ترميم الشفة','NEW'],
+['sialography','sial+o+-graphy','X-ray imaging of the salivary glands and ducts','تصوير الغدد اللعابية','NEW'],
+['sialadenectomy','sial+aden+-ectomy','surgical removal of a salivary gland','استئصال الغدة اللعابية','NEW'],
+['parotitis','parot+-itis','inflammation of the parotid gland','التهاب الغدة النكفية','NEW'],
+['hypoplasia','hypo-+plas+-ia','underdevelopment (e.g. enamel hypoplasia)','نقص التكوّن','NEW'],
+['hyperplasia','hyper-+plas+-ia','overgrowth (e.g. gingival hyperplasia)','فرط التنسّج','NEW'],
+['orthognathic','ortho-+gnath+-ic','pertaining to straightening the jaws','متعلق بتقويم الفكين','NEW'],
+['macroglossia','macro-+gloss+-ia','abnormally large tongue','كبر حجم اللسان','NEW'],
+['microstomia','micro-+stom+-ia','abnormally small mouth opening','صغر فتحة الفم','NEW'],
+['hemimandibulectomy','hemi-+mandibul+-ectomy','surgical removal of half of the mandible','استئصال نصف الفك السفلي','NEW'],
+['maxillectomy','maxill+-ectomy','surgical removal of (part of) the maxilla','استئصال الفك العلوي','NEW'],
+['submandibular','sub-+mandibul+-ar','below the mandible','تحت الفك السفلي','NEW'],
+['anesthesia','an-+esthes+-ia','absence of sensation','غياب الإحساس (التخدير)','NEW'],
+['postoperative','post-+operat+-ive','after surgery','بعد العملية','NEW'],
+/* memorize whole */
+['trismus','','limited mouth opening (jaw muscle spasm)','صعوبة فتح الفم (الضزز)','MEM'],
+['bruxism','','grinding or clenching the teeth','صرير الأسنان','MEM'],
+['plaque','','soft bacterial film on the teeth','اللويحة الجرثومية','MEM'],
+['dry socket','','painful empty socket after extraction','السنخ الجاف','MEM'],
+['root canal','','canal inside the root; root canal treatment','قناة الجذر / علاج العصب','MEM'],
+['bitewing','','X-ray film that shows upper and lower crowns together','صورة الجناح العاض','MEM']
+];
+const TERM={};TERMS.forEach(t=>TERM[t[0]]={w:t[0],parts:t[1]?t[1].split('+'):[],en:t[2],ar:t[3],tag:t[4]});
+const ptype=p=>p==='o'?'v':p.endsWith('-')?'p':p.startsWith('-')?'s':'r';
+const plain=p=>p.replace(/-/g,'');
+const PNAME={p:'Prefix',r:'Root',v:'Combining vowel',s:'Suffix'};
+
+/* question builders */
+const M=(q,qa,show,opts,ex,term)=>({k:'mc',q,qa,show,opts,ex,term});
+const B=(q,qa,target,bank,ex)=>({k:'build',q,qa,target,bank,ex,term:target});
+const S=(word,ex)=>({k:'split',q:'Split the word into its parts.',qa:'قسّم الكلمة إلى أجزائها.',word,ex,term:word});
+const T=(q,qa,a,ex,alt)=>({k:'type',q,qa,a,ex,alt:alt||[],term:a});
+const MEANQ='What does this part mean?',MEANQA='ما معنى هذا الجزء؟',TYPEQ='What kind of part is this?',TYPEQA='ما نوع هذا الجزء؟';
+const TYPES4=['Prefix · سابقة','Root · جذر','Suffix · لاحقة','Combining vowel · حرف ربط'];
+const tOpts=c=>[c,...TYPES4.filter(x=>x!==c)];
+
+const LEVELS=[
+{id:'warm',grp:'path',eb:'Warm-up',t:'Rapid Fire',ta:'أسئلة سريعة',diff:'easy',mins:8,k:'var(--line)',d:'The most common parts from Lectures 1–4.',hello:'Quick! Say the meaning out loud before you click.',qs:[
+M(MEANQ,MEANQA,'#-itis',['inflammation','surgical removal','pain','condition'],'-itis = inflammation · التهاب'),
+M(MEANQ,MEANQA,'#peri-',['around','below','between','inside'],'peri- = around · حول'),
+M(MEANQ,MEANQA,'#odont',['tooth','bone','gum','jaw'],'odont = tooth · سن'),
+M(MEANQ,MEANQA,'#-ectomy',['surgical removal','cutting into','surgical repair','suturing'],'-ectomy = surgical removal · استئصال جراحي'),
+M(MEANQ,MEANQA,'#sub-',['below; under','above','around','through'],'sub- = below · تحت'),
+M(MEANQ,MEANQA,'#gingiv',['gingiva; gum','tongue','lip','palate'],'gingiv = gingiva · اللثة'),
+M(MEANQ,MEANQA,'#-algia',['pain','swelling','flow','hardening'],'-algia = pain · ألم'),
+M(MEANQ,MEANQA,'#oste',['bone','bone marrow','tooth','joint'],'oste = bone · عظم')]},
+{id:'s1',grp:'path',eb:'Stage 1',t:'Foundations',ta:'الأساسيات',diff:'easy',mins:12,k:'var(--pre)',d:'Every prefix, suffix and root type. Name the job, then the meaning.',hello:'Remember the colours: yellow prefix, blue root, teal vowel, red suffix.',qs:[
+M(TYPEQ,TYPEQA,'#supra-',tOpts('Prefix · سابقة'),'supra- sits at the start and tells us WHERE: above.'),
+M(TYPEQ,TYPEQA,'#cement',tOpts('Root · جذر'),'cement is the body part: cementum.'),
+M(TYPEQ,TYPEQA,'#-plasty',tOpts('Suffix · لاحقة'),'-plasty sits at the end and tells us what is happening: repair.'),
+M('In odontology, what is the "o" between odont and -logy?','ما هو حرف o في odontology؟','@odontology',tOpts('Combining vowel · حرف ربط'),'The o is a bridge. It has no medical meaning by itself.','odontology'),
+M(MEANQ,MEANQA,'#-plasty',['surgical repair; reshaping','surgical removal','incision','fixation'],'-plasty = repair / reshaping · ترميم'),
+M(MEANQ,MEANQA,'#-tomy',['incision; cutting into','surgical removal','crushing','imaging'],'-tomy = cutting into · شق'),
+M(MEANQ,MEANQA,'#cheil',['lip','cheek','tongue','mouth'],'cheil = lip · الشفة'),
+M(MEANQ,MEANQA,'#stomat',['mouth','stomach','tooth socket','saliva'],'stomat = mouth · الفم. (Not stomach!)'),
+M(MEANQ,MEANQA,'#hypo-',['below normal; deficient','excessive','small','many'],'hypo- = below normal · نقص'),
+M(MEANQ,MEANQA,'#-osis',['condition (abnormal)','inflammation','tumour','study of'],'-osis = abnormal condition · حالة'),
+M('In apicoectomy, which part tells you WHAT is done?','أيّ جزء يحدّد نوع الإجراء؟','@apicoectomy',['-ectomy','apic','o','there is no such part'],'The suffix names the action: -ectomy = removal.','apicoectomy'),
+M('Microdontia vs hypodontia: what changed the meaning?','ما الذي غيّر المعنى؟',null,['The prefix (size vs number)','The root','The suffix','The combining vowel'],'micro- = small (size); hypo- = deficient (number). Same root, same suffix.')]},
+{id:'s2',grp:'path',eb:'Stage 2',t:'Word Builder',ta:'بناء الكلمات',diff:'medium',mins:15,k:'var(--root)',d:'Build and decode words with colour help. Watch the o.',hello:'Tap the blocks in order. Only add o where a rule needs it!',qs:[
+B('Build: inflammation of the dental pulp','ابنِ: التهاب لب السن','pulpitis',['pulp','-itis','gingiv','-algia','o'],'Suffix starts with a vowel, so no o.'),
+B('Build: located above the gingiva','ابنِ: فوق اللثة','supragingival',['supra-','sub-','gingiv','-al','o'],'A prefix joins directly, no o.'),
+B('Build: study of teeth','ابنِ: علم الأسنان','odontology',['odont','o','-logy','oste','-itis'],'-logy starts with a consonant, so keep the o.'),
+B('NEW · Build: surgical removal of a frenum','جديد · ابنِ: استئصال اللجام','frenectomy',['fren','-ectomy','-tomy','o','gloss'],'fren = frenum (the small fold under the tongue or lip).'),
+B('Build: cutting into bone','ابنِ: شق العظم','osteotomy',['oste','o','-tomy','-ectomy','myel'],'-tomy = cutting into; -ectomy would mean removing.'),
+B('NEW · Build: surgical repair of the lip','جديد · ابنِ: ترميم الشفة','cheiloplasty',['cheil','o','-plasty','-pexy','stomat'],'cheil + o + plasty.'),
+B('NEW · Build: dry mouth','جديد · ابنِ: جفاف الفم','xerostomia',['xer','o','stom','-ia','-itis','gloss'],'xer = dry, stom = mouth, -ia = condition.'),
+B('NEW · Build: inflammation of the gums and the mouth','جديد · ابنِ: التهاب اللثة والفم','gingivostomatitis',['gingiv','o','stomat','-itis','cheil','-osis'],'Two roots, so the o stays between them.'),
+B('NEW · Build: extra teeth','جديد · ابنِ: زيادة عدد الأسنان','hyperdontia',['hyper-','hypo-','dont','-ia','-osis'],'Opposite of hypodontia: hyper- = excessive.'),
+B('NEW · Build: X-ray imaging of the salivary glands','جديد · ابنِ: تصوير الغدد اللعابية','sialography',['sial','o','-graphy','-gram','aden'],'-graphy = the imaging process; -gram = the image itself.'),
+B('NEW · Build: abnormally large tongue','جديد · ابنِ: كبر حجم اللسان','macroglossia',['macro-','micro-','gloss','-ia','cheil'],'macro- = large.'),
+B('NEW · Build: surgical removal of a salivary gland','جديد · ابنِ: استئصال الغدة اللعابية','sialadenectomy',['sial','aden','-ectomy','o','-itis'],'Trap! aden starts with a vowel, so no o: sial + aden. Like sialadenitis.')]},
+{id:'s3',grp:'path',eb:'Stage 3',t:'Decoder',ta:'المحلّل',diff:'hard',mins:15,k:'var(--suf)',d:'No colours. Long words, two roots, spelling and typing.',hello:'No colours now. Find the suffix first, then work backwards.',plain:true,qs:[
+S('periapical','peri- (around) + apic (apex) + -al = around the root apex.'),
+M('What does this new word mean?','ماذا تعني هذه الكلمة الجديدة؟','!leukoplakia',['a white patch on the oral mucosa','a red patch on the oral mucosa','white spots on the teeth','bleeding gums'],'leuk/o = white, plak = patch, -ia = condition.','leukoplakia'),
+S('sialolithiasis','sial + o + lith + -iasis. Two roots, so o stays between them.'),
+M('What does this new word mean?','ماذا تعني هذه الكلمة الجديدة؟','!ankyloglossia',['tongue-tie (tongue bound down)','large tongue','tongue pain','inflammation of the tongue'],'ankyl/o = stiff, bound + gloss = tongue + -ia.','ankyloglossia'),
+S('hypercementosis','hyper- + cement + -osis = excess cementum.'),
+M('What does this new word mean?','ماذا تعني هذه الكلمة الجديدة؟','!dysgeusia',['distorted sense of taste','difficulty swallowing','loss of saliva','painful tongue'],'dys- = abnormal, geus = taste, -ia = condition. Compare dysphagia (swallowing).','dysgeusia'),
+S('temporomandibular','tempor + o + mandibul + -ar. The o joins the two roots.'),
+M('What does this new word mean?','ماذا تعني هذه الكلمة الجديدة؟','!halitosis',['bad breath','bleeding gums','dry mouth','tooth decay'],'halit = breath, -osis = abnormal condition.','halitosis'),
+S('ankyloglossia','ankyl + o + gloss + -ia.'),
+M('Alveolitis after an extraction is better known as…','يُعرف التهاب السنخ بعد الخلع باسم…','!alveolitis',['dry socket','root canal','pericoronitis','periodontitis'],'alveol = tooth socket, -itis = inflammation. Clinicians call it dry socket.','alveolitis'),
+T('Type the term: surgical reshaping of the gingiva','اكتب المصطلح: إعادة تشكيل اللثة','gingivoplasty','gingiv + o + plasty (plasty starts with a consonant, keep o).'),
+T('Type the term: removal of the entire dental pulp','اكتب المصطلح: استئصال اللب بالكامل','pulpectomy','pulp + ectomy. No o: -ectomy starts with a vowel.')]},
+{id:'s4',grp:'path',eb:'Stage 4',t:'Precision',ta:'الدقة',diff:'hard',mins:12,k:'#9a7fe0',d:'Spelling, look-alikes, opposite prefixes, literal vs clinical, decode or not.',hello:'One letter can change the meaning. Read slowly.',qs:[
+M('Which spelling is correct?','أيّ تهجئة صحيحة؟',null,['sialadenitis','sialoadenitis','sialadnitis','sialodenitis'],'aden starts with a vowel, so the o drops: sial + aden + itis.','sialadenitis'),
+M('Which spelling is correct?','أيّ تهجئة صحيحة؟',null,['gingivectomy','gingivoectomy','gingivectmy','gingevectomy'],'-ectomy starts with a vowel: drop the o.','gingivectomy'),
+M('Which term KEEPS its o before a vowel suffix? (the exception)','أيّ مصطلح يحتفظ بـ o رغم أن اللاحقة تبدأ بحرف متحرك؟',null,['apicoectomy','gingivectomy','pulpectomy','frenectomy'],'apicoectomy is the exception to know.','apicoectomy'),
+M('The ___ membrane lines the inside of the mouth.','الغشاء ___ يبطّن الفم.',null,['mucous','mucus','mucose','mucos'],'mucous describes (adjective). mucus is the substance (noun).'),
+M('Thick ___ was blocking the salivary duct.','___ سميك يسدّ القناة اللعابية.',null,['mucus','mucous','mucosal','mucoid'],'mucus = the substance itself.'),
+M('An ___ examination checks the mouth.','فحص ___ يعني فحص الفم.',null,['oral','aural','orral','aureal'],'oral = mouth. aural = ear.'),
+M('X-ray: two upper lateral incisors never formed. Which term?','لم تتكون قاطعتان جانبيتان. أيّ مصطلح؟',null,['hypodontia','hyperdontia','microdontia','macrodontia'],'Missing teeth = problem of number, below normal: hypo-.','hypodontia'),
+M('Calculus you can see ABOVE the gum line is…','الجير فوق خط اللثة هو…',null,['supragingival','subgingival','interdental','periapical'],'supra- = above. sub- = below.','supragingival'),
+M('Pericoronitis. Literal: "inflammation around the crown". Clinical meaning?','المعنى السريري لـ pericoronitis؟','@pericoronitis',['inflammation of the gum flap around a partly erupted tooth','inflammation of a dental crown restoration','inflammation of the tooth pulp','a crown that is fractured'],'Decode to predict. Confirm to be precise.','pericoronitis'),
+M('Which term should you memorize as a whole (not decode)?','أيّ مصطلح يُحفظ كاملاً؟',null,['dry socket','gingivitis','osteotomy','periapical'],'Use the method only on words built from parts.','dry socket'),
+M('Trismus (limited mouth opening): decode it or memorize it?','الضزز: نحلّله أم نحفظه؟','!trismus',['memorize it: it is not built from course parts','decode: tri- = three','decode: -ismus = inflammation','decode: tris = tooth'],'Do not force parts that are not there. tri- does not mean three here.','trismus'),
+M('Pulpotomy vs pulpectomy: which removes the ENTIRE pulp?','أيّهما يزيل اللب بالكامل؟',null,['pulpectomy','pulpotomy','both','neither'],'-ectomy = removal (all of it). -tomy = cutting into (pulpotomy removes only the crown part).','pulpectomy')]},
+{id:'every',grp:'path',eb:'Word bank',t:'Every Word',ta:'كل الكلمات',diff:'medium',mins:0,k:'var(--good)',d:'Works through every term until all are mastered. 10 words per round.',hello:'Each right answer masters a word. Come back until the bar is full.',every:true,qs:[]},
+
+{id:'c1',grp:'clinic',eb:'Case 1',t:'Bleeding Gums',ta:'نزيف اللثة',diff:'easy',mins:3,k:'var(--cv)',
+ pt:{name:'Lina Haddad',age:34,sex:'F',clinic:'Periodontics Clinic',col:'var(--pre)',cc:'"My gums bleed every time I brush."',
+ rec:'Generalised [[gingivitis]] with [[interdental]] bleeding on probing. Heavy [[supragingival]] calculus on the lower incisors; small amount of [[subgingival]] calculus on the molars. Pockets 3 mm, no bone loss, so no [[periodontitis]] yet.',plan:'Scaling and oral hygiene instruction. Review in 4 weeks. [[Gingivectomy]] not needed.'},
+ qs:[
+M('"Gingivitis": what is inflamed?','ما الملتهب؟',null,['the gingiva (gums)','the tongue','the tooth pulp','the jaw bone'],'gingiv = gingiva, -itis = inflammation.','gingivitis'),
+M('"Interdental bleeding" happens…','النزيف بين…',null,['between the teeth','inside the tooth','under the tongue','around the root tip'],'inter- = between, dent = tooth.','interdental'),
+M('Calculus ABOVE the gum line is…','الجير فوق اللثة…',null,['supragingival','subgingival','periapical','intraoral'],'supra- = above.','supragingival'),
+M('Which part of "subgingival" gives the location?','أيّ جزء يحدد المكان؟','@subgingival',['sub-','gingiv','-al','there is none'],'The prefix answers WHERE.','subgingival'),
+M('Why "no periodontitis yet"?','لماذا لا يوجد التهاب دواعم بعد؟',null,['the supporting tissues and bone are not affected yet','the pulp is healthy','there are no teeth around','the patient has no pain'],'peri- + odont: tissues around the tooth. No bone loss means it has not spread there.','periodontitis'),
+M('"Gingivectomy" would mean…','يعني…',null,['surgical removal of gum tissue','surgical repair of the gums','cutting into the gums','inflammation of the gums'],'-ectomy = surgical removal.','gingivectomy')]},
+{id:'c2',grp:'clinic',eb:'Case 2',t:'Gums & Root Tip',ta:'اللثة وقمة الجذر',diff:'medium',mins:4,k:'var(--cv)',
+ pt:{name:'Omar Khalil',age:47,sex:'M',clinic:'Endodontics Clinic',col:'var(--root)',cc:'"My back tooth wakes me up at night."',
+ rec:'Lower right first molar. Severe night pain for 3 days: irreversible [[pulpitis]]. Periapical [[radiography]] shows a [[periapical]] lesion. Emergency [[pulpectomy]] done, then [[root canal]] treatment. Six months later the lesion has not healed. Roots show [[hypercementosis]]; mild [[periodontitis]] around the tooth.',plan:'[[Apicoectomy]] booked with the oral surgeon.'},
+ qs:[
+M('"Pulpitis" means…','يعني…',null,['inflammation of the dental pulp','pain in the gums','infection of the bone','inflammation of the lip'],'pulp + -itis.','pulpitis'),
+M('In "radiography", the suffix tells us it is…','اللاحقة تخبرنا أنها…','@radiography',['an imaging process','a removal','a measurement','an inflammation'],'-graphy = imaging process.','radiography'),
+M('A "periapical" lesion is located…','الآفة موجودة…',null,['around the root tip','around the crown','between two teeth','inside the enamel'],'peri- = around, apic = apex.','periapical'),
+M('Pulpectomy removed…','ماذا أزال؟',null,['the entire pulp','only the crown part of the pulp','the root tip','the gum around the tooth'],'-ectomy = removal of all of it.','pulpectomy'),
+M('"Root canal" in the record: decode or memorize?','نحلّل أم نحفظ؟',null,['memorize it as a whole','decode: root = radicul','decode: canal = -itis','decode: it means tooth removal'],'Two plain English words: learn the clinical meaning directly.','root canal'),
+M('"Hypercementosis" means…','يعني…',null,['excessive cementum on the roots','loss of enamel','too many teeth','hardening of the bone'],'hyper- = excessive, cement = cementum, -osis = condition.','hypercementosis'),
+M('Periodontitis differs from gingivitis because it…','يختلف عن التهاب اللثة لأنه…',null,['affects the tissues that support the tooth','affects only the gum surface','affects the tooth pulp','is always painless'],'peri + odont = around the tooth: gum, ligament and bone.','periodontitis'),
+M('The planned "apicoectomy" is…','الإجراء هو…',null,['surgical removal of the root tip','surgical removal of the whole tooth','repair of the alveolar bone','cutting into the pulp'],'apic + o + ectomy.','apicoectomy'),
+M('Which word in the record contains a combining vowel?','أيّ كلمة تحتوي حرف ربط؟',null,['apicoectomy','pulpitis','periapical','pulpectomy'],'apic + o + ectomy (the exception that keeps its o).','apicoectomy')]},
+{id:'c3',grp:'clinic',eb:'Case 3',t:"A Child's Teeth",ta:'أسنان طفل',diff:'medium',mins:3,k:'var(--cv)',
+ pt:{name:'Sara Mansour',age:7,sex:'F',clinic:'Paediatric Dental Clinic',col:'var(--suf)',cc:'Mother: "She cannot stick out her tongue, and some teeth look different."',
+ rec:'[[Ankyloglossia]] with a short lingual frenum. Panoramic X-ray: [[hypodontia]] (both upper lateral incisors missing) and [[microdontia]] of one premolar. White streaks on the incisors from swallowing toothpaste: mild [[fluorosis]]. Deep caries in a lower primary molar.',plan:'[[Frenotomy]]. [[Pulpotomy]] on the primary molar.'},
+ qs:[
+M('"Ankyloglossia" means…','يعني…',null,['tongue-tie','large tongue','tongue pain','dry tongue'],'ankyl = bound, gloss = tongue, -ia.','ankyloglossia'),
+M('"Frenotomy": the suffix tells us the frenum will be…','اللجام سوف…','@frenotomy',['cut','removed completely','repaired','fixed in place'],'-tomy = cutting into. (Frenectomy would remove it.)','frenotomy'),
+M('Hypodontia vs microdontia: which is a problem of SIZE?','أيّهما مشكلة حجم؟',null,['microdontia','hypodontia','both','neither'],'micro- = small (size). hypo- = deficient (number).','microdontia'),
+M('"Fluorosis" here is caused by…','سببه…',null,['too much fluoride','too little calcium','a bacterial infection','tooth grinding'],'fluor = fluoride, -osis = abnormal condition.','fluorosis'),
+M('Pulpotomy, literally, means…','حرفياً تعني…','@pulpotomy',['cutting into the pulp','removing the whole tooth','inflammation of the pulp','repair of the pulp'],'Clinically: removing the crown part of the pulp and keeping the root pulp.','pulpotomy'),
+M('Which part is the ROOT in hypodontia?','ما جذر الكلمة؟','@hypodontia',['dont (tooth)','hypo-','-ia','there is no root'],'hypo- prefix + dont root + -ia suffix.','hypodontia')]},
+{id:'c4',grp:'clinic',eb:'Case 4',t:'Wisdom Tooth Surgery',ta:'جراحة ضرس العقل',diff:'expert',mins:4,k:'var(--cv)',
+ pt:{name:'Yousef Nasser',age:22,sex:'M',clinic:'Oral & Maxillofacial Surgery',col:'var(--cv)',cc:'"My jaw is swollen and I can\'t open my mouth."',
+ rec:'Recurrent [[pericoronitis]] around the lower left third molar, with [[trismus]] (opens 25 mm). No [[extraoral]] swelling; [[intraoral]] exam shows a red, swollen [[pericoronal]] flap.',plan:'[[Transalveolar]] extraction with [[osteotomy]] under local [[anesthesia]]. Day 3 [[postoperative]]: severe pain, empty socket: [[alveolitis]] (dry socket).'},
+ qs:[
+M('Pericoronitis: the clinical meaning is…','المعنى السريري…',null,['inflammation of the gum flap around a partly erupted tooth','inflammation of a crown restoration','an infected root tip','bone infection'],'peri- (around) + coron (crown) + -itis, then confirm the clinical meaning.','pericoronitis'),
+M('"Trismus": how do you learn it?','كيف نتعلمها؟',null,['memorize: limited mouth opening','decode: tri- = three','decode: -ismus = removal','decode: tris = tooth'],'Not built from course parts. Learn the meaning directly.','trismus'),
+M('"Extraoral" vs "intraoral": extraoral means…','خارج الفم…',null,['outside the mouth','inside the mouth','below the mouth','around the mouth'],'extra- = outside. intra- = inside.','extraoral'),
+M('In "transalveolar", trans- means…','trans- تعني…','@transalveolar',['through','around','below','half'],'Surgery through the alveolar bone.','transalveolar'),
+M('"Osteotomy" means…','يعني…',null,['cutting into bone','removing bone completely','repairing bone','bone pain'],'oste + o + tomy.','osteotomy'),
+M('In "anesthesia", an- means…','an- تعني…','@anesthesia',['without','after','before','excessive'],'an- = without, esthes = sensation: no feeling.','anesthesia'),
+M('"Postoperative" means…','يعني…',null,['after surgery','before surgery','during surgery','instead of surgery'],'post- = after.','postoperative'),
+M('Alveolitis is inflammation of the…','التهاب…',null,['tooth socket','tooth pulp','gum margin','jaw joint'],'alveol = tooth socket. Clinical name: dry socket.','alveolitis')]},
+{id:'c5',grp:'clinic',eb:'Case 5',t:'Jaw Joint & Saliva',ta:'مفصل الفك واللعاب',diff:'expert',mins:4,k:'var(--cv)',
+ pt:{name:'Rana Abu-Eid',age:52,sex:'F',clinic:'Oral Medicine & Orofacial Pain',col:'#c9b6f5',cc:'"My jaw clicks, and there is a swelling under it when I eat."',
+ rec:'Morning [[myalgia]] in the chewing muscles; grinds her teeth at night ([[bruxism]]). Left [[temporomandibular]] joint [[arthralgia]]. [[Sialography]] shows a stone in the [[submandibular]] duct: [[sialolithiasis]] with secondary [[sialadenitis]]. Also [[xerostomia]] from her blood-pressure medicines.',plan:'Night guard. [[Sialolithotripsy]] if the stone does not pass. [[Arthrocentesis]] if joint pain continues.'},
+ qs:[
+M('"Myalgia" means…','يعني…',null,['muscle pain','joint pain','nerve pain','tooth pain'],'my = muscle, -algia = pain.','myalgia'),
+M('The temporomandibular joint connects…','يربط المفصل…',null,['the temporal bone and the mandible','the maxilla and the mandible','the tongue and the palate','two teeth'],'tempor + o + mandibul + ar.','temporomandibular'),
+M('"Arthralgia": which part names the body part?','أيّ جزء يحدد العضو؟','@arthralgia',['arthr (joint)','-algia','o','there is none'],'arthr = joint is the root.','arthralgia'),
+M('"Submandibular" duct is located…','القناة موجودة…',null,['below the mandible','above the mandible','inside the mandible','behind the ear'],'sub- = below.','submandibular'),
+M('Sialolithiasis vs sialadenitis: which one is the STONE?','أيّهما الحصاة؟',null,['sialolithiasis','sialadenitis','both','neither'],'lith = stone. aden + itis = gland inflammation.','sialolithiasis'),
+M('"Xerostomia" means…','يعني…',null,['dry mouth','excessive saliva','bad breath','mouth ulcers'],'xer = dry, stom = mouth.','xerostomia'),
+M('"Sialolithotripsy" will…','سوف…',null,['crush the salivary stone','remove the gland','take an X-ray of the gland','suture the duct'],'-tripsy = crushing.','sialolithotripsy'),
+M('"Arthrocentesis" is…','هو…',null,['puncture of the joint to remove fluid','removal of the joint','repair of the joint','joint inflammation'],'-centesis = puncture to remove fluid.','arthrocentesis')]},
+{id:'c6',grp:'clinic',eb:'Case 6',t:'Oral Medicine Clinic',ta:'عيادة طب الفم',diff:'expert',mins:5,k:'var(--cv)',
+ pt:{name:'Khaled Saleh',age:63,sex:'M',clinic:'Oral Medicine & Head-and-Neck Follow-up',col:'#9fd8c9',cc:'"My tongue burns and food tastes strange."',
+ rec:'Former smoker. Two years after radiotherapy for oral [[carcinoma]] and partial [[glossectomy]]. Today: [[leukoplakia]] on the floor of the mouth and a small area of [[erythroplakia]]. Burning tongue ([[glossodynia]]) with [[candidiasis]] and [[dysgeusia]]. [[Xerostomia]] after radiation. Exposed bone in the mandibular molar area: [[osteoradionecrosis]]. Family reports [[halitosis]].',plan:'Biopsy of the red and white patches. Antifungal. Refer for [[osteoradionecrosis]] management.'},
+ qs:[
+M('"Glossectomy" means he had…','أُجريت له…',null,['part of the tongue removed','the tongue repaired','the tongue fixed in place','a tongue X-ray'],'gloss = tongue, -ectomy = removal.','glossectomy'),
+M('Leukoplakia is a ___ patch.','لويحة…',null,['white','red','black','yellow'],'leuk/o = white.','leukoplakia'),
+M('Erythroplakia is a ___ patch.','لويحة…',null,['red','white','blue','brown'],'erythr/o = red.','erythroplakia'),
+M('"Glossodynia" means…','يعني…',null,['tongue pain','tongue inflammation','large tongue','tongue-tie'],'-dynia = pain, like -algia.','glossodynia'),
+M('"Candidiasis" is…','هو…',null,['a Candida (yeast) infection; thrush','a salivary stone','a bone infection','a tooth abscess'],'candid + -iasis = condition caused by Candida.','candidiasis'),
+M('"Dysgeusia" explains which complaint?','أيّ شكوى؟',null,['food tastes strange','burning tongue','dry mouth','difficulty swallowing'],'geus = taste.','dysgeusia'),
+M('Which suffix in the record means "tumour"?','أيّ لاحقة تعني ورم؟','@carcinoma',['-oma','-osis','-itis','-ectomy'],'carcin + oma = cancerous tumour.'),
+M('Osteoradionecrosis: how many ROOTS?','كم جذراً؟','!osteoradionecrosis',['three: oste, radi, necr','two: oste, necr','one: osteo','four'],'oste (bone) + radi (radiation) + necr (death) + -osis.','osteoradionecrosis'),
+M('Osteoradionecrosis means…','يعني…',null,['bone death caused by radiation','bone inflammation from infection','a bone tumour','bone hardening'],'Rebuild: condition of bone death from radiation.','osteoradionecrosis'),
+M('"Halitosis" means…','يعني…',null,['bad breath','dry mouth','bleeding gums','loss of taste'],'halit = breath, -osis.','halitosis')]},
+
+{id:'boss',grp:'chal',eb:'Final round',t:'Boss Words',ta:'الكلمات الزعيمة',diff:'expert',mins:8,k:'var(--navy)',d:'Two monster words, step by step. No hints.',hello:'Monster words! Same method: suffix first, then everything else.',nohint:true,plain:true,qs:[
+M('Step 1 · What is the suffix?','الخطوة ١ · ما اللاحقة؟','!osteoradionecrosis',['-osis','-sis','-necrosis','-is'],'-osis = abnormal condition.','osteoradionecrosis'),
+M('Step 2 · Which roots do you see?','الخطوة ٢ · ما الجذور؟','!osteoradionecrosis',['oste + radi + necr','osteo + radion + ecr','os + rad + necro','oste + radio + nec'],'oste = bone, radi = radiation, necr = death.','osteoradionecrosis'),
+M('Step 3 · How many combining vowels?','الخطوة ٣ · كم حرف ربط؟','!osteoradionecrosis',['two: oste-o-radi-o-necr','one','three','none'],'Keep o between roots.','osteoradionecrosis'),
+M('Step 4 · Rebuild the meaning','الخطوة ٤ · أعد بناء المعنى','!osteoradionecrosis',['bone death caused by radiation','radiation of a bone tumour','bone marrow inflammation','hardening of irradiated bone'],'Boss 1 defeated!','osteoradionecrosis'),
+M('Step 1 · What is the suffix?','الخطوة ١ · ما اللاحقة؟','!hemimandibulectomy',['-ectomy','-tomy','-my','-lectomy'],'-ectomy = surgical removal.','hemimandibulectomy'),
+M('Step 2 · The prefix hemi- means…','الخطوة ٢ · السابقة hemi- تعني…','!hemimandibulectomy',['half','around','below','both sides'],'hemi- = half.','hemimandibulectomy'),
+M('Step 3 · Why is there NO o before -ectomy?','الخطوة ٣ · لماذا لا يوجد o؟','!hemimandibulectomy',['-ectomy starts with a vowel','mandibul never takes an o','prefixes remove the o','it is a spelling mistake'],'Rule 2: drop o before a suffix that starts with a vowel.','hemimandibulectomy'),
+M('Step 4 · Rebuild the meaning','الخطوة ٤ · أعد بناء المعنى','!hemimandibulectomy',['surgical removal of half of the mandible','cutting the mandible in half','repair of half of the maxilla','removal of a mandibular tooth'],'Boss 2 defeated!','hemimandibulectomy')]},
+{id:'gloss',grp:'chal',eb:'Review',t:'Glossary',ta:'المسرد',diff:'all',mins:0,k:'var(--line)',d:'Every part and term from Lectures 1–5. Filter, search, self-test.',gloss:true,qs:[]},
+{id:'mastery',grp:'chal',eb:'Final exam',t:'Mastery Test',ta:'اختبار الإتقان',diff:'expert',mins:10,k:'var(--ink)',d:'21 questions from every skill. 80% = ready for Phase 2. No hints.',hello:'Final exam. 17 out of 21 earns your certificate.',nohint:true,test:true,qs:[
+M('Which suffix means surgical removal?','أيّ لاحقة تعني استئصال؟',null,['-ectomy','-tomy','-plasty','-pexy'],'-ectomy = removal.'),
+M('In "periapical", peri- means…','peri- تعني…',null,['around','below','through','before'],'peri- = around.','periapical'),
+M('Sialadenitis means…','يعني…',null,['inflammation of a salivary gland','a salivary stone','dry mouth','too much saliva'],'sial + aden + itis.','sialadenitis'),
+M('Microdontia means…','يعني…',null,['abnormally small teeth','missing teeth','extra teeth','large teeth'],'micro- = small.','microdontia'),
+M('X-ray imaging of the salivary glands is…','تصوير الغدد اللعابية…',null,['sialography','sialolithiasis','sialorrhea','sialadenectomy'],'-graphy = imaging.','sialography'),
+M('Xerostomia means…','يعني…',null,['dry mouth','bad breath','mouth ulcers','small mouth'],'xer = dry.','xerostomia'),
+M('Which spelling is correct?','أيّ تهجئة صحيحة؟',null,['gingivitis','gingivoitis','gingvitis','gingivitys'],'Drop o before a vowel suffix.','gingivitis'),
+M('Alveoloplasty means…','يعني…',null,['surgical reshaping of the alveolar bone','removal of a tooth socket','inflammation of the socket','cutting into the socket'],'-plasty = reshaping.','alveoloplasty'),
+M('In frenectomy, fren means…','fren تعني…',null,['frenum','front','fracture','free gum'],'The small fold of tissue under the tongue or lip.','frenectomy'),
+M('Osteomyelitis means…','يعني…',null,['inflammation of bone and bone marrow','bone tumour','muscle pain','bone hardening'],'oste + o + myel + itis.','osteomyelitis'),
+M('Which term is memorized, not decoded?','أيّ مصطلح يُحفظ؟',null,['bitewing','gingivectomy','hypodontia','periapical'],'bitewing is a whole word.','bitewing'),
+M('A patient with EXTRA teeth has…','مريض لديه أسنان زائدة…',null,['hyperdontia','hypodontia','anodontia','oligodontia'],'hyper- = above normal.','hyperdontia'),
+M('A RED patch on the oral mucosa is…','لويحة حمراء…',null,['erythroplakia','leukoplakia','candidiasis','glossitis'],'erythr = red.','erythroplakia'),
+M('Halitosis means…','يعني…',null,['bad breath','loss of taste','bleeding gums','tooth pain'],'halit = breath.','halitosis'),
+M('Removal of the ENTIRE pulp is…','إزالة اللب بالكامل…',null,['pulpectomy','pulpotomy','pulpitis','apicoectomy'],'-ectomy = all of it.','pulpectomy'),
+M('The temporomandibular joint links…','المفصل يربط…',null,['temporal bone and mandible','maxilla and mandible','skull and spine','two teeth'],'tempor + mandibul.','temporomandibular'),
+M('Transalveolar means…','يعني…',null,['through the alveolar bone','around the socket','below the gum','inside the tooth'],'trans- = through.','transalveolar'),
+M('An "odontogenic" infection…','عدوى…',null,['starts from a tooth','starts in the bone marrow','spreads to the ear','is caused by a virus'],'-genic = originating in.','odontogenic'),
+M('Dysgeusia means…','يعني…',null,['distorted taste','difficult swallowing','painful tongue','dry mouth'],'geus = taste.','dysgeusia'),
+T('Type the term: inflammation of the tongue','اكتب المصطلح: التهاب اللسان','glossitis','gloss + itis.'),
+T('Type the term: surgical repair of the palate','اكتب المصطلح: ترميم الحنك','palatoplasty','palat + o + plasty.')]}
+];
+const LV={};LEVELS.forEach(l=>LV[l.id]=l);
+
+/* ============ STORAGE ============ */
+const KEY='toothWordLab.v1';
+let save={stars:{},best:{},pts:0,mastered:[],name:'',story:{}};
+try{const s=JSON.parse(localStorage.getItem(KEY)||'null');if(s)save=Object.assign(save,s)}catch(e){}
+function persist(){try{localStorage.setItem(KEY,JSON.stringify(save))}catch(e){}}
+
+/* ============ HELPERS ============ */
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a};
+const isRegular=t=>t&&t.parts.length&&t.parts.map(plain).join('')===t.w;
+function chip(p,withMeaning){const ty=ptype(p);const m=PARTS[p];return `<span class="chip ${ty}">${esc(p)}${withMeaning&&m?`<small>${esc(m[0])}</small>`:''}</span>`}
+function colorWord(w){const t=TERM[w];if(!isRegular(t))return esc(w);return t.parts.map(p=>`<span class="seg ${ptype(p)}">${esc(plain(p))}</span>`).join('')}
+function breakdown(w){const t=TERM[w];if(!t)return'';if(!t.parts.length)return`<div class="mini">Memorize as a whole word · يُحفظ كاملاً</div>`;return`<div class="breakdown">${t.parts.map(p=>chip(p,true)).join('')}</div>`}
+function starsHTML(n){return `<span class="stars">${[0,1,2].map(i=>`<span class="${i<n?'on':''}">★</span>`).join('')}</span>`}
+function initials(n){return n.split(/\s+/).map(x=>x[0]).join('').slice(0,2)}
+function fmtRec(s){return esc(s).replace(/\[\[(.+?)\]\]/g,'<mark class="hl">$1</mark>')}
+
+/* toothy mood svg */
+function toothy(mood){const mouth=mood==='sad'?'M25 37q7-6 14 0':mood==='wow'?'M28 34a4 4 0 1 0 8 0a4 4 0 1 0-8 0':'M25 34q7 7 14 0';
+return `<svg class="toothy" viewBox="0 0 64 74" aria-hidden="true"><g class="bob"><path d="M14 6c8-5 14 2 18 2s10-7 18-2c9 6 8 20 4 30-3 8-3 31-9 31-5 0-5-19-13-19s-8 19-13 19c-6 0-6-23-9-31C6 26 5 12 14 6z" fill="var(--tooth)" stroke="var(--ink)" stroke-width="3" stroke-linejoin="round"/><circle cx="24" cy="26" r="3" fill="var(--ink)"/><circle cx="40" cy="26" r="3" fill="var(--ink)"/><circle cx="19" cy="33" r="3" fill="#f6a6a6"/><circle cx="45" cy="33" r="3" fill="#f6a6a6"/><path d="${mouth}" fill="none" stroke="var(--ink)" stroke-width="3" stroke-linecap="round"/>${mood==='sad'?'<path d="M44 20q3 6 0 8" fill="#86c3fb" stroke="none"/>':''}</g></svg>`}
+
+/* sound */
+let soundOn=true,actx=null;
+function beep(ok){if(!soundOn)return;try{actx=actx||new (window.AudioContext||window.webkitAudioContext)();const o=actx.createOscillator(),g=actx.createGain();o.type='triangle';const t=actx.currentTime;
+ if(ok){o.frequency.setValueAtTime(660,t);o.frequency.setValueAtTime(880,t+.09)}else{o.frequency.setValueAtTime(220,t);o.frequency.setValueAtTime(170,t+.12)}
+ g.gain.setValueAtTime(.12,t);g.gain.exponentialRampToValueAtTime(.001,t+.28);o.connect(g).connect(actx.destination);o.start(t);o.stop(t+.3)}catch(e){}}
+
+/* confetti */
+const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+function confetti(){if(reduce)return;const c=$('#fx'),x=c.getContext('2d');c.width=innerWidth;c.height=innerHeight;const cols=['#f5cd5f','#86c3fb','#25b598','#ec6767','#0f3d91'];
+ let ps=Array.from({length:140},()=>({x:Math.random()*c.width,y:-20-Math.random()*c.height*.4,vx:(Math.random()-.5)*3,vy:2+Math.random()*3,r:Math.random()*6.28,s:5+Math.random()*6,c:cols[Math.random()*5|0]}));
+ let f=0;(function tick(){x.clearRect(0,0,c.width,c.height);ps.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.vy+=.04;p.r+=.1;x.save();x.translate(p.x,p.y);x.rotate(p.r);x.fillStyle=p.c;x.fillRect(-p.s/2,-p.s/3,p.s,p.s*.6);x.restore()});if(++f<220)requestAnimationFrame(tick);else x.clearRect(0,0,c.width,c.height)})()}
+
+/* ============ HOME ============ */
+function card(l){const st=save.stars[l.id]||0;const n=l.every?TERMS.filter(t=>t[4]!=='MEM').length:l.qs.length;
+ const diffLab={easy:'Easy · سهل',medium:'Medium · متوسط',hard:'Hard · صعب',expert:'Expert · خبير',all:'All levels · كل المستويات'}[l.diff];
+ let meta=l.gloss?`${TERMS.length} terms · ${Object.keys(PARTS).length} parts`:l.every?`${save.mastered.length}/${n} mastered`:`${n} questions${l.mins?` · ~${l.mins} min`:''}`;
+ const sub=l.pt?`${l.pt.name}, ${l.pt.age} · ${l.pt.clinic}`:l.d;
+ return `<button class="lvl" style="--k:${l.k}" data-go="${l.id}"><span class="eb">${esc(l.eb)}</span><span class="t">${esc(l.t)}</span><span class="ta">${esc(l.ta)}</span><span class="d">${esc(sub)}</span><span class="meta"><span class="tag ${l.diff==='all'?'easy':l.diff}">${diffLab}</span><span class="mini">${meta}</span>${l.gloss||l.every?'':starsHTML(st)}</span></button>`}
+function renderHome(){
+ $('#pathGrid').innerHTML=LEVELS.filter(l=>l.grp==='path').map(card).join('');
+ $('#clinicGrid').innerHTML=LEVELS.filter(l=>l.grp==='clinic').map(card).join('');
+ $('#challengeGrid').innerHTML=LEVELS.filter(l=>l.grp==='chal').map(card).join('');
+ $('#ptsPill').textContent=save.pts+' pts';
+ $('#studentName').value=save.name||'';
+ renderChMap();
+}
+function show(id){['home','play','result','gloss','story'].forEach(s=>$('#'+s).hidden=s!==id);scrollTo({top:0,behavior:reduce?'auto':'smooth'})}
+
+/* ============ GAME ============ */
+let G=null;
+function start(id){stopRush();$('#pgrid').appendChild($('#qcard'));$('#qcard').hidden=false;const l=LV[id];if(l.gloss){renderGloss();show('gloss');return}
+ let qs=l.qs;
+ if(l.every){const pool=TERMS.filter(t=>t[4]!=='MEM'&&!save.mastered.includes(t[0]));const src=pool.length?pool:TERMS.filter(t=>t[4]!=='MEM');
+  qs=shuffle(src).slice(0,10).map(t=>{const others=shuffle(TERMS.filter(o=>o[0]!==t[0]&&o[4]!=='MEM')).slice(0,3).map(o=>o[2]);return M('What does this word mean?','ماذا تعني هذه الكلمة؟','@'+t[0],[t[2],...others],`${t[0]} = ${t[2]} · ${t[3]}`,t[0])})}
+ G={l,qs,i:0,res:[],pts:0,streak:0,pain:10,done:false,hinted:false};
+ $('#lvlTitle').innerHTML=`${esc(l.eb)} · ${esc(l.t)} <span class="ar" style="font-size:.8em">${esc(l.ta)}</span>`;
+ const isCase=!!l.pt;$('#pgrid').classList.toggle('case',isCase);$('#chart').hidden=!isCase;
+ if(isCase)renderChart();
+ show('play');renderQ();
+}
+function renderChart(){const p=G.l.pt;
+ $('#chart').innerHTML=`<div class="pt"><div class="av" style="background:${p.col}">${esc(initials(p.name))}</div><div><div class="nm">${esc(p.name)}</div><div class="sm">${p.age} y · ${p.sex==='F'?'Female':'Male'} · ${esc(p.clinic)}</div></div></div>
+ <dl class="rec"><dt>Chief complaint</dt><dd>${esc(p.cc)}</dd><dt>Findings</dt><dd>${fmtRec(p.rec)}</dd><dt>Plan</dt><dd>${fmtRec(p.plan)}</dd></dl>
+ <div class="pain"><div class="lbl"><span>Patient's pain · ألم المريض</span><span id="painN">${G.pain}/10</span></div><div class="meter"><i id="painBar" style="width:${G.pain*10}%"></i></div><div class="mini" style="margin-top:4px">Every right answer lowers the pain.</div></div>`}
+function renderDots(){$('#dots').innerHTML=G.qs.map((q,i)=>`<i class="${G.res[i]===true?'ok':G.res[i]==='h'?'hint':G.res[i]===false?'no':i===G.i?'cur':''}"></i>`).join('');
+ $('#lvlPts').textContent=G.pts+' pts';$('#streakPill').textContent='Streak '+G.streak}
+function showBlock(q){if(!q.show)return'';const k=q.show[0],v=q.show.slice(1);
+ if(k==='#')return`<div class="show">${chip(v)}</div>`;
+ if(k==='!'||(k==='@'&&G.l.plain))return`<div class="bigword">${esc(v)}</div>`;
+ if(k==='@')return`<div class="bigword">${colorWord(v)}</div>`;return''}
+function renderQ(){stopRush();const q=G.qs[G.i];G.hinted=false;G.answered=false;renderDots();
+ const n=G.i+1,N=G.qs.length;
+ const msg=G.i===0?(G.l.hello||(G.l.pt?`Read ${G.l.pt.name.split(' ')[0]}'s chart, then decode each term.`:'Suffix first. Predict, then confirm.')):(G.streak>=3?`${G.streak} in a row! Keep going.`:'Suffix first. Predict, then confirm.');
+ let h=`<div class="speech">${toothy(G.streak>=3?'wow':'happy')}<div class="bubble">${esc(msg)}</div></div>
+ <div class="qnum">Question ${n} of ${N}${({build:' · Build',split:' · Split',type:' · Type',tap:' · Tap the picture',sort:' · Sort',match:' · Match',fix:' · Fix the chart',rush:' · Speed round'})[q.k]||''}</div>
+ <p class="q">${esc(q.q)}</p><p class="qa">${esc(q.qa||'')}</p>`;
+ if(q.k==='mc'){h+=showBlock(q);q._o=shuffle(q.opts);h+=`<div class="opts">${q._o.map((o,i)=>`<button class="opt" data-o="${i}">${esc(o)}</button>`).join('')}</div>`}
+ if(q.k==='build'){G.slot=[];q._b=shuffle(q.bank);h+=`<div class="slots" id="slots"></div><div class="bank" id="bank">${q._b.map((p,i)=>`<button class="chip ${ptype(p)}" data-b="${i}">${esc(p)}</button>`).join('')}</div>
+  <div class="legend"><span><i class="p"></i>Prefix</span><span><i class="r"></i>Root</span><span><i class="v"></i>Combining vowel</span><span><i class="s"></i>Suffix</span></div>`}
+ if(q.k==='split'){G.cuts=new Set();const w=q.word;h+=`<div class="splitword" id="sw">${[...w].map((c,i)=>`<span class="L">${esc(c)}</span>${i<w.length-1?`<button class="gap" data-g="${i+1}" aria-label="Cut after letter ${i+1}"></button>`:''}`).join('')}</div><div class="mini" style="text-align:center">Tap between letters to cut. Tap again to undo.</div>`}
+ h+=renderExtra(q);
+ if(q.k==='type'){h+=`<input class="typein" id="typein" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="type the word…">`}
+ h+=`<div class="row" id="actions">`;
+ if(['build','split','type','sort'].includes(q.k))h+=`<button class="btn main" id="checkBtn">Check · تحقّق</button>`;
+ if(q.k==='build')h+=`<button class="btn ghost" id="clearBtn">Clear</button>`;
+ if(!G.l.nohint&&q.k!=='rush')h+=`<button class="btn ghost" id="hintBtn">Hint (−5)</button>`;
+ if(document.body.classList.contains('present'))h+=`<button class="btn ghost reveal" id="revealBtn">Show answer</button>`;
+ h+=`</div><div id="fb"></div>`;
+ $('#qcard').innerHTML=h;
+ if(q.k==='build')renderSlots();
+ if(q.k==='type')setTimeout(()=>$('#typein')&&$('#typein').focus(),50);
+ afterRender(q);
+}
+function renderSlots(){const q=G.qs[G.i];$('#slots').innerHTML=G.slot.length?G.slot.map((bi,i)=>`<button class="chip ${ptype(q._b[bi])}" data-s="${i}">${esc(plain(q._b[bi]))}</button>`).join(''):'<span class="empty">Tap blocks below to build the word</span>';
+ document.querySelectorAll('#bank .chip').forEach(b=>b.disabled=G.slot.includes(+b.dataset.b)||G.answered)}
+
+function correctText(q){if(q.k==='tap')return DLAB[q.a];if(q.k==='sort')return 'see the coloured boxes';if(q.k==='match')return 'see the pairs';if(q.k==='fix')return q.right;if(q.k==='rush')return `${q.need} correct needed`;if(q.k==='mc')return q.opts[0];if(q.k==='build')return TERM[q.target].w;if(q.k==='split')return q.word;return q.a}
+function judge(ok){if(G.answered)return;G.answered=true;const q=G.qs[G.i];
+ let gain=0;if(ok){G.streak++;gain=G.hinted?5:10+(G.streak>=3?2:0)}else G.streak=0;
+ G.pts+=gain;G.res[G.i]=ok?(G.hinted?'h':true):false;beep(ok);
+ if(G.l.every&&ok&&q.term&&!save.mastered.includes(q.term)){save.mastered.push(q.term);persist()}
+ if(G.l.pt&&ok){G.pain=Math.max(0,Math.round((G.pain-10/G.qs.length)*10)/10);$('#painN').textContent=Math.round(G.pain)+'/10';$('#painBar').style.width=(G.pain*10)+'%'}
+ const term=q.term&&TERM[q.term];
+ const head=ok?(G.hinted?'Correct, with a hint':['Correct!','Spot on!','Exactly!','Nice decoding!'][Math.random()*4|0]):'Not quite';
+ $('#fb').innerHTML=`<div class="fb ${ok?'ok':'no'}"><h3>${head} ${ok?'· أحسنت':'· حاول مرة أخرى في الجولة القادمة'}</h3>
+  ${ok?'':`<p>Answer: <b>${esc(correctText(q))}</b></p>`}
+  <p>${esc(q.ex||'')}</p>
+  ${term?`<div class="breakdown" style="align-items:center"><b style="font-family:var(--f-display)">${esc(term.w)}</b></div>${breakdown(term.w)}<p class="mini">${esc(term.en)} · <span class="ar">${esc(term.ar)}</span></p>`:''}
+  <div class="row"><button class="btn go" id="nextBtn">${G.l.story?'Continue · تابع →':G.i<G.qs.length-1?'Next · التالي →':'See results'}</button></div></div>`;
+ document.querySelectorAll('#actions .btn').forEach(b=>b.disabled=true);
+ const sp=$('.speech .toothy');if(sp)sp.outerHTML=toothy(ok?(G.streak>=3?'wow':'happy'):'sad');
+ const bub=$('.bubble');if(bub)bub.textContent=ok?(G.streak>=3?`${G.streak} in a row!`:'Great job!'):'That one was tricky. Read the breakdown.';
+ renderDots();if(G.l.story)$('#sPts').textContent=G.pts+' pts';setTimeout(()=>$('#nextBtn')&&$('#nextBtn').focus({preventScroll:true}),30);
+}
+function next(){if(G.l.story){storyNext();return}if(G.i<G.qs.length-1){G.i++;renderQ()}else finish()}
+
+function finish(){const l=G.l,N=G.qs.length,okN=G.res.filter(r=>r===true||r==='h').length,full=G.res.filter(r=>r===true).length;
+ const ratio=G.pts/(N*10);const st=ratio>=.9?3:ratio>=.7?2:ratio>=.5?1:0;
+ if(!l.every){save.stars[l.id]=Math.max(save.stars[l.id]||0,st);save.best[l.id]=Math.max(save.best[l.id]||0,G.pts)}
+ save.pts+=G.pts;persist();
+ const pct=Math.round(okN/N*100);
+ const order=LEVELS.filter(x=>!x.gloss);const idx=order.findIndex(x=>x.id===l.id);const nxt=order[idx+1];
+ let extra='';
+ if(l.test){const pass=okN>=Math.ceil(N*.8);const nm=(save.name||'').trim()||'Student';
+  extra=pass?`<div class="cert"><div class="mini" style="letter-spacing:.14em;font-weight:700;text-transform:uppercase">Certificate of Mastery · شهادة إتقان</div><div class="who">${esc(nm)}</div><div>passed the Lecture 5 Word-Decoding Mastery Test</div><div class="score" style="margin-top:6px"><b>${okN}/${N}</b> (${pct}%) · ${new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'})}</div><div class="mini" style="margin-top:8px">Ready for Phase 2 · Take a screenshot and send it to your teacher.</div></div>`
+  :`<p style="margin-top:12px">You need <b>${Math.ceil(N*.8)}</b> correct to pass. Review the Glossary and the stages, then try again.</p>`}
+ if(l.every){const tot=TERMS.filter(t=>t[4]!=='MEM');const old=tot.filter(t=>t[4]!=='NEW'),nw=tot.filter(t=>t[4]==='NEW');
+  extra=`<p>Mastered: Lectures 1–4 <b>${old.filter(t=>save.mastered.includes(t[0])).length}/${old.length}</b> · New <b>${nw.filter(t=>save.mastered.includes(t[0])).length}/${nw.length}</b></p>`}
+ if(l.pt)extra=`<p>${esc(l.pt.name)}'s pain: <b>${Math.round(G.pain)}/10</b>${G.pain<=1?' · Patient treated! · تم علاج المريض':''}</p>`;
+ $('#result').innerHTML=`<div class="result">${toothy(st>=2?'wow':st===1?'happy':'sad').replace('class="toothy"','class="toothy big"')}
+  <div class="bigstars">${[0,1,2].map(i=>`<span class="${i<st?'on':''}">★</span>`).join('')}</div>
+  <h2>${st===3?'Excellent! · ممتاز':st===2?'Great work! · عمل رائع':st===1?'Good start · بداية جيدة':'Keep practising · استمر بالتدريب'}</h2>
+  <div class="score">${okN}/${N} correct · ${G.pts} points${full<okN?` · ${okN-full} with hints`:''}</div>${extra}
+  <div class="row" style="justify-content:center;margin-top:18px"><button class="btn" data-go="${l.id}">Play again</button>${nxt?`<button class="btn main" data-go="${nxt.id}">Next: ${esc(nxt.t)} →</button>`:''}<button class="btn ghost" id="homeBtn2">All levels</button></div></div>`;
+ show('result');if(st>=2||(l.test&&okN>=Math.ceil(N*.8)))confetti();
+}
+
+/* answer checks */
+function checkCurrent(){const q=G.qs[G.i];if(G.answered)return;
+ if(q.k==='build'){if(!G.slot.length)return;const got=G.slot.map(i=>q._b[i]).join('+');judge(got===TERM[q.target].parts.join('+'));
+  document.querySelectorAll('#slots .chip').forEach(c=>c.disabled=true);renderSlots()}
+ if(q.k==='split'){const t=TERM[q.word];let acc=0;const exp=t.parts.slice(0,-1).map(p=>acc+=plain(p).length);const got=[...G.cuts].sort((a,b)=>a-b);
+  const ok=got.length===exp.length&&got.every((v,i)=>v===exp[i]);judge(ok);
+  $('#sw').outerHTML=`<div class="bigword">${colorWord(q.word)}</div>`}
+ if(q.k==='sort'){if(Object.keys(G.sort.place).length<q._i.length)return;const ok=q._i.every((p,i)=>G.sort.place[i]===ptype(p));G.answered=false;drawSort(true);judge(ok)}
+ if(q.k==='type'){const v=($('#typein').value||'').trim().toLowerCase();if(!v)return;judge(v===q.a||q.alt.includes(v));$('#typein').disabled=true}
+}
+function hint(){const q=G.qs[G.i];if(G.answered||G.hinted)return;G.hinted=true;$('#hintBtn').disabled=true;
+ if(q.k==='mc'){const wrong=[...document.querySelectorAll('.opt')].filter(b=>q._o[+b.dataset.o]!==q.opts[0]);shuffle(wrong).slice(0,Math.min(2,wrong.length-1)).forEach(b=>{b.disabled=true;b.classList.add('gone')})}
+ if(q.k==='build'){const first=TERM[q.target].parts[0];G.slot=[q._b.indexOf(first)];renderSlots()}
+ if(q.k==='split'){const t=TERM[q.word];const c=plain(t.parts[0]).length;G.cuts.add(c);document.querySelector(`.gap[data-g="${c}"]`).classList.add('cut')}
+ if(q.k==='type'){$('#typein').value=q.a.slice(0,3);$('#typein').focus()}
+ if(q.k==='tap'){$('#dia svg').classList.add('labeled')}
+ if(q.k==='sort'){const i=q._i.findIndex((p,ix)=>G.sort.place[ix]===undefined);if(i>-1){G.sort.place[i]=ptype(q._i[i]);drawSort()}}
+ if(q.k==='match'){const p=q.pairs.find(p=>!G.mt.done.has(p[0]));if(p)matchDone(p)}
+ if(q.k==='fix'){const right=[...document.querySelectorAll('.sent .wd:not([data-wrong])')];shuffle(right).slice(0,Math.ceil(right.length*.6)).forEach(b=>{b.disabled=true;b.style.opacity=.35})}
+ const bub=$('.bubble');if(bub)bub.textContent=q.k==='tap'?'I added labels to the picture.':q.k==='sort'?'I placed one block.':q.k==='match'?'I matched one pair.':q.k==='fix'?'I greyed out some correct words.':q.k==='mc'?'I removed some wrong answers.':q.k==='build'?'I placed the first block for you.':q.k==='split'?'I made the first cut.':'Here are the first letters.';
+}
+function reveal(){const q=G.qs[G.i];if(G.answered)return;
+ if(q.k==='mc'){document.querySelectorAll('.opt').forEach(b=>{if(q._o[+b.dataset.o]===q.opts[0])b.classList.add('ok')})}
+ else if(q.k==='tap'){const sv=$('#dia svg');sv.classList.add('labeled');sv.querySelectorAll(`.hot[data-h="${q.a}"]`).forEach(h=>h.classList.add('ok'))}
+ else{const b=$('#fb');b.innerHTML=`<div class="fb ok"><p>Answer: <b>${esc(correctText(q))}</b></p>${q.term?breakdown(q.term):''}</div>`}
+ $('#revealBtn').disabled=true}
+
+/* ============ GLOSSARY ============ */
+let gFilter='All',gHide=false;
+const GF=['All','L1','L2','L3','L4','NEW','MEM','Parts'];
+const GFL={All:'All',L1:'Lecture 1',L2:'Lecture 2',L3:'Lecture 3',L4:'Lecture 4',NEW:'New today',MEM:'Memorize',Parts:'Word parts'};
+function renderGloss(){
+ $('#gFilters').innerHTML=GF.map(f=>`<button class="fchip" data-gf="${f}" aria-pressed="${f===gFilter}">${GFL[f]}</button>`).join('');
+ const s=($('#gSearch').value||'').trim().toLowerCase();let html='',n=0;
+ if(gFilter==='Parts'){const ent=Object.entries(PARTS).filter(([k,v])=>k!=='dont'&&(!s||k.includes(s)||v[0].toLowerCase().includes(s)||v[1].includes(s)));
+  const order={p:0,r:1,v:2,s:3};ent.sort((a,b)=>order[ptype(a[0])]-order[ptype(b[0])]||a[0].localeCompare(b[0]));n=ent.length;
+  html=ent.map(([k,v])=>`<div class="gitem${gHide?' hide':''}"><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">${chip(k)}<span class="gt">${PNAME[ptype(k)]}</span></div><div class="gm">${esc(v[0])}</div><div class="gma">${esc(v[1])}</div></div>`).join('')}
+ else{const list=TERMS.map(t=>TERM[t[0]]).filter(t=>(gFilter==='All'||t.tag===gFilter)&&(!s||t.w.includes(s)||t.en.toLowerCase().includes(s)||t.ar.includes(s)||t.parts.some(p=>plain(p)===s.replace(/-/g,'')))).sort((a,b)=>a.w.localeCompare(b.w));n=list.length;
+  html=list.map(t=>`<div class="gitem${gHide?' hide':''}"><div class="gw">${colorWord(t.w)}</div>${breakdown(t.w)}<div class="gm">${esc(t.en)}</div><div class="gma">${esc(t.ar)}</div><div class="gt">${t.tag==='NEW'?'New · Lecture 5':t.tag==='MEM'?'Memorize as a whole':'Lecture '+t.tag.slice(1)}</div></div>`).join('')}
+ $('#gList').innerHTML=html||'<p class="mini">Nothing matches. Try a part like "gloss" or a meaning like "pain".</p>';
+ $('#gCount').textContent=`${n} ${gFilter==='Parts'?'parts':'terms'}`;
+ $('#gHide').setAttribute('aria-pressed',gHide)}
+
+/* ============ NEW QUESTION KINDS ============ */
+const Tp=(q,qa,dia,a,ex,term)=>({k:'tap',q,qa,dia,a,ex,term});
+const So=(q,qa,items,ex)=>({k:'sort',q,qa,items,ex});
+const Ma=(q,qa,pairs,ex)=>({k:'match',q,qa,pairs,ex});
+const Fx=(q,qa,sent,right,ex,term)=>({k:'fix',q,qa,sent,right,ex,term});
+const Ru=(q,qa,items,secs,need,ex)=>({k:'rush',q,qa,items,secs,need,ex});
+
+/* ============ DRAWINGS ============ */
+const INK='#14213d';
+function person(o,mood){mood=mood||o.mood||'neutral';const sk=o.skin,hc=o.hc||'#2b1d14';let s='';
+ const top=o.top==='coat'?'#ffffff':(o.topCol||'#86c3fb');
+ s+=`<path d="M10 152 Q14 110 60 103 Q106 110 110 152Z" fill="${top}" stroke="${INK}" stroke-width="2.5"/>`;
+ if(o.top==='coat')s+=`<path d="M47 106 L60 134 L73 106" fill="none" stroke="${INK}" stroke-width="2"/><path d="M60 134V152" stroke="${INK}" stroke-width="2"/><path d="M44 110 Q36 132 46 140 Q55 144 53 134" fill="none" stroke="#0f3d91" stroke-width="3"/><circle cx="53" cy="133" r="3.5" fill="#0f3d91"/><rect x="74" y="122" width="17" height="10" rx="2" fill="#86c3fb" stroke="${INK}" stroke-width="1.5"/>`;
+ if(o.top==='scrubs')s+=`<path d="M49 105 L60 121 L71 105" fill="none" stroke="${INK}" stroke-width="2"/><rect x="72" y="124" width="14" height="12" rx="2" fill="none" stroke="${INK}" stroke-width="1.5"/>`;
+ s+=`<rect x="52" y="86" width="16" height="22" fill="${sk}" stroke="${INK}" stroke-width="2"/>`;
+ if(o.hijab){s+=`<path d="M25 72 Q23 20 60 17 Q97 20 95 72 Q99 110 60 118 Q21 110 25 72Z" fill="${o.hijab}" stroke="${INK}" stroke-width="2.5"/><ellipse cx="60" cy="64" rx="23" ry="27" fill="${sk}" stroke="${INK}" stroke-width="2"/>`}
+ else{
+  if(o.hair==='long')s+=`<path d="M31 56 Q28 104 40 114 L80 114 Q92 104 89 56Z" fill="${hc}" stroke="${INK}" stroke-width="2"/>`;
+  if(o.hair==='bob')s+=`<path d="M31 56 Q29 92 38 96 L82 96 Q91 92 89 56Z" fill="${hc}" stroke="${INK}" stroke-width="2"/>`;
+  s+=`<circle cx="35" cy="66" r="5" fill="${sk}" stroke="${INK}" stroke-width="2"/><circle cx="85" cy="66" r="5" fill="${sk}" stroke="${INK}" stroke-width="2"/><ellipse cx="60" cy="62" rx="25" ry="29" fill="${sk}" stroke="${INK}" stroke-width="2.5"/>`;
+  if(o.hair==='short'||o.hair==='long'||o.hair==='bob')s+=`<path d="M35 58 Q32 29 60 29 Q88 29 85 58 Q79 41 60 43 Q42 41 35 58Z" fill="${hc}" stroke="${INK}" stroke-width="2"/>`;
+  if(o.hair==='curly')s+=[34,42,50,58,66,74,82,38,48,60,72,80].map((x,i)=>`<circle cx="${x}" cy="${i<7?40-(i%2)*4:32}" r="${i<7?8:7}" fill="${hc}" stroke="${INK}" stroke-width="1.5"/>`).join('');
+  if(o.hair==='bald')s+=`<path d="M35 64 Q33 50 40 46 L40 64Z M85 64 Q87 50 80 46 L80 64Z" fill="${hc}"/>`;
+ }
+ if(o.beard)s+=`<path d="M36 68 Q38 97 60 99 Q82 97 84 68 Q78 86 60 88 Q42 86 36 68Z" fill="${hc}" stroke="${INK}" stroke-width="1.5"/>`;
+ if(o.swollen&&mood==='pain')s+=`<ellipse cx="78" cy="74" rx="11" ry="10" fill="#e8907f" opacity=".75"/>`;
+ const brow=(mood==='pain'||mood==='worried')?`M43 54 L54 50 M77 54 L66 50`:mood==='wow'?`M43 49 Q48 45 54 48 M66 48 Q72 45 77 49`:`M43 52 Q48 49 54 52 M66 52 Q72 49 77 52`;
+ s+=`<path d="${brow}" stroke="${INK}" stroke-width="2.5" fill="none" stroke-linecap="round"/>`;
+ s+=mood==='happy'?`<path d="M45 62 q4-4 8 0 M67 62 q4-4 8 0" stroke="${INK}" stroke-width="2.5" fill="none" stroke-linecap="round"/>`:`<circle cx="49" cy="61" r="${mood==='wow'?3.6:3}" fill="${INK}"/><circle cx="71" cy="61" r="${mood==='wow'?3.6:3}" fill="${INK}"/>`;
+ if(o.glasses)s+=`<circle cx="49" cy="61" r="8" fill="none" stroke="${INK}" stroke-width="2"/><circle cx="71" cy="61" r="8" fill="none" stroke="${INK}" stroke-width="2"/><path d="M57 61h6" stroke="${INK}" stroke-width="2"/>`;
+ s+=`<circle cx="43" cy="72" r="4" fill="#f6a6a6" opacity=".7"/><circle cx="77" cy="72" r="4" fill="#f6a6a6" opacity=".7"/>`;
+ const mouth={happy:'M50 77 Q60 86 70 77',neutral:'M52 80 L68 80',worried:'M51 82 Q60 76 69 82',pain:'M49 81 q5.5-4 11 0 t11 0'}[mood];
+ s+=mood==='wow'?`<ellipse cx="60" cy="81" rx="5" ry="6" fill="#7a1f2b" stroke="${INK}" stroke-width="1.5"/>`:`<path d="${mouth}" stroke="${INK}" stroke-width="2.5" fill="none" stroke-linecap="round"/>`;
+ if(mood==='pain')s+=`<path d="M90 40 q4 7 0 10 q-4-3 0-10z" fill="#86c3fb" stroke="${INK}" stroke-width="1"/>`;
+ if(o.kid)s=`<g transform="translate(14,30) scale(.8)">${s}</g>`;
+ return `<svg viewBox="0 0 120 152" aria-hidden="true">${s}</svg>`}
+
+function clock(x,y,t){const [h,m]=t.split(':').map(Number);const ha=((h%12)+m/60)*30,ma=m*6;
+ return `<g transform="translate(${x},${y})"><circle r="26" fill="#fff" stroke="${INK}" stroke-width="3"/>${[0,90,180,270].map(a=>`<path d="M0-21V-17" stroke="${INK}" stroke-width="2" transform="rotate(${a})"/>`).join('')}<path d="M0 0V-13" stroke="${INK}" stroke-width="3.5" stroke-linecap="round" transform="rotate(${ha})"/><path d="M0 0V-19" stroke="#c62f2a" stroke-width="2.5" stroke-linecap="round" transform="rotate(${ma})"/><circle r="2.5" fill="${INK}"/></g>`}
+function scene(type,time){let w='#dfeaf7',f='#b9cbe2',s='';
+ if(type==='reception'){w='#e6eef9';s=`<rect x="250" y="26" width="300" height="56" rx="10" fill="#0f3d91"/><text x="400" y="52" text-anchor="middle" font-family="Baloo Bhaijaan 2,sans-serif" font-weight="800" font-size="22" fill="#fff">AL-NOOR DENTAL CLINIC</text><text x="400" y="74" text-anchor="middle" font-family="Noto Sans Arabic,sans-serif" font-weight="700" font-size="15" fill="#f5cd5f">عيادة النور لطب الأسنان</text><rect x="40" y="186" width="250" height="70" rx="6" fill="#c99a6b" stroke="${INK}" stroke-width="3"/><rect x="60" y="170" width="70" height="20" rx="3" fill="#86c3fb" stroke="${INK}" stroke-width="2"/><path d="M640 256 L652 210 H700 L712 256Z" fill="#ec6767" stroke="${INK}" stroke-width="3"/><path d="M676 210 Q650 160 640 130 M676 210 Q690 150 715 135 M676 210 Q676 160 670 120" stroke="#1f9a5a" stroke-width="8" fill="none" stroke-linecap="round"/>${clock(560,150,time)}`}
+ if(type==='chair'){w='#e3f1ef';f='#b8d6d1';s=`<path d="M470 0 V60 Q470 80 450 90 L410 110" stroke="#5a6a86" stroke-width="8" fill="none"/><ellipse cx="400" cy="116" rx="34" ry="14" fill="#f5cd5f" stroke="${INK}" stroke-width="3"/><path d="M300 256 L318 230 L520 230 Q556 230 572 206 L590 210 Q578 246 530 248 L360 248 L346 256Z" fill="#25b598" stroke="${INK}" stroke-width="3" opacity=".9"/><rect x="700" y="150" width="90" height="106" rx="6" fill="#fff" stroke="${INK}" stroke-width="3"/><path d="M700 203H790M745 150V256" stroke="${INK}" stroke-width="2"/>${clock(100,70,time)}`}
+ if(type==='xray'){w='#2a3550';f='#1c2538';s=`<rect x="270" y="30" width="260" height="160" rx="10" fill="#0d1422" stroke="#86c3fb" stroke-width="4"/><g stroke="#f4f7ff" stroke-width="3" fill="none" opacity=".9"><path d="M350 60 C340 90 345 110 350 120 L360 175 Q368 182 372 172 L378 130 L388 172 Q394 182 400 172 L410 120 C416 108 418 88 408 60 Q380 48 350 60Z"/><path d="M440 60 C432 90 436 110 440 120 L452 175 Q458 182 462 172 L470 120 C476 104 478 86 468 60 Q454 52 440 60Z"/></g><circle cx="394" cy="182" r="11" fill="#5a6a86" opacity=".7"/><rect x="600" y="120" width="140" height="90" rx="8" fill="#13203a" stroke="#86c3fb" stroke-width="3"/><rect x="660" y="210" width="20" height="40" fill="#5a6a86"/>${clock(110,70,time)}`}
+ if(type==='surgery'){w='#e4f0e8';f='#bfd6c6';s=`<path d="M0 0 H120 V256 Q90 240 60 256 Q30 240 0 256Z" fill="#7cc4a4" opacity=".8"/><ellipse cx="400" cy="40" rx="110" ry="30" fill="#fffbe6" stroke="${INK}" stroke-width="3"/><path d="M330 40 Q400 200 470 40" fill="#fff7c7" opacity=".45"/><rect x="560" y="170" width="190" height="16" rx="4" fill="#9fb1cf" stroke="${INK}" stroke-width="3"/><path d="M590 168 l30-20 M640 168 l10-26 M690 168 l26-14" stroke="${INK}" stroke-width="4" stroke-linecap="round"/><rect x="640" y="186" width="10" height="70" fill="#9fb1cf"/>${clock(200,80,time)}`}
+ if(type==='phone'){w='#fbe8e3';f='#e9c8bf';s=`<rect x="330" y="40" width="140" height="210" rx="22" fill="${INK}"/><rect x="342" y="62" width="116" height="160" rx="8" fill="#86c3fb"/><text x="400" y="120" text-anchor="middle" font-family="Baloo Bhaijaan 2,sans-serif" font-weight="800" font-size="18" fill="${INK}">Incoming call</text><text x="400" y="146" text-anchor="middle" font-family="Noto Sans,sans-serif" font-size="13" fill="${INK}">Yousef · Day 3</text><circle cx="400" cy="190" r="16" fill="#1f9a5a"/><path d="M300 90 q-20 30 0 60 M280 74 q-34 46 0 92 M500 90 q20 30 0 60 M520 74 q34 46 0 92" stroke="#c62f2a" stroke-width="5" fill="none" stroke-linecap="round"/>`}
+ if(type==='office'){w='#f3e9de';f='#d7c2ab';s=`<rect x="80" y="30" width="240" height="160" rx="6" fill="url(#sunset)" stroke="${INK}" stroke-width="4"/><path d="M200 30V190M80 110H320" stroke="${INK}" stroke-width="3"/><circle cx="250" cy="150" r="22" fill="#f5cd5f"/><rect x="520" y="30" width="230" height="200" fill="#c99a6b" stroke="${INK}" stroke-width="3"/>${[0,1,2].map(r=>[0,1,2,3,4,5,6,7,8].map(i=>`<rect x="${532+i*24}" y="${42+r*64}" width="18" height="52" fill="${['#ec6767','#86c3fb','#f5cd5f','#25b598','#0f3d91'][(i+r)%5]}" stroke="${INK}" stroke-width="1.5"/>`).join('')).join('')}`}
+ return `<svg class="bg" viewBox="0 0 800 300" preserveAspectRatio="xMidYMax slice" aria-hidden="true"><defs><linearGradient id="sunset" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f6a46b"/><stop offset="1" stop-color="#ffe3a6"/></linearGradient></defs><rect width="800" height="300" fill="${w}"/><rect y="256" width="800" height="44" fill="${f}"/>${s}</svg>`}
+
+/* diagrams for tap questions */
+const DLAB={supra:'Supragingival',subg:'Subgingival',crown:'Crown',pulp:'Pulp',apex:'Root apex',gingiva:'Gingiva',bone:'Alveolar bone',lip:'Lip',palate:'Palate',tongue:'Tongue',frenum:'Lingual frenum',teeth:'Teeth',leuko:'White patch',erythro:'Red patch',tmj:'TMJ',parotid:'Parotid gland',submand:'Submandibular gland',mandible:'Mandible',maxilla:'Maxilla'};
+function diaTooth(){let dots='';for(let i=0;i<46;i++){const x=(i*67)%300,y=176+((i*41)%110);dots+=`<circle cx="${x}" cy="${y}" r="${3+i%4}" fill="#d9bf8e"/>`}
+ return `<svg viewBox="0 0 300 296" role="img" aria-label="Tooth in its socket"><rect y="150" width="300" height="146" fill="#ecd9b3"/>${dots}
+ <path d="M104 128 L196 128 C192 190 172 250 150 266 C128 250 108 190 104 128Z" fill="#f5e6c4" stroke="${INK}" stroke-width="2.5"/>
+ <path d="M100 132 C90 72 100 30 150 30 C200 30 210 72 200 132Z" fill="#fffaf0" stroke="${INK}" stroke-width="2.5"/>
+ <path d="M128 74 C128 58 172 58 172 74 L168 132 C162 186 156 228 150 250 C144 228 138 186 132 132Z" fill="#f4a3a3" stroke="#c0565a" stroke-width="1.5"/>
+ <path d="M101 100 q6-6 12 1 q3 9-4 13 q-8 1-9-6z" fill="#d8b84a" stroke="#8a6d10" stroke-width="1.5"/>
+ <path d="M0 116 Q70 98 110 120 L114 168 L0 168Z" fill="#ef8d97" stroke="#b9505c" stroke-width="2"/><path d="M300 116 Q230 98 190 120 L186 168 L300 168Z" fill="#ef8d97" stroke="#b9505c" stroke-width="2"/>
+ <path d="M110 121 L105 156" stroke="#7a1f2b" stroke-width="2" stroke-dasharray="3 3"/><path d="M104 136 q6-3 9 3 q1 8-5 9 q-6-2-4-12z" fill="#b89a35" stroke="#6b5410" stroke-width="1.2"/>
+ <circle cx="150" cy="268" r="15" fill="#6b4a3a" opacity=".45"/>
+ <rect class="hot" data-h="bone" x="0" y="170" width="300" height="126"/>
+ <path class="hot" data-h="gingiva" d="M0 116 Q70 98 110 120 L114 168 L0 168Z M300 116 Q230 98 190 120 L186 168 L300 168Z"/>
+ <path class="hot" data-h="crown" d="M118 118 C108 72 112 34 150 34 C188 34 196 72 196 118Z"/>
+ <path class="hot" data-h="pulp" d="M128 74 C128 58 172 58 172 74 L168 132 C162 186 156 228 150 250 C144 228 138 186 132 132Z"/>
+ <circle class="hot" data-h="apex" cx="150" cy="266" r="22"/>
+ <rect class="hot" data-h="supra" x="94" y="90" width="24" height="28" rx="5"/>
+ <rect class="hot" data-h="subg" x="96" y="124" width="22" height="36" rx="5"/>
+ <g class="lbls"><text x="150" y="20" text-anchor="middle">Crown</text><text x="186" y="96">Pulp</text><text x="6" y="146">Gingiva</text><text x="6" y="232">Alveolar bone</text><text x="176" y="284">Root apex</text><text x="6" y="98">Supragingival</text><text x="6" y="164">Subgingival</text></g></svg>`}
+function diaMouth(v){const top=y=>x=>130-84*Math.sqrt(Math.max(0,1-((x-150)/108)**2));let teeth='';
+ for(let i=0;i<9;i++){const x=70+i*18.5;const yt=top()(x+8)+2;const yb=260-top()(x+8)-26;teeth+=`<rect class="hot" data-h="teeth" x="${x}" y="${yt}" width="16" height="20" rx="4" fill="#fffaf0" stroke="${INK}" stroke-width="1.5"/>`;if(v!=='up')teeth+=`<rect class="hot" data-h="teeth" x="${x}" y="${yb}" width="16" height="20" rx="4" fill="#fffaf0" stroke="${INK}" stroke-width="1.5"/>`}
+ let body=v==='up'
+ ?`<ellipse cx="150" cy="200" rx="74" ry="22" fill="#d9707c"/><path d="M143 150 L157 150 L163 204 L137 204Z" fill="#f4b6ba" stroke="#b9505c" stroke-width="1.5"/><ellipse cx="150" cy="118" rx="74" ry="36" fill="#ef8f96" stroke="#b9505c" stroke-width="2"/><path d="M120 128 q14 10 30 2 M180 128 q-14 10-30 2" stroke="#8a62a8" stroke-width="2" fill="none"/>
+  <path class="hot" data-h="frenum" d="M140 148 L160 148 L166 206 L134 206Z"/><ellipse class="hot" data-h="tongue" cx="150" cy="114" rx="74" ry="32"/>`
+ :`<ellipse cx="150" cy="166" rx="84" ry="44" fill="#ef8f96" stroke="#b9505c" stroke-width="2"/><path d="M150 130 V196" stroke="#c76c76" stroke-width="2"/>
+  <path d="M76 196 q10-14 26-10 q14-6 20 6 q8 12-6 16 q-16 8-30 2 q-14-2-10-14z" fill="#f7f3ea" stroke="#9aa3ad" stroke-width="1.5"/>
+  <ellipse cx="200" cy="150" rx="20" ry="13" fill="#b3122b"/>${[0,1,2,3,4].map(i=>`<circle cx="${190+i*5}" cy="${146+(i%2)*6}" r="1.6" fill="#ff7d8e"/>`).join('')}
+  <ellipse class="hot" data-h="tongue" cx="150" cy="166" rx="84" ry="44"/><path class="hot" data-h="leuko" d="M70 196 q10-18 32-14 q18-6 24 8 q8 16-8 20 q-18 8-34 2 q-18-2-14-16z"/><ellipse class="hot" data-h="erythro" cx="200" cy="150" rx="24" ry="17"/>`;
+ return `<svg viewBox="0 0 300 260" role="img" aria-label="Open mouth"><rect width="300" height="260" rx="18" fill="#f1c9a5"/>
+ <path class="hot" data-h="lip" fill-rule="evenodd" d="M25 130 a125 100 0 1 0 250 0 a125 100 0 1 0 -250 0Z M42 130 a108 84 0 1 0 216 0 a108 84 0 1 0 -216 0Z" style="fill:#d97b7b"/>
+ <ellipse cx="150" cy="130" rx="108" ry="84" fill="#5e1a24"/>
+ <path d="M72 76 Q150 34 228 76 Q150 98 72 76Z" fill="#e9959b"/><path d="M110 70 q40-10 80 0 M120 78 q30-8 60 0" stroke="#c76c76" stroke-width="2" fill="none"/><path class="hot" data-h="palate" d="M72 76 Q150 34 228 76 Q150 98 72 76Z"/>
+ ${body}${teeth}
+ <g class="lbls"><text x="150" y="20" text-anchor="middle">Lip</text><text x="150" y="70" text-anchor="middle">Palate</text><text x="230" y="110">Tongue</text>${v==='up'?'<text x="170" y="196">Lingual frenum</text>':'<text x="40" y="226">White patch</text><text x="214" y="176">Red patch</text>'}<text x="30" y="60">Teeth</text></g></svg>`}
+function diaHead(){return `<svg viewBox="0 0 300 260" role="img" aria-label="Side view of the head"><rect width="300" height="260" rx="18" fill="#eef4fb"/>
+ <path d="M210 22 C266 26 292 80 286 136 C282 176 266 200 240 212 L236 260 L162 260 L160 222 C130 224 104 214 96 200 C92 192 98 188 94 182 C88 176 96 170 90 164 C82 156 86 150 92 146 C82 136 74 124 84 116 L72 96 C80 58 130 18 210 22Z" fill="#f1c9a5" stroke="${INK}" stroke-width="2.5"/>
+ <path d="M200 30 C150 26 110 50 100 84 Q140 60 190 64 Q230 66 262 90 C256 54 236 34 200 30Z" fill="#3a2416"/>
+ <circle cx="118" cy="98" r="4" fill="${INK}"/><path d="M106 86 q12-6 22 0" stroke="${INK}" stroke-width="2.5" fill="none"/>
+ <path d="M214 138 L212 190 Q208 204 190 206 L120 206 Q104 204 100 196" stroke="#c9a36a" stroke-width="7" fill="none" stroke-linecap="round" opacity=".85"/>
+ <ellipse cx="132" cy="150" rx="30" ry="11" fill="#e8c48e" opacity=".8"/>
+ <ellipse cx="226" cy="158" rx="16" ry="24" fill="#f7d58a" opacity=".85" stroke="#c9a36a"/>
+ <ellipse cx="190" cy="226" rx="24" ry="12" fill="#f7d58a" opacity=".85" stroke="#c9a36a"/>
+ <ellipse cx="232" cy="120" rx="13" ry="22" fill="#e8b791" stroke="${INK}" stroke-width="2"/>
+ <circle cx="212" cy="126" r="8" fill="#fff" stroke="#c9a36a" stroke-width="3"/>
+ <path class="hot" data-h="mandible" d="M206 136 L222 138 L220 194 Q214 214 190 214 L118 214 Q96 212 94 198 L106 190 Q110 198 122 198 L188 198 Q204 196 206 186Z"/>
+ <ellipse class="hot" data-h="maxilla" cx="132" cy="150" rx="32" ry="14"/>
+ <ellipse class="hot" data-h="parotid" cx="226" cy="160" rx="18" ry="26"/>
+ <ellipse class="hot" data-h="submand" cx="190" cy="228" rx="27" ry="15"/>
+ <circle class="hot" data-h="tmj" cx="212" cy="126" r="13"/>
+ <g class="lbls"><text x="196" y="110" text-anchor="end">TMJ</text><text x="248" y="190">Parotid</text><text x="150" y="252">Submandibular</text><text x="70" y="226">Mandible</text><text x="96" y="132">Maxilla</text></g></svg>`}
+const DIA={tooth:diaTooth,mouthUp:()=>diaMouth('up'),mouth:()=>diaMouth('patch'),head:diaHead};
+
+/* ============ STORY ============ */
+const C={H:{name:'Dr. Huda',ar:'د. هدى',col:'#0f3d91',skin:'#e8b894',hijab:'#0f3d91',top:'coat',mood:'happy'},
+ N:{name:'Nurse Samir',ar:'الممرض سمير',col:'#1f9a5a',skin:'#c98e6b',hair:'short',hc:'#2b1d14',beard:true,top:'scrubs',topCol:'#25b598',mood:'happy'}};
+const say=(k,t,ta,mood,moods)=>({say:k,t,ta,mood,moods});
+const ask=(q,who)=>({q,who:who||'H'});
+const STORY=[
+{id:'p0',time:'08:00',t:'First Day',ta:'اليوم الأول',bg:'reception',on:['N','H'],face:'H',steps:[
+ say('T','08:00. Al-Noor Dental Clinic opens its doors. Today is your first day.','الساعة الثامنة. عيادة النور تفتح أبوابها. اليوم أول يوم لك.'),
+ say('N','Good morning! You must be the new intern. Welcome!','صباح الخير! أكيد أنت الطبيب المتدرب الجديد. أهلاً وسهلاً!'),
+ say('H','I am Dr. Huda, your supervisor. Six patients are booked today, and every chart is full of long words.','أنا د. هدى، مشرفتك اليوم. عندنا ستة مرضى، وكل ملف مليء بكلمات طويلة.'),
+ say('H','Don\'t panic. Every long word is just blocks. Always start from the end: find the suffix.','لا تقلق. كل كلمة طويلة هي مجرد قطع. ابدأ دائماً من النهاية: حدّد اللاحقة.'),
+ ask(M('Show me. Which block is the suffix in this word?','أرني. ما هي اللاحقة في هذه الكلمة؟','@gingivitis',['-itis','gingiv','gingi-','-tis'],'The suffix sits at the end and tells us what is happening.','gingivitis')),
+ say('N','Before we start, help me sort yesterday\'s sticky notes. They fell on the floor!','قبل ما نبدأ، ساعدني أرتب ملاحظات أمس. وقعت على الأرض!','wow'),
+ ask(So('Drop each block in the right box.','ضع كل قطعة في الصندوق الصحيح.',['peri-','-ectomy','gloss','sub-','-algia','odont'],'Prefixes at the start, roots are body parts, suffixes at the end.'),'N'),
+ say('H','Perfect. One more rule: the little o is only a bridge.','ممتاز. قاعدة أخيرة: حرف o مجرد جسر.'),
+ ask(B('Build the name of our science: the study of teeth.','ابنِ اسم علمنا: علم الأسنان.','odontology',['odont','o','-logy','-itis','dent'],'-logy starts with a consonant, so the o stays.')),
+ say('H','You are ready, {you}. Samir, send in the first patient!','أنت جاهز يا {you}. سمير، أدخل أول مريض!','happy')]},
+{id:'p1',time:'08:30',t:'Bleeding Gums',ta:'نزيف اللثة',bg:'chair',on:['P','H'],face:'P',cast:{P:{name:'Lina Haddad',ar:'لينا حداد',col:'#ec6767',skin:'#f0c8a6',hair:'long',hc:'#4a2c1a',top:'shirt',topCol:'#ec6767',mood:'worried'}},steps:[
+ say('T','Lina Haddad, 34, a school teacher, sits in the chair. She looks worried.','لينا حداد، ٣٤ سنة، معلّمة، تجلس على الكرسي. تبدو قلقة.'),
+ say('P','Doctor, my gums bleed every time I brush. Am I going to lose my teeth?','دكتور، لثتي تنزف كل ما أفرّش أسناني. هل رح أخسر أسناني؟','worried'),
+ say('H','Let\'s look together. I write gingivitis on the chart. {you}, explain it to her simply.','خلينا نشوف. كتبت gingivitis في الملف. يا {you}، اشرحها لها ببساطة.'),
+ ask(M('What do you tell Lina?','ماذا تقول للينا؟','@gingivitis',['"Your gums are inflamed."','"Your tooth nerve is infected."','"Your jaw bone is inflamed."','"Your lip is infected."'],'gingiv = gum, -itis = inflammation.','gingivitis')),
+ say('H','There is calculus above the gum line and some hiding below it. Show me on the picture.','في جير فوق خط اللثة وبعضه مختبئ تحتها. أرني على الصورة.'),
+ ask(Tp('Tap where SUPRAgingival calculus sits.','اضغط على مكان الجير فوق اللثة.','tooth','supra','supra- = above the gum line.','supragingival')),
+ ask(Tp('Now tap where SUBgingival calculus hides.','والآن اضغط على مكان الجير تحت اللثة.','tooth','subg','sub- = below the gum line, inside the pocket.','subgingival')),
+ say('N','Doctor, I typed the chart. Can you check it before I print?','دكتور، طبعت الملف. ممكن تراجعه قبل ما أطبعه؟','neutral'),
+ ask(Fx('Tap the misspelled word in Samir\'s chart.','اضغط على الكلمة المكتوبة خطأ.','Generalised {{gingivoitis}} with interdental bleeding and supragingival calculus.','gingivitis','Drop the o before a suffix that starts with a vowel: gingiv + itis.','gingivitis'),'N'),
+ say('P','So is it periodontitis? My aunt had that.','يعني هو التهاب دواعم السن؟ خالتي كان عندها.','worried'),
+ ask(M('Pockets are 3 mm and there is no bone loss. What do you answer?','الجيوب ٣ مم ولا يوجد فقدان عظم. بماذا تجيب؟',null,['"Not yet: the supporting tissues and bone are healthy."','"Yes, your bone is already inflamed."','"Yes, the pulp is infected."','"No, it is a lip problem."'],'peri + odont + itis = inflammation of the tissues around the tooth, with bone loss.','periodontitis')),
+ say('H','Quick revision before she leaves. Match each word to its meaning.','مراجعة سريعة قبل ما تروح. طابق كل كلمة بمعناها.'),
+ ask(Ma('Match the word to its meaning.','طابق الكلمة بمعناها.',[['interdental','between the teeth'],['subgingival','below the gum line'],['gingivectomy','removal of gum tissue'],['periodontitis','inflammation of supporting tissues']],'Same root, different prefix or suffix: a different meaning.')),
+ say('P','Thank you, doctor! I will brush gently and come back in 4 weeks.','شكراً دكتور! رح أفرّش بلطف وأرجع بعد ٤ أسابيع.','happy')]},
+{id:'p2',time:'09:30',t:'The Quiet Tongue',ta:'اللسان الهادئ',bg:'chair',on:['M','S','H'],face:'S',cast:{S:{name:'Sara',ar:'سارة',col:'#e9a400',skin:'#e9bf9a',hair:'curly',hc:'#3a2416',top:'shirt',topCol:'#f5cd5f',kid:true,mood:'wow'},M:{name:'Maha (mother)',ar:'مها (الأم)',col:'#6c5aa8',skin:'#e3b38e',hijab:'#9a7fe0',top:'shirt',topCol:'#6c5aa8',mood:'worried'}},steps:[
+ say('T','Sara, 7 years old, runs into the room holding her mother\'s hand.','سارة، ٧ سنوات، تدخل الغرفة راكضة ممسكة يد أمها.'),
+ say('M','Doctor, Sara cannot stick her tongue out, and her teacher says some letters sound strange.','دكتورة، سارة ما بتقدر تطلّع لسانها، والمعلمة بتقول إن بعض الحروف بتطلع غريبة.','worried'),
+ say('S','Look! My tongue is stuck!','شوفي! لساني لازق!','wow'),
+ ask(Tp('Tap the small fold that holds Sara\'s tongue down.','اضغط على الثنية الصغيرة التي تمسك لسان سارة.','mouthUp','frenum','This fold is the lingual frenum: fren/o.','frenotomy')),
+ ask(M('Dr. Huda writes "ankyloglossia". What is it?','ما معنى ankyloglossia؟','!ankyloglossia',['tongue-tie: the tongue is bound down','a large tongue','a painful tongue','inflammation of the tongue'],'ankyl/o = bound, gloss = tongue, -ia = condition.','ankyloglossia')),
+ say('M','Will she need big surgery?','هل تحتاج عملية كبيرة؟','worried'),
+ ask(M('Which small procedure CUTS the frenum to free the tongue?','أيّ إجراء بسيط يقطع اللجام؟',null,['frenotomy','frenectomy','glossectomy','glossopexy'],'-tomy = cutting into. -ectomy would remove it completely.','frenotomy')),
+ say('N','The panoramic X-ray is ready. Something is missing!','الصورة البانورامية جاهزة. في شي ناقص!','wow'),
+ ask(M('Two upper lateral incisors never formed. Which term goes on the chart?','لم تتكون قاطعتان جانبيتان. أيّ مصطلح؟',null,['hypodontia','hyperdontia','macrodontia','anodontia'],'hypo- = below normal: fewer teeth than normal. anodontia would mean no teeth at all.','hypodontia'),'N'),
+ ask(B('One premolar is very small. Build the term.','ضاحك واحد صغير جداً. ابنِ المصطلح.','microdontia',['micro-','macro-','dont','-ia','o'],'micro- = small. A prefix joins directly, no o.')),
+ say('M','And these white lines on her front teeth? She loves swallowing toothpaste.','وهالخطوط البيضاء على أسنانها الأمامية؟ بتحب تبلع المعجون.','worried'),
+ ask(M('True or false: the white lines are "fluorosis", caused by too much fluoride.','صح أم خطأ: الخطوط البيضاء سببها زيادة الفلور.','@fluorosis',['True · صح','False · خطأ'],'fluor = fluoride, -osis = abnormal condition.','fluorosis')),
+ say('S','Can I have a sticker? A tooth one!','ممكن ستيكر؟ ستيكر سنّ!','happy',{M:'happy'}),
+ say('T','Sara leaves with a tooth sticker and a frenotomy appointment.','سارة تخرج بستيكر سنّ وموعد لقطع اللجام.')]},
+{id:'p3',time:'10:30',t:'X-ray Detective',ta:'محقق الأشعة',bg:'xray',on:['P','H'],face:'P',cast:{P:{name:'Omar Khalil',ar:'عمر خليل',col:'#3f78c4',skin:'#c99472',hair:'short',hc:'#1d1d1d',beard:true,top:'shirt',topCol:'#86c3fb',swollen:true,mood:'pain'}},steps:[
+ say('T','Omar Khalil, 47, a taxi driver. He has not slept for three nights.','عمر خليل، ٤٧ سنة، سائق تاكسي. لم ينم منذ ثلاث ليالٍ.'),
+ say('P','This back tooth wakes me up every night! Cold water makes it scream!','هالضرس بصحّيني كل ليلة! الماء البارد بيخليه يصرخ!','pain'),
+ ask(M('Dr. Huda suspects "pulpitis". What is inflamed?','ما الملتهب في pulpitis؟',null,['the dental pulp, inside the tooth','the gum around the tooth','the jaw joint','the lip'],'pulp + -itis.','pulpitis')),
+ say('H','Come to the X-ray viewer. See that dark shadow at the end of the root?','تعال لجهاز الأشعة. شايف الظل الغامق في نهاية الجذر؟'),
+ ask(Tp('Tap where the PERIAPICAL lesion is.','اضغط على مكان الآفة حول الذروة.','tooth','apex','peri- = around, apic = apex: around the root tip.','periapical')),
+ ask(Tp('The infection started in the pulp. Tap the pulp.','بدأ الالتهاب في اللب. اضغط على اللب.','tooth','pulp','The pulp is the soft tissue inside the tooth.','pulpitis')),
+ say('H','We will remove ALL of the pulp today. Write the procedure on the chart.','رح نزيل اللب بالكامل اليوم. اكتب اسم الإجراء.'),
+ ask(T('Type the procedure: removal of the entire pulp.','اكتب الإجراء: إزالة اللب بالكامل.','pulpectomy','pulp + ectomy. No o: -ectomy starts with a vowel.')),
+ say('T','Six months later… Omar is back.','بعد ستة أشهر… عمر رجع.'),
+ say('P','Doctor, it is better, but there is still a small bump on my gum.','دكتورة، أحسن، بس لسا في نتوء صغير على لثتي.','worried'),
+ say('H','The lesion at the root tip has not healed. The surgeon will remove just the tip.','الآفة عند قمة الجذر ما شفيت. الجرّاح رح يزيل القمة فقط.'),
+ ask(B('Build the surgery: removal of the root apex.','ابنِ اسم العملية: استئصال قمة الجذر.','apicoectomy',['apic','o','-ectomy','-tomy','pulp'],'The exception: apicoectomy keeps its o.')),
+ say('P','So you will pull out my tooth?','يعني رح تخلعوا ضرسي؟','worried'),
+ ask(M('Your answer to Omar:','جوابك لعمر:',null,['"No, only the tip of the root is removed. Your tooth stays."','"Yes, the whole tooth comes out."','"We will cut your gum only."','"We will fix your jaw joint."'],'apic = apex, -ectomy = removal: only the apex.','apicoectomy')),
+ say('P','Then I can keep driving with a smile!','إذن بقدر أكمل سواقة وأنا مبسوط!','happy')]},
+{id:'p4',time:'12:00',t:'Emergency!',ta:'حالة طارئة!',bg:'surgery',on:['P','N','H'],face:'P',cast:{P:{name:'Yousef Nasser',ar:'يوسف ناصر',col:'#2f3b52',skin:'#d8a47f',hair:'curly',hc:'#20160f',top:'shirt',topCol:'#2f3b52',swollen:true,mood:'pain'}},steps:[
+ say('N','Doctor! Emergency in room 2! A young man, swollen face, he can barely open his mouth!','دكتورة! حالة طارئة في غرفة ٢! شاب وجهه منتفخ وبالكاد يفتح فمه!','wow'),
+ say('P','Mmmf… it hurts… I can\'t open… wider…','آآه… بيوجع… ما بقدر أفتح… أكثر…','pain'),
+ say('H','No time to lose! Read the chart words as fast as you can. Go!','ما في وقت! اقرأ كلمات الملف بأسرع ما يمكن. انطلق!','wow'),
+ ask(Ru('Speed round: pick the right meaning before time runs out!','جولة سريعة: اختر المعنى الصحيح قبل انتهاء الوقت!',[['peri-','around','below'],['-itis','inflammation','removal'],['coron','crown','root'],['extra-','outside','inside'],['-tomy','cutting into','removal'],['oste','bone','muscle'],['trans-','through','around'],['an-','without','after'],['post-','after','before'],['alveol','tooth socket','tongue']],45,7,'Fast decoding saves time in a real emergency.')),
+ ask(M('Chart: "trismus, opens 25 mm". How do you learn trismus?','كيف نتعلم trismus؟','!trismus',['memorize it: limited mouth opening','decode: tri- = three','decode: -ismus = removal','decode: tris = tooth'],'Not built from course parts. Learn the meaning directly.','trismus')),
+ ask(M('Diagnosis: pericoronitis. The clinical meaning is…','المعنى السريري…','@pericoronitis',['inflammation of the gum flap over a partly erupted wisdom tooth','an infected root tip','a broken crown','bone infection'],'Decode to predict, then confirm the clinical meaning.','pericoronitis')),
+ say('H','Plan: transalveolar extraction with osteotomy. Split the words so Yousef understands.','الخطة: خلع عبر العظم السنخي مع شق العظم. قسّم الكلمات ليفهم يوسف.'),
+ ask(S('transalveolar','trans- (through) + alveol (socket) + -ar.')),
+ ask(M('"Osteotomy" means the surgeon will…','osteotomy تعني أن الجراح سوف…',null,['cut into the bone','remove all the jaw bone','repair the bone','take a bone X-ray'],'oste + o + tomy.','osteotomy')),
+ ask(M('"Local anesthesia": the prefix an- means…','البادئة an- تعني…','@anesthesia',['without','after','before','excessive'],'an- = without, esthes = sensation.','anesthesia'),'N'),
+ say('T','Three days later, the clinic phone rings…','بعد ثلاثة أيام، يرن هاتف العيادة…'),
+ {scene:'phone'},
+ say('P','Doctor, the pain is back! Worse than before! And the hole looks empty!','دكتورة، الوجع رجع! أسوأ من قبل! والجرح فاضي!','pain'),
+ ask(M('Day 3 postoperative, severe pain, empty socket. Which term?','اليوم الثالث بعد العملية، ألم شديد وسنخ فارغ. أيّ مصطلح؟',null,['alveolitis (dry socket)','pericoronitis','osteomyelitis','gingivitis'],'alveol = socket, -itis = inflammation. Clinically: dry socket.','alveolitis')),
+ {scene:'surgery'},
+ say('H','Well done. We will clean the socket and place a soothing dressing.','أحسنت. رح ننظف السنخ ونحط ضماد مهدّئ.','happy',{P:'happy'}),
+ say('P','It feels so much better. Thank you!','صار أحسن بكثير. شكراً!','happy')]},
+{id:'p5',time:'14:00',t:'Clicks and Stones',ta:'طقطقة وحصى',bg:'chair',on:['P','N','H'],face:'P',cast:{P:{name:'Rana Abu-Eid',ar:'رنا أبو عيد',col:'#1f9a5a',skin:'#efc9a8',hair:'bob',hc:'#8a8a8a',glasses:true,top:'shirt',topCol:'#25b598',mood:'worried'}},steps:[
+ say('T','Rana Abu-Eid, 52, an accountant, arrives after lunch.','رنا أبو عيد، ٥٢ سنة، محاسبة، تصل بعد الغداء.'),
+ say('P','My jaw clicks, my face muscles ache every morning, and something swells under my jaw when I eat!','فكّي بطقطق، وعضلات وجهي بتوجعني كل صبح، وفي شي بنتفخ تحت فكي لما آكل!','worried'),
+ ask(Tp('First the clicking. Tap the temporomandibular joint.','أولاً الطقطقة. اضغط على المفصل الصدغي الفكي.','head','tmj','tempor + o + mandibul + ar: where the temporal bone meets the mandible.','temporomandibular')),
+ ask(M('"Morning myalgia" means…','myalgia تعني…','@myalgia',['muscle pain','joint pain','nerve pain','tooth pain'],'my = muscle, -algia = pain.','myalgia')),
+ say('N','Her husband called. He says she grinds her teeth all night!','زوجها اتصل. بقول إنها بتصرّ على أسنانها طول الليل!','wow'),
+ ask(M('Teeth grinding at night is called…','صرير الأسنان ليلاً يسمى…',null,['bruxism (memorize it)','xerostomia','arthralgia','trismus'],'bruxism is learned as a whole word.','bruxism'),'N'),
+ ask(Tp('Now the swelling at mealtimes. Tap the submandibular gland.','والآن الانتفاخ وقت الأكل. اضغط على الغدة تحت الفك.','head','submand','sub- = below, mandibul = mandible.','submandibular')),
+ say('H','A stone may be blocking the duct. Match these salivary words before we decide.','ممكن حصاة تسد القناة. طابق كلمات اللعاب قبل ما نقرر.'),
+ ask(Ma('Match each salivary word to its meaning.','طابق كل كلمة بمعناها.',[['sialolithiasis','salivary stones'],['sialadenitis','salivary gland inflammation'],['sialography','X-ray of salivary ducts'],['sialolithotripsy','crushing a salivary stone']],'Same root sial/o, four different jobs.')),
+ ask(B('We need the duct X-ray. Build the term.','نحتاج تصوير القناة. ابنِ المصطلح.','sialography',['sial','o','-graphy','-gram','aden'],'-graphy = imaging process.')),
+ say('P','One more thing… my mouth is always dry since I started my blood-pressure pills.','وكمان… فمي ناشف دايماً من وقت ما بلشت حبوب الضغط.','worried'),
+ ask(M('Which term goes on her chart?','أيّ مصطلح يُكتب؟',null,['xerostomia','sialorrhea','halitosis','dysphagia'],'xer = dry, stom = mouth. Sialorrhea is the opposite: too much saliva.','xerostomia')),
+ say('P','Now I understand my own body! Thank you, doctor.','هلأ فهمت شو بصير بجسمي! شكراً دكتور.','happy')]},
+{id:'p6',time:'15:30',t:'Red and White',ta:'الأحمر والأبيض',bg:'chair',on:['P','H'],face:'P',cast:{P:{name:'Khaled Saleh',ar:'خالد صالح',col:'#7a6a55',skin:'#d9a57f',hair:'bald',hc:'#cfcfcf',beard:true,glasses:true,top:'shirt',topCol:'#7a6a55',mood:'worried'}},steps:[
+ say('T','Khaled Saleh, 63, retired, a former smoker. He comes every three months for follow-up.','خالد صالح، ٦٣ سنة، متقاعد، مدخن سابق. يأتي كل ثلاثة أشهر للمتابعة.'),
+ say('P','My tongue burns, and all my food tastes like metal.','لساني بحرقني، وكل الأكل طعمه زي الحديد.','worried'),
+ say('H','Two years ago he had radiotherapy and a partial glossectomy. Careful with this exam, {you}.','قبل سنتين أخذ علاج إشعاعي واستئصال جزئي للسان. انتبه في الفحص يا {you}.'),
+ ask(M('Partial "glossectomy" means…','glossectomy تعني…',null,['part of the tongue was removed','the tongue was repaired','the tongue was fixed in place','the tongue was X-rayed'],'gloss = tongue, -ectomy = removal.','glossectomy')),
+ ask(Tp('Look inside. Tap the LEUKOplakia.','انظر داخل الفم. اضغط على اللويحة البيضاء.','mouth','leuko','leuk/o = white, plak = patch.','leukoplakia')),
+ ask(Tp('Now tap the ERYTHROplakia.','والآن اضغط على اللويحة الحمراء.','mouth','erythro','erythr/o = red. Red patches need a biopsy first.','erythroplakia')),
+ say('H','Let me dictate the findings. Find the mistake in the letter.','خليني أملي النتائج. جد الخطأ في الرسالة.'),
+ ask(Fx('Tap the misspelled word.','اضغط على الكلمة الخطأ.','Burning tongue (glossodynia) with candidiasis and {{dysgusia}} after radiation.','dysgeusia','dys- + geus (taste) + -ia. Keep the e-u: geus.','dysgeusia')),
+ say('H','And there is exposed bone in the lower molar area. Split this monster word.','وفي عظم مكشوف بمنطقة الأضراس السفلية. قسّم هذه الكلمة الوحش.','worried'),
+ ask(S('osteoradionecrosis','oste + o + radi + o + necr + -osis: three roots, two bridges.')),
+ ask(M('So osteoradionecrosis means…','إذن osteoradionecrosis تعني…',null,['bone death caused by radiation','bone infection from a tooth','a bone tumour','hardening of the bone'],'Rebuild: condition of bone death from radiation.','osteoradionecrosis')),
+ say('P','My grandchildren say my breath smells too. Is that part of it?','أحفادي بقولوا كمان إن ريحة فمي مش منيحة. هل هاد جزء منه؟','worried'),
+ ask(M('Which term describes his breath?','أيّ مصطلح يصف رائحة فمه؟',null,['halitosis','xerostomia','dysgeusia','candidiasis'],'halit = breath, -osis = abnormal condition.','halitosis')),
+ say('H','Biopsy of the red patch first, antifungal for the thrush, and a referral to the surgeon.','خزعة من اللويحة الحمراء أولاً، ومضاد فطريات، وتحويل للجراح.','happy',{P:'happy'})]},
+{id:'p7',time:'17:00',t:'The Referral Letter',ta:'رسالة التحويل',bg:'office',on:['N','H'],face:'H',finale:true,steps:[
+ say('T','17:00. The sun is setting. One last task before the clinic closes.','الساعة الخامسة. الشمس تغيب. مهمة أخيرة قبل إغلاق العيادة.'),
+ say('H','Khaled needs a referral to the maxillofacial surgeon. Surgeons read only medical terms, so write like one!','خالد يحتاج تحويل لجراح الوجه والفكين. الجراحون يقرؤون المصطلحات فقط، فاكتب مثلهم!'),
+ ask(T('Write the surgeon\'s specialty: pertaining to the jaws and face.','اكتب التخصص: متعلق بالفكين والوجه.','maxillofacial','maxill + o + faci + al.')),
+ ask(B('The surgeon may need to remove HALF of the mandible. Build the term.','قد يحتاج الجراح إزالة نصف الفك السفلي. ابنِ المصطلح.','hemimandibulectomy',['hemi-','mandibul','-ectomy','o','-tomy','maxill'],'hemi- = half. No o before -ectomy.')),
+ say('N','The surgeon already replied by email!','الجرّاح ردّ بالإيميل!','wow'),
+ ask(M('The surgeon writes: "Later, consider orthognathic surgery." Orthognathic means…','orthognathic تعني…','@orthognathic',['straightening the jaws','removing the jaws','jaw pain','jaw X-ray'],'ortho- = straight, gnath = jaw.','orthognathic'),'N'),
+ ask(M('He also asks for "cephalometry". That is…','ويطلب cephalometry. وهي…','@cephalometry',['measuring the head on an X-ray','a head operation','head pain','inflammation of the head'],'cephal = head, -metry = measurement.','cephalometry'),'N'),
+ say('H','Final check of the whole day. Match each patient to their main word.','مراجعة أخيرة لليوم كله. طابق كل مريض بكلمته.'),
+ ask(Ma('Match each patient to their diagnosis.','طابق كل مريض بتشخيصه.',[['Lina','gingivitis'],['Sara','ankyloglossia'],['Omar','pulpitis'],['Yousef','pericoronitis'],['Rana','sialolithiasis'],['Khaled','leukoplakia']],'Six patients, six charts, all decoded.')),
+ say('N','Doctor, the clinic is closed. All six patients went home smiling.','دكتورة، العيادة سكّرت. الستة مرضى روّحوا مبسوطين.','happy'),
+ say('H','{you}, you decoded every chart today. This badge is yours.','يا {you}، حلّلت كل الملفات اليوم. هذا الوسام لك.','happy')]}
+];
+
+let ST=null,typer=null;
+function charOf(k){return C[k]||ST.ch.cast[k]}
+function youName(){const n=(save.name||'').trim();return n?`Dr. ${n}`:'Doctor'}
+function fill(t){return (t||'').replace(/\{you\}/g,youName())}
+function drawStage(el,ch,spk,moods,bg){el.innerHTML=scene(bg||ch.bg,ch.time)+`<div class="cast">${ch.on.map(k=>{const c=C[k]||ch.cast[k];return `<div class="ch ${spk===k?'talk':(!spk||spk==='T')?'':'dim'}" title="${esc(c.name)}">${person(c,moods[k])}</div>`}).join('')}</div>`}
+function storyUnlocked(i){return i===0||save.story[STORY[i-1].id]!==undefined||document.body.classList.contains('present')}
+function renderChMap(){
+ drawStage($('#heroStage'),STORY[0],null,{},'reception');
+ $('#chMap').innerHTML=STORY.map((ch,i)=>{const c=ch.face==='H'||ch.face==='N'?C[ch.face]:ch.cast[ch.face];const st=save.story[ch.id];const un=storyUnlocked(i);
+  return `<button class="chc" data-story="${i}" ${un?'':'disabled'}><span class="lock">${un?(st!==undefined?starsHTML(st):''):'Locked'}</span><span class="por">${person(c,'happy')}</span><span class="tm">${ch.time}</span><span class="t">${esc(ch.t)}</span><span class="mini ar">${esc(ch.ta)}</span></button>`}).join('');
+ const nextI=STORY.findIndex(ch=>save.story[ch.id]===undefined);
+ $('#storyGo').textContent=nextI<=0?'Start the story ▸':nextI===-1?'Replay the story ▸':`Continue: ${STORY[nextI].time} ${STORY[nextI].t} ▸`;
+ $('#storyGo').dataset.story=Math.max(0,nextI);
+}
+function startStory(i){const ch=STORY[i];stopRush();
+ const qs=ch.steps.filter(s=>s.q).map(s=>s.q);
+ ST={i,ch,step:0,moods:{},bg:ch.bg};
+ G={l:{id:'story-'+ch.id,story:true,hello:'',t:ch.t,eb:ch.time},qs,i:0,res:[],pts:0,streak:0,pain:10,answered:false};
+ $('#sTitle').innerHTML=`${ch.time} · ${esc(ch.t)} <span class="ar" style="font-size:.8em">${esc(ch.ta)}</span>`;
+ $('#sQ').appendChild($('#qcard'));show('story');renderStep()}
+function typeIn(el,txt){clearInterval(typer);if(reduce){el.textContent=txt;typer=null;return}
+ el.textContent='';let n=0;typer=setInterval(()=>{n+=2;el.textContent=txt.slice(0,n);if(n>=txt.length){clearInterval(typer);typer=null}},16);el.dataset.full=txt}
+function renderStep(){stopRush();const ch=ST.ch;let st=ch.steps[ST.step];
+ while(st&&st.scene){ST.bg=st.scene;ST.step++;st=ch.steps[ST.step]}
+ if(!st){storyEnd();return}
+ if(st.moods)Object.assign(ST.moods,st.moods);
+ const spk=st.say||st.who||'H';if(st.mood&&C[spk]||st.mood&&ch.cast&&ch.cast[spk])ST.moods[spk]=st.mood;
+ drawStage($('#stage'),ch,spk,ST.moods,ST.bg);
+ const isQ=!!st.q;let nm,col;
+ if(spk==='T'){nm='Story · الراوي';col='#5a6a86'}else{const c=charOf(spk);nm=`${c.name} · ${c.ar}`;col=c.col}
+ const txt=fill(isQ?st.q.q:st.t),ta=fill(isQ?st.q.qa:st.ta);
+ $('#dlg').innerHTML=`<span class="who" style="background:${col}">${esc(nm)}</span><p class="txt" id="dtxt"></p><p class="txa ar">${esc(ta||'')}</p>${isQ?'':'<div class="row" style="justify-content:flex-end;margin-top:4px"><button class="btn main" id="dNext">Next ▸</button></div>'}`;
+ typeIn($('#dtxt'),txt);
+ $('#qcard').hidden=!isQ;
+ if(isQ){G.i=G.qs.indexOf(st.q);renderQ()}
+ $('#sProg').textContent=`${ST.step+1} / ${ch.steps.length}`;$('#sPts').textContent=G.pts+' pts';
+ if(!isQ)setTimeout(()=>$('#dNext')&&$('#dNext').focus({preventScroll:true}),30);
+}
+function storyNext(){if(typer){clearInterval(typer);typer=null;const d=$('#dtxt');d.textContent=d.dataset.full||d.textContent;return}ST.step++;renderStep()}
+function storyEnd(){const ch=ST.ch,N=G.qs.length,okN=G.res.filter(r=>r===true||r==='h').length;const st=G.pts/(N*10)>=.9?3:G.pts/(N*10)>=.7?2:G.pts/(N*10)>=.5?1:0;
+ save.story[ch.id]=Math.max(save.story[ch.id]??0,st);save.pts+=G.pts;persist();
+ const happy={};ch.on.forEach(k=>happy[k]='happy');drawStage($('#stage'),ch,null,happy,ch.bg);
+ $('#qcard').hidden=true;const nxt=STORY[ST.i+1];
+ let body=`<h3 style="font-family:var(--f-display);font-size:1.5em;margin:0;color:var(--navy)">${ch.finale?'The clinic is closed · العيادة أُغلقت':'Chapter complete · انتهى الفصل'}</h3>
+  <div class="bigstars" style="font-size:2.4rem;letter-spacing:6px;color:var(--line)">${[0,1,2].map(i=>`<span class="${i<st?'on':''}" style="${i<st?'color:#e9a400':''}">★</span>`).join('')}</div>
+  <div class="score">${okN}/${N} correct · ${G.pts} points</div>`;
+ if(ch.finale){const total=STORY.reduce((a,c)=>a+(save.story[c.id]||0),0);
+  body+=`<div class="badge"><div class="mini" style="letter-spacing:.14em;font-weight:700;text-transform:uppercase">Al-Noor Dental Clinic · Intern of the Day · متدرب اليوم</div><div class="who">${esc(youName())}</div><div>decoded every chart in "A Day at Al-Noor Dental Clinic"</div><div class="score" style="margin-top:6px">${total}/${STORY.length*3} stars · ${new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'})}</div><div class="mini" style="margin-top:6px">Next: try the Mastery Test in the arcade.</div></div>`}
+ body+=`<div class="row" style="justify-content:center"><button class="btn" data-story="${ST.i}">Replay chapter</button>${nxt?`<button class="btn main" data-story="${ST.i+1}">Next: ${nxt.time} ${esc(nxt.t)} ▸</button>`:`<button class="btn main" data-go="mastery">Mastery Test ▸</button>`}<button class="btn ghost" id="sBack2">Story map</button></div>`;
+ $('#dlg').innerHTML=`<div style="text-align:center">${body}</div>`;
+ if(st>=2||ch.finale)confetti();
+}
+
+/* ---- new kinds: render + logic ---- */
+function renderExtra(q){
+ if(q.k==='tap')return `<div class="dia" id="dia">${DIA[q.dia]()}</div><div class="mini" style="text-align:center;margin-top:4px">Tap on the picture · اضغط على الصورة</div>`;
+ if(q.k==='sort'){G.sort={sel:null,place:{}};const bins=['p','r','v','s'].filter(t=>q.items.some(i=>ptype(i)===t));G.sort.bins=bins;q._i=shuffle(q.items);
+  return `<div class="bank" id="sortBank">${q._i.map((p,i)=>`<button class="chip n" data-si="${i}">${esc(p)}</button>`).join('')}</div><div class="bins">${bins.map(b=>`<button class="bin" data-bin="${b}"><span class="bl ${b}">${PNAME[b]}</span><span class="in"></span></button>`).join('')}</div><div class="mini" style="text-align:center;margin-top:6px">Tap a block, then tap its box.</div>`}
+ if(q.k==='match'){G.mt={sel:null,done:new Set(),miss:0};q._r=shuffle(q.pairs.map(p=>p[1]));q._l=shuffle(q.pairs.map(p=>p[0]));
+  return `<div class="mcols"><div class="mcol">${q._l.map(t=>`<button class="mb term" data-ml="${esc(t)}">${esc(t)}</button>`).join('')}</div><div class="mcol">${q._r.map(t=>`<button class="mb" data-mr="${esc(t)}">${esc(t)}</button>`).join('')}</div></div><div class="mini" style="margin-top:6px">Tap a word, then its meaning. <span id="mMiss"></span></div>`}
+ if(q.k==='fix'){const parts=q.sent.split(/(\{\{.+?\}\})/);let h='';parts.forEach(p=>{if(p.startsWith('{{'))h+=`<button class="wd" data-wrong="1">${esc(p.slice(2,-2))}</button> `;else p.split(/\s+/).filter(Boolean).forEach(w=>h+=`<button class="wd">${esc(w)}</button> `)});return `<div class="sent">${h}</div>`}
+ if(q.k==='rush'){G.rush={k:0,score:0,left:q.secs,items:shuffle(q.items)};return `<div class="rushbar"><i id="rbar" style="width:100%"></i></div><div class="rushs"><span id="rtime">${q.secs}s</span><span id="rscore">0 / ${q.need} needed</span></div><div class="rushq" id="rq"></div><div class="opts" id="ropts"></div>`}
+ return ''}
+function afterRender(q){if(q.k==='rush'){rushItem();G.rushT=setInterval(()=>{G.rush.left--;$('#rtime')&&($('#rtime').textContent=G.rush.left+'s');$('#rbar')&&($('#rbar').style.width=(G.rush.left/q.secs*100)+'%');if(G.rush.left<=0)rushEnd()},1000)}}
+function stopRush(){if(G&&G.rushT){clearInterval(G.rushT);G.rushT=null}}
+function rushItem(){const q=G.qs[G.i],r=G.rush;if(r.k>=r.items.length){rushEnd();return}const it=r.items[r.k];$('#rq').innerHTML=chip(it[0]);
+ $('#ropts').innerHTML=shuffle([it[1],it[2]]).map(o=>`<button class="opt" data-ro="${esc(o)}">${esc(o)}</button>`).join('')}
+function rushPick(o){const q=G.qs[G.i],r=G.rush,it=r.items[r.k];const ok=o===it[1];if(ok)r.score++;beep(ok);r.k++;$('#rscore').textContent=`${r.score} / ${q.need} needed`;rushItem()}
+function rushEnd(){stopRush();if(G.answered)return;const q=G.qs[G.i];$('#ropts').innerHTML='';$('#rq').textContent=`${G.rush.score} correct!`;judge(G.rush.score>=q.need)}
+
+function drawSort(final){const q=G.qs[G.i];document.querySelectorAll('#sortBank .chip').forEach(b=>{const i=+b.dataset.si;b.hidden=G.sort.place[i]!==undefined;b.classList.toggle('sel',G.sort.sel===i)});
+ document.querySelectorAll('.bin').forEach(bn=>{const t=bn.dataset.bin;const inside=q._i.map((p,i)=>[p,i]).filter(([p,i])=>G.sort.place[i]===t);
+  bn.querySelector('.in').innerHTML=inside.map(([p,i])=>`<span class="chip ${final?ptype(p):'n'}" data-pi="${i}">${esc(p)}</span>`).join('');
+  if(final){bn.classList.add(inside.every(([p])=>ptype(p)===t)?'okb':'nob')}})}
+function matchDone(p){G.mt.done.add(p[0]);const l=document.querySelector(`[data-ml="${CSS.escape(p[0])}"]`),r=document.querySelector(`[data-mr="${CSS.escape(p[1])}"]`);l.classList.remove('sel');l.classList.add('done');r.classList.add('done');G.mt.sel=null;beep(true);
+ const q=G.qs[G.i];if(G.mt.done.size===q.pairs.length){judge(G.mt.miss<=1)}}
+
+/* ============ EVENTS ============ */
+document.addEventListener('click',e=>{
+ const go=e.target.closest('[data-go]');if(go){start(go.dataset.go);return}
+ const o=e.target.closest('.opt[data-o]');if(o&&G&&!G.answered&&!o.disabled){const q=G.qs[G.i];const ok=q._o[+o.dataset.o]===q.opts[0];
+  document.querySelectorAll('.opt').forEach(b=>{b.disabled=true;if(q._o[+b.dataset.o]===q.opts[0])b.classList.add('ok')});if(!ok)o.classList.add('no');judge(ok);return}
+ const b=e.target.closest('#bank .chip');if(b&&!G.answered){G.slot.push(+b.dataset.b);renderSlots();return}
+ const sl=e.target.closest('#slots .chip');if(sl&&!G.answered){G.slot.splice(+sl.dataset.s,1);renderSlots();return}
+ const g=e.target.closest('.gap');if(g&&!G.answered){const v=+g.dataset.g;G.cuts.has(v)?G.cuts.delete(v):G.cuts.add(v);g.classList.toggle('cut');return}
+ const hot=e.target.closest('.hot');if(hot&&G&&!G.answered&&$('#dia')&&$('#dia').contains(hot)){const q=G.qs[G.i];const ok=hot.dataset.h===q.a;const sv=$('#dia svg');sv.classList.add('labeled','answered');
+  sv.querySelectorAll(`.hot[data-h="${q.a}"]`).forEach(h=>h.classList.add('ok'));if(!ok)sv.querySelectorAll(`.hot[data-h="${hot.dataset.h}"]`).forEach(h=>h.classList.add('no'));judge(ok);return}
+ const si=e.target.closest('#sortBank .chip');if(si&&!G.answered){G.sort.sel=+si.dataset.si;drawSort();return}
+ const bin=e.target.closest('.bin');if(bin&&!G.answered){const pl=e.target.closest('.bin .chip');if(pl){delete G.sort.place[+pl.dataset.pi];drawSort();return}if(G.sort.sel!==null){G.sort.place[G.sort.sel]=bin.dataset.bin;G.sort.sel=null;drawSort()}return}
+ const ml=e.target.closest('[data-ml]');if(ml&&!G.answered&&!ml.classList.contains('done')){document.querySelectorAll('[data-ml]').forEach(b=>b.classList.remove('sel'));ml.classList.add('sel');G.mt.sel=ml.dataset.ml;return}
+ const mr=e.target.closest('[data-mr]');if(mr&&!G.answered&&!mr.classList.contains('done')&&G.mt.sel){const q=G.qs[G.i];const p=q.pairs.find(p=>p[0]===G.mt.sel);if(p[1]===mr.dataset.mr){matchDone(p)}else{G.mt.miss++;mr.classList.remove('bad');void mr.offsetWidth;mr.classList.add('bad');beep(false);$('#mMiss').textContent=`Mistakes: ${G.mt.miss}`}return}
+ const wd=e.target.closest('.sent .wd');if(wd&&!G.answered&&!wd.disabled){const ok=!!wd.dataset.wrong;document.querySelectorAll('.sent .wd').forEach(b=>{b.disabled=true;if(b.dataset.wrong)b.classList.add('ok')});if(!ok)wd.classList.add('no');else{wd.textContent=G.qs[G.i].right}judge(ok);return}
+ const ro=e.target.closest('[data-ro]');if(ro&&!G.answered){rushPick(ro.dataset.ro);return}
+ const sg=e.target.closest('[data-story]');if(sg&&!sg.disabled){startStory(+sg.dataset.story);return}
+ if(e.target.closest('#dNext')){storyNext();return}
+ if(e.target.closest('#sBack,#sBack2')){stopRush();clearInterval(typer);renderHome();show('home');return}
+ if(e.target.closest('#checkBtn')){checkCurrent();return}
+ if(e.target.closest('#clearBtn')){if(!G.answered){G.slot=[];renderSlots()}return}
+ if(e.target.closest('#hintBtn')){hint();return}
+ if(e.target.closest('#revealBtn')){reveal();return}
+ if(e.target.closest('#nextBtn')){next();return}
+ if(e.target.closest('#backBtn,#gBack,#homeBtn2')){renderHome();show('home');return}
+ const gf=e.target.closest('[data-gf]');if(gf){gFilter=gf.dataset.gf;renderGloss();return}
+ if(e.target.closest('#gHide')){gHide=!gHide;renderGloss();return}
+ const gi=e.target.closest('.gitem.hide');if(gi){gi.classList.remove('hide');return}
+});
+document.addEventListener('keydown',e=>{if(e.key==='Enter'&&!$('#story').hidden&&$('#dNext')&&document.activeElement!==$('#dNext')){e.preventDefault();storyNext();return}
+ if(e.key==='Enter'&&G&&(!$('#play').hidden||!$('#story').hidden)&&$('#qcard').offsetParent){if(G.answered){e.preventDefault();next()}else if(e.target.id==='typein'){e.preventDefault();checkCurrent()}}});
+$('#gSearch').addEventListener('input',renderGloss);
+$('#studentName').addEventListener('input',e=>{save.name=e.target.value;persist()});
+$('#soundBtn').addEventListener('click',e=>{soundOn=!soundOn;e.target.setAttribute('aria-pressed',soundOn);e.target.textContent=soundOn?'Sound on':'Sound off'});
+$('#presentBtn').addEventListener('click',e=>{const on=document.body.classList.toggle('present');e.target.setAttribute('aria-pressed',on);renderChMap();if(G&&!$('#play').hidden&&!G.answered)renderQ()});
+$('#resetBtn').addEventListener('click',()=>{$('#resetConfirm').hidden=false});
+$('#resetYes').addEventListener('click',()=>{save={stars:{},best:{},pts:0,mastered:[],name:save.name,story:{}};persist();$('#resetConfirm').hidden=true;renderHome()});
+renderHome();
+</script>
+
+</body></html>
