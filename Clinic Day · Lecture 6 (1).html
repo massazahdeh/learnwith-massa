@@ -1,0 +1,699 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Clinic Day · Lecture 6</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans+Arabic:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: clinic waiting room (3 patient files) → per-patient case: dental chart / illustration on the left, question + patient file on the right */
+:root {
+  --bg: #EEF3F2; --paper: #FBFDFC; --ink: #15302E; --muted: #5B706D; --line: #CBD8D5;
+  --accent: #0B6B66; --accent-ink: #FFFFFF; --accent-soft: #D5EBE8;
+  --mark: #C97F00; --mark-soft: #FCE7B8;
+  --ok: #2E8B57; --ok-soft: #D7F0E0; --bad: #C2453D; --bad-soft: #F7DCD9;
+  --enamel: #FFFFFF; --enamel-line: #7F9894; --primary-tooth: #DDEBF5;
+  --gum: #F3CFCB; --root: #EFE3C8; --bone: #E8E3D6; --pulp: #F0A9A3;
+  --f-display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --f-body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --f-ar: "IBM Plex Sans Arabic", "Segoe UI", Tahoma, sans-serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+  --r: 14px;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0F1A19; --paper: #162423; --ink: #E4EFED; --muted: #93A8A4; --line: #2A3D3B;
+  --accent: #4FC1B8; --accent-ink: #062321; --accent-soft: #1D3B39;
+  --mark: #F2B33D; --mark-soft: #4A3810;
+  --ok: #5BC88A; --ok-soft: #173A27; --bad: #EE7B72; --bad-soft: #43201D;
+  --enamel: #EEF3F2; --enamel-line: #6E8784; --primary-tooth: #C3D7E6;
+  --gum: #7A4545; --root: #9C8A62; --bone: #2C2B23; --pulp: #B4605A;
+  color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #0F1A19; --paper: #162423; --ink: #E4EFED; --muted: #93A8A4; --line: #2A3D3B;
+  --accent: #4FC1B8; --accent-ink: #062321; --accent-soft: #1D3B39;
+  --mark: #F2B33D; --mark-soft: #4A3810;
+  --ok: #5BC88A; --ok-soft: #173A27; --bad: #EE7B72; --bad-soft: #43201D;
+  --enamel: #EEF3F2; --enamel-line: #6E8784; --primary-tooth: #C3D7E6;
+  --gum: #7A4545; --root: #9C8A62; --bone: #2C2B23; --pulp: #B4605A;
+  color-scheme: dark }
+
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--f-body); font-size: 15px; line-height: 1.5; }
+.wrap { max-width: 1180px; margin: 0 auto; padding-inline: 20px; padding-block: 20px 48px; display: flex; flex-direction: column; gap: 20px; }
+.ar { font-family: var(--f-ar); direction: rtl; unicode-bidi: isolate; }
+button { font: inherit; color: inherit; }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+
+/* header */
+.top { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; }
+.brand { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+.brand h1 { font-family: var(--f-display); font-weight: 800; font-size: 28px; letter-spacing: -0.01em; margin: 0; }
+.brand .sub { color: var(--muted); font-size: 13px; letter-spacing: 0.06em; text-transform: uppercase; }
+.score { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.chip { font-family: var(--f-mono); font-size: 13px; padding: 6px 12px; border-radius: 999px; background: var(--paper); border: 1px solid var(--line); font-variant-numeric: tabular-nums; }
+.chip strong { color: var(--accent); }
+.btn { border: 1px solid var(--line); background: var(--paper); border-radius: 10px; padding: 9px 14px; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; font-weight: 500; }
+.btn:hover { border-color: var(--accent); }
+.btn-primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.btn-primary:hover { filter: brightness(1.08); }
+.btn[disabled] { opacity: .45; cursor: not-allowed; }
+
+/* waiting room */
+.intro { display: grid; gap: 6px; max-width: 70ch; }
+.intro h2 { font-family: var(--f-display); font-size: 34px; line-height: 1.1; margin: 0; text-wrap: balance; }
+.intro p { margin: 0; color: var(--muted); }
+.intro .ar { font-size: 17px; color: var(--ink); }
+.patients { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
+.pcard { background: var(--paper); border: 1px solid var(--line); border-radius: var(--r); padding: 18px; display: flex; flex-direction: column; gap: 10px; text-align: start; cursor: pointer; position: relative; overflow: hidden; }
+.pcard:hover { border-color: var(--accent); }
+.pcard .tab { position: absolute; inset-block-start: 0; inset-inline-end: 18px; background: var(--accent-soft); color: var(--accent); font-family: var(--f-mono); font-size: 12px; padding: 4px 10px; border-radius: 0 0 8px 8px; }
+.pcard h3 { font-family: var(--f-display); font-size: 24px; margin: 0; display: flex; align-items: baseline; gap: 10px; }
+.pcard h3 .ar { font-size: 20px; font-weight: 600; }
+.pcard .age { font-family: var(--f-mono); font-size: 13px; color: var(--muted); }
+.pcard p { margin: 0; }
+.pcard .complaint { font-size: 14px; }
+.pcard .complaint.ar { font-size: 15px; color: var(--muted); }
+.pcard .status { margin-top: auto; display: flex; justify-content: space-between; align-items: center; font-size: 13px; color: var(--muted); border-top: 1px dashed var(--line); padding-top: 10px; gap: 8px; flex-wrap: wrap; }
+.pcard .status b { color: var(--ink); font-family: var(--f-mono); }
+.pcard.done .status b { color: var(--ok); }
+.meter { height: 6px; border-radius: 3px; background: var(--line); overflow: hidden; flex: 1 1 80px; }
+.meter i { display: block; height: 100%; background: var(--accent); }
+
+/* case view */
+.case { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr); gap: 18px; align-items: start; }
+@media (max-width: 860px) { .case { grid-template-columns: minmax(0, 1fr); } }
+.panel { background: var(--paper); border: 1px solid var(--line); border-radius: var(--r); padding: 18px; display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.casehead { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; align-items: baseline; }
+.casehead h2 { font-family: var(--f-display); font-size: 26px; margin: 0; }
+.casehead .ar { font-size: 20px; }
+.casenote { margin: 0; font-size: 14px; }
+.casenote.ar { font-size: 15px; color: var(--muted); }
+.vis { background: var(--bg); border-radius: 10px; padding: 8px; overflow-x: auto; }
+.vis svg { display: block; width: 100%; height: auto; min-width: 300px; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 12px; color: var(--muted); align-items: center; }
+.legend span { display: inline-flex; gap: 6px; align-items: center; }
+.legend svg { width: 18px; height: 18px; }
+.toolrow { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; align-items: center; }
+.dots { display: flex; gap: 5px; flex-wrap: wrap; }
+.dots i { width: 12px; height: 12px; border-radius: 50%; background: var(--line); display: block; }
+.dots i.on { background: var(--mark); }
+.dots i.ok { background: var(--ok); }
+.dots i.bad { background: var(--bad); }
+
+/* question */
+.kicker { display: flex; justify-content: space-between; gap: 8px; font-size: 12px; text-transform: uppercase; letter-spacing: 0.07em; color: var(--accent); font-weight: 600; flex-wrap: wrap; }
+.kicker .ar { text-transform: none; letter-spacing: 0; font-size: 13px; }
+.qtext { font-family: var(--f-display); font-weight: 600; font-size: 21px; line-height: 1.25; margin: 0; text-wrap: balance; }
+.qtext-ar { font-size: 17px; margin: 0; }
+.hint { font-size: 13px; background: var(--mark-soft); border-radius: 8px; padding: 8px 10px; display: grid; gap: 2px; }
+.linkish { background: none; border: 0; color: var(--accent); cursor: pointer; padding: 0; font-size: 13px; text-decoration: underline; text-underline-offset: 3px; justify-self: start; }
+.opts { display: grid; gap: 8px; }
+.opt { text-align: start; border: 1.5px solid var(--line); background: var(--paper); border-radius: 10px; padding: 10px 12px; cursor: pointer; display: flex; justify-content: space-between; gap: 12px; align-items: center; flex-wrap: wrap; }
+.opt:hover:not([disabled]) { border-color: var(--accent); }
+.opt .ar { color: var(--muted); font-size: 14px; }
+.opt.ok { border-color: var(--ok); background: var(--ok-soft); }
+.opt.bad { border-color: var(--bad); background: var(--bad-soft); }
+.opt[disabled] { cursor: default; }
+.opt.mono { font-family: var(--f-mono); font-size: 17px; justify-content: center; }
+.opts.grid4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.tap { font-size: 13px; color: var(--muted); display: flex; gap: 8px; align-items: center; }
+.tap::before { content: ""; width: 10px; height: 10px; border-radius: 50%; background: var(--mark); animation: pulse 1.4s infinite; flex: none; }
+@keyframes pulse { 50% { opacity: .3; } }
+@media (prefers-reduced-motion: reduce) { .tap::before { animation: none; } }
+.slots { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+@media (max-width: 480px) { .slots { grid-template-columns: minmax(0, 1fr); } }
+.slot { display: grid; gap: 4px; font-size: 12px; color: var(--muted); }
+.slot select { font: inherit; font-size: 15px; color: var(--ink); background: var(--paper); border: 1.5px solid var(--line); border-radius: 8px; padding: 8px; width: 100%; }
+.slot select.ok { border-color: var(--ok); background: var(--ok-soft); }
+.slot select.bad { border-color: var(--bad); background: var(--bad-soft); }
+.feedback { border-radius: 10px; padding: 12px; display: grid; gap: 4px; font-size: 14px; }
+.feedback.ok { background: var(--ok-soft); }
+.feedback.bad { background: var(--bad-soft); }
+.feedback b { font-family: var(--f-display); font-size: 16px; }
+.feedback .ar { font-size: 15px; }
+.actions { display: flex; justify-content: flex-end; gap: 8px; flex-wrap: wrap; }
+
+/* patient file */
+.file h3 { font-family: var(--f-display); font-size: 17px; margin: 0; display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+.file h3 .ar { font-size: 15px; font-weight: 500; color: var(--muted); }
+.file dl { margin: 0; display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 0; font-size: 14px; }
+.file dt, .file dd { padding: 7px 0; border-bottom: 1px dashed var(--line); margin: 0; }
+.file dt { color: var(--muted); padding-inline-end: 14px; font-size: 13px; }
+.file dd { font-weight: 500; }
+.file dd .ar { display: block; font-weight: 400; color: var(--muted); font-size: 13px; }
+.file dd.empty { color: var(--line); }
+.file dd.new { animation: flash 1.2s; }
+@keyframes flash { from { background: var(--mark-soft); } }
+@media (prefers-reduced-motion: reduce) { .file dd.new { animation: none; } }
+
+/* summary */
+.summary { display: grid; gap: 14px; justify-items: start; }
+.summary h2 { font-family: var(--f-display); font-size: 30px; margin: 0; }
+.bigscore { font-family: var(--f-mono); font-size: 44px; font-weight: 600; color: var(--accent); line-height: 1; font-variant-numeric: tabular-nums; }
+.bysec { display: flex; flex-wrap: wrap; gap: 6px; }
+.bysec span { font-size: 12px; padding: 4px 10px; border-radius: 999px; border: 1px solid var(--line); }
+.bysec span.ok { border-color: var(--ok); color: var(--ok); }
+.bysec span.bad { border-color: var(--bad); color: var(--bad); }
+
+/* svg parts */
+.gum { fill: var(--gum); opacity: .55; }
+.rootp { fill: var(--root); stroke: var(--enamel-line); stroke-width: 1; }
+.crown { fill: var(--enamel); stroke: var(--enamel-line); stroke-width: 1.3; }
+.tooth.prim .crown { fill: var(--primary-tooth); }
+.tooth.unerupted .crown, .tooth.unerupted .rootp { stroke-dasharray: 3 2; opacity: .7; }
+.tooth.missing .crown { fill: none; stroke-dasharray: 3 3; opacity: .55; }
+.tooth.missing .rootp { display: none; }
+.tooth.hl .crown { fill: var(--mark-soft); stroke: var(--mark); stroke-width: 2.6; }
+.tooth.ok .crown { fill: var(--ok-soft); stroke: var(--ok); stroke-width: 2.6; }
+.tooth.bad .crown { fill: var(--bad-soft); stroke: var(--bad); stroke-width: 2.6; }
+.chart.clickable .tooth:not(.missing) { cursor: pointer; }
+.chart.clickable .tooth:not(.missing):hover .crown, .chart.clickable .tooth:focus-visible .crown { stroke: var(--accent); stroke-width: 2.6; }
+.tooth:focus { outline: none; }
+.num { font-family: var(--f-mono); font-size: 10.5px; fill: var(--muted); text-anchor: middle; }
+.num.show-ok { fill: var(--ok); font-weight: 600; }
+.axis { stroke: var(--muted); stroke-dasharray: 4 4; stroke-width: 1; opacity: .6; }
+.side { font-family: var(--f-body); font-size: 11px; fill: var(--muted); font-weight: 600; letter-spacing: .06em; }
+.plabel { font-family: var(--f-body); font-size: 12px; fill: var(--ink); font-weight: 600; }
+.plabel.ok { fill: var(--ok); }
+.part { cursor: default; }
+.ill.clickable .part { cursor: pointer; }
+.ill.clickable .part:hover, .ill.clickable .part:focus-visible { stroke: var(--accent); stroke-width: 3; }
+.part.hl { stroke: var(--mark); stroke-width: 3; }
+.part.ok { stroke: var(--ok); stroke-width: 3.5; }
+.part.bad { stroke: var(--bad); stroke-width: 3.5; }
+.p-enamel { fill: var(--enamel); stroke: var(--enamel-line); stroke-width: 1.5; }
+.p-root { fill: var(--root); stroke: var(--enamel-line); stroke-width: 1.5; }
+.p-bone { fill: var(--bone); }
+.p-gum { fill: var(--gum); }
+.p-pulp { fill: var(--pulp); opacity: .7; }
+.p-furc { fill: var(--accent-soft); stroke: var(--enamel-line); stroke-width: 1; stroke-dasharray: 3 2; }
+.p-edge { fill: var(--primary-tooth); stroke: var(--enamel-line); stroke-width: 1.5; }
+.p-cusp { fill: var(--enamel); stroke: var(--enamel-line); stroke-width: 1.5; }
+.p-ridge { fill: var(--primary-tooth); stroke: var(--enamel-line); stroke-width: 1.2; }
+.p-occl { fill: var(--root); stroke: var(--enamel-line); stroke-width: 1.5; }
+.p-groove { stroke: var(--enamel-line); stroke-width: 1.2; fill: none; }
+.p-epi { fill: var(--gum); stroke: var(--enamel-line); stroke-width: 1; }
+.p-papilla { fill: var(--primary-tooth); stroke: var(--enamel-line); stroke-width: 1; }
+.p-organ { fill: var(--mark-soft); stroke: var(--enamel-line); stroke-width: 1.5; }
+.ill text { font-family: var(--f-body); }
+.lbl { font-size: 13px; fill: var(--muted); font-weight: 600; text-anchor: middle; }
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <h1>Clinic Day</h1>
+      <span class="sub">Lecture 6 · Dental terminology</span>
+      <span class="ar" style="color:var(--muted)">يوم في العيادة</span>
+    </div>
+    <div class="score" id="score"></div>
+  </header>
+  <main id="app"></main>
+</div>
+
+<script>
+// ───────── terminology (same wording as the Lecture 6 lab) ─────────
+const SECTIONS = {
+  1: { en: 'Identify the Tooth', ar: 'تعرّف على السن' }, 2: { en: 'Build the Tooth Name', ar: 'ركّب اسم السن' },
+  3: { en: 'Jaw & Quadrant', ar: 'الفك وربع الأسنان' }, 4: { en: 'FDI Numbering', ar: 'ترقيم FDI' },
+  5: { en: 'Crown & Root', ar: 'التاج والجذر' }, 6: { en: 'Root Morphology', ar: 'شكل الجذور' },
+  7: { en: 'Basic Tooth Morphology', ar: 'شكل السن الأساسي' }, 8: { en: 'Tooth Development', ar: 'تطور الأسنان' },
+  9: { en: 'Eruption', ar: 'بزوغ الأسنان' }, 10: { en: 'Developmental Terminology', ar: 'مصطلحات اضطرابات النمو' },
+  11: { en: 'Dentition', ar: 'مجموعة الأسنان' },
+};
+const TT = { incisor: { en: 'Incisor', ar: 'القاطع' }, canine: { en: 'Canine', ar: 'الناب' }, premolar: { en: 'Premolar', ar: 'الضاحك' }, molar: { en: 'Molar', ar: 'الطاحن' } };
+const POS = { central: { en: 'central', ar: 'المركزي' }, lateral: { en: 'lateral', ar: 'الجانبي' }, first: { en: 'first', ar: 'الأول' }, second: { en: 'second', ar: 'الثاني' }, third: { en: 'third', ar: 'الثالث' } };
+const QUAD = { 1: { en: 'Upper right', ar: 'العلوي الأيمن' }, 2: { en: 'Upper left', ar: 'العلوي الأيسر' }, 3: { en: 'Lower left', ar: 'السفلي الأيسر' }, 4: { en: 'Lower right', ar: 'السفلي الأيمن' } };
+const SPEC = { 1: ['incisor', 'central'], 2: ['incisor', 'lateral'], 3: ['canine', null], 4: ['premolar', 'first'], 5: ['premolar', 'second'], 6: ['molar', 'first'], 7: ['molar', 'second'], 8: ['molar', 'third'] };
+const info = f => { const q = Math.floor(f / 10), n = f % 10; return { q, n, up: q <= 2, type: SPEC[n][0], pos: SPEC[n][1] }; };
+const nameOf = f => { const i = info(f); return {
+  en: (i.up ? 'Maxillary ' : 'Mandibular ') + (i.pos ? i.pos + ' ' : '') + i.type + (i.pos === 'third' ? ' (wisdom tooth)' : ''),
+  ar: TT[i.type].ar + (i.pos ? ' ' + POS[i.pos].ar : '') + (i.up ? ' العلوي' : ' السفلي') + (i.pos === 'third' ? ' (ضرس العقل)' : '') }; };
+const fdiExplain = f => { const q = Math.floor(f / 10), d = f % 10, n = nameOf(f); return {
+  en: `${q} = ${QUAD[q].en.toLowerCase()} quadrant · ${d} = tooth ${d} from the midline → ${n.en}.`,
+  ar: `${q} = الربع ${QUAD[q].ar} · ${d} = السن رقم ${d} من خط المنتصف ← ${n.ar}` }; };
+const TYPE_EXPL = {
+  incisor: { en: 'Incisor = a front tooth.', ar: 'القاطع = سن أمامي.' },
+  canine: { en: 'Canine = the pointed tooth located between the incisors and premolars.', ar: 'الناب = السن المدبب الذي يقع بين القواطع والضواحك.' },
+  premolar: { en: 'Premolar = the tooth between the canine and the molars.', ar: 'الضاحك = السن الذي يقع بين الناب والطواحن.' },
+  molar: { en: 'Molar = a back, chewing tooth.', ar: 'الطاحن = سن خلفي للمضغ.' },
+};
+const FDI_HINT = { en: 'FDI: first digit = quadrant (1 upper right · 2 upper left · 3 lower left · 4 lower right). Second digit = tooth position from the midline (1–8).', ar: 'الرقم الأول = الربع · الرقم الثاني = موضع السن من خط المنتصف (١–٨)' };
+const PREFIX_HINT = { en: 'hypo- = deficient · oligo- = few · an- = absent · hyper- = excessive · odont = tooth', ar: 'hypo- ناقص · oligo- قليل · an- غياب · hyper- زائد · odont سن' };
+const QUAD_EXPL = { en: 'A quadrant is one quarter of the dentition. Right and left always mean the patient’s right and left. The patient faces you, so the patient’s right side is on your left.', ar: 'الربع هو ربع مجموعة الأسنان. اليمين واليسار دائماً حسب المريض. المريض يواجهك، لذلك يمين المريض على يسارك.' };
+
+const o = (en, ar, ok = false) => ({ en, ar, ok });
+const L = (en, ar) => ({ en, ar });
+const typeOpts = t => ['incisor', 'canine', 'premolar', 'molar'].map(k => o(TT[k].en, TT[k].ar, k === t));
+const quadOpts = q => [1, 2, 3, 4].map(k => o(QUAD[k].en, QUAD[k].ar, k === q));
+const DENT = ok => [o('Primary dentition', 'الأسنان اللبنية', ok === 0), o('Mixed dentition', 'مرحلة الأسنان المختلطة', ok === 1), o('Permanent dentition', 'الأسنان الدائمة', ok === 2)];
+const DENT_EXPL = [
+  L('Primary dentition = the first set of teeth (baby teeth).', 'الأسنان اللبنية = المجموعة الأولى من الأسنان.'),
+  L('Mixed dentition = a stage when both primary and permanent teeth are present.', 'مرحلة الأسنان المختلطة = مرحلة توجد فيها الأسنان اللبنية والدائمة معاً.'),
+  L('Permanent dentition = only permanent (adult) teeth are present.', 'الأسنان الدائمة = توجد الأسنان الدائمة فقط.'),
+];
+const ER = ok => [o('Tooth eruption', 'بزوغ السن', ok === 0), o('Delayed eruption', 'تأخر البزوغ', ok === 1), o('Ectopic eruption', 'بزوغ السن في موضع غير طبيعي', ok === 2), o('Exfoliation', 'السقوط الطبيعي للسن اللبني', ok === 3)];
+const MISS = ok => [o('Hypodontia', 'نقص عدد الأسنان', ok === 0), o('Oligodontia', 'غياب عدد كبير من الأسنان', ok === 1), o('Anodontia', 'غياب الأسنان', ok === 2), o('Hyperdontia', 'زيادة عدد الأسنان', ok === 3)];
+const buildQ = (f, extra) => { const i = info(f), n = nameOf(f); return Object.assign({
+  sec: 2, kind: 'build', vis: 'chart', hl: [f],
+  q: L('Build the name of the highlighted tooth.', 'ركّب اسم السن المحدَّد.'), hint: L('Jaw + Tooth type + Position', 'الفك + نوع السن + الموضع'),
+  slots: [
+    { label: L('Jaw', 'الفك'), opts: [['Maxillary', 'علوي'], ['Mandibular', 'سفلي']], ans: i.up ? 'Maxillary' : 'Mandibular' },
+    { label: L('Tooth type', 'نوع السن'), opts: Object.keys(TT).map(t => [t, TT[t].ar]), ans: i.type },
+    { label: L('Position', 'الموضع'), opts: [...Object.keys(POS).map(p => [p, POS[p].ar]), ['none', 'بدون']], ans: i.pos || 'none' },
+  ],
+  explain: L(`${i.up ? 'Maxillary (upper jaw)' : 'Mandibular (lower jaw)'} + ${i.type}${i.pos ? ' + ' + i.pos : ''} → ${n.en}.${i.pos ? '' : ' Each quadrant has only one canine, so no position word is needed.'}`, n.ar),
+  rec: { k: L('Tooth', 'السن'), v: L(`${n.en} · ${f}`, `${n.ar} · ${f}`) } }, extra || {}); };
+
+// ───────── the three patients ─────────
+// chart status: n = normal permanent, p = primary tooth, u = not yet erupted, x = never developed, e = ectopic, - = not drawn
+const PATIENTS = [
+  {
+    id: 'yara', name: L('Yara', 'يارا'), age: 8,
+    complaint: L('A new upper front tooth is coming in crooked.', 'سن أمامي علوي جديد يبزغ بشكل مائل.'),
+    note: L('Yara, 8, comes with her mother. A new upper front tooth is coming in crooked. A baby tooth next to it came out on its own last month, at the normal time.',
+            'يارا، ٨ سنوات، جاءت مع أمها. سن أمامي علوي جديد يبزغ بشكل مائل. سقط سن لبني بجانبه من تلقاء نفسه الشهر الماضي في وقته الطبيعي.'),
+    chart: { def: '-', n: [11, 21, 22, 16, 26, 36, 46, 31, 32, 41, 42], e: [12], p: [13, 14, 15, 23, 24, 25, 33, 34, 35, 43, 44, 45], u: [17, 27, 37, 47] },
+    qs: [
+      { sec: 11, kind: 'mc', vis: 'chart', q: L('Yara has both small primary teeth and new permanent teeth. What is this stage called?', 'لدى يارا أسنان لبنية صغيرة وأسنان دائمة جديدة. ماذا تسمى هذه المرحلة؟'),
+        options: DENT(1), explain: DENT_EXPL[1], rec: { k: L('Dentition', 'مجموعة الأسنان'), v: L('Mixed dentition', 'مرحلة الأسنان المختلطة') } },
+      { sec: 1, kind: 'mc', vis: 'chart', hl: [12], q: L('What type of tooth is coming in crooked?', 'ما نوع السن الذي يبزغ بشكل مائل؟'),
+        options: typeOpts('incisor'), explain: TYPE_EXPL.incisor, rec: { k: L('Tooth type', 'نوع السن'), v: L('Incisor', 'القاطع') } },
+      buildQ(12),
+      { sec: 3, kind: 'mc', vis: 'chart', hl: [12], q: L('Which quadrant is this tooth in?', 'في أي ربع يقع هذا السن؟'),
+        options: quadOpts(1), explain: QUAD_EXPL, rec: { k: L('Quadrant', 'الربع'), v: L('Upper right (1)', 'العلوي الأيمن (1)') } },
+      { sec: 4, kind: 'tooth', vis: 'chart', hint: FDI_HINT, q: L('The dentist compares it with its partner across the midline. Click tooth 22.', 'يقارنه الطبيب مع السن المقابل له على الجهة الأخرى من خط المنتصف. انقر على السن 22.'),
+        accept: [22], reveal: [22], explain: fdiExplain(22), rec: { k: L('Compared with', 'مقارنة مع'), v: L('Tooth 22', 'السن 22') } },
+      { sec: 9, kind: 'mc', vis: 'chart', hl: [12], q: L('Tooth 12 is coming in tilted and out of line. Which term?', 'السن 12 يبزغ مائلاً وخارج مكانه. ما المصطلح؟'),
+        options: ER(2), explain: L('Ectopic eruption = eruption in an abnormal position.', 'البزوغ المنتبذ = بزوغ السن في موضع غير طبيعي.'), rec: { k: L('Finding', 'الملاحظة'), v: L('Ectopic eruption of 12', 'بزوغ السن 12 في موضع غير طبيعي') } },
+      { sec: 9, kind: 'mc', vis: 'chart', q: L('The baby tooth next to it came out on its own, at the normal time. Which term?', 'السن اللبني المجاور سقط من تلقاء نفسه في وقته الطبيعي. ما المصطلح؟'),
+        options: ER(3), explain: L('Exfoliation = natural shedding of a primary tooth. If it happens earlier than expected: premature exfoliation.', 'السقوط الطبيعي للسن اللبني. إذا حدث قبل الوقت المتوقع: سقوط مبكر.'), rec: { k: L('History', 'التاريخ'), v: L('Exfoliation of a primary tooth', 'سقوط طبيعي لسن لبني') } },
+      { sec: 7, kind: 'part', vis: 'incisor', q: L('Look at her new incisor. Click the incisal edge.', 'انظر إلى القاطع الجديد. انقر على الحافة القاطعة.'),
+        accept: ['incisal'], reveal: ['incisal'], explain: L('Incisal edge = the cutting edge of an anterior tooth.', 'الحافة القاطعة = حافة القطع في السن الأمامي.') },
+      { sec: 5, kind: 'part', vis: 'section', q: L('Only part of a tooth is visible in the mouth. Click the clinical crown.', 'يظهر جزء فقط من السن داخل الفم. انقر على التاج السريري.'),
+        accept: ['crown'], reveal: ['crown'], explain: L('Clinical crown = the visible portion of the tooth in the mouth.', 'التاج السريري = الجزء الظاهر من السن في الفم.') },
+      { sec: 6, kind: 'mc', vis: 'roots', hlParts: ['bi', 'furc_bi'], q: L('Her first permanent molar (36) has two roots. The area where the roots divide is called…', 'للطاحن الدائم الأول (36) جذران. المنطقة التي تتفرع فيها الجذور تسمى…'),
+        options: [o('Furcation', 'منطقة تفرّع الجذور', true), o('Apex', 'الذروة'), o('Cusp', 'نتوء'), o('Incisal edge', 'الحافة القاطعة')],
+        explain: L('Furcation = the area where the roots of a multirooted tooth divide.', 'منطقة التفرع = المنطقة التي تتفرع فيها جذور السن متعدد الجذور.') },
+      { sec: 8, kind: 'mc', vis: 'stages', q: L('Her premolars are still developing under the primary molars. Tooth development is called…', 'ما زالت الضواحك تتكوّن تحت الطواحن اللبنية. تطور الأسنان يسمى…'),
+        hint: L('odont/o = tooth · -genesis = formation', 'odont/o = سن · ‎-genesis = تكوّن'),
+        options: [o('Odontogenesis', 'تكوّن الأسنان', true), o('Amelogenesis', 'تكوّن المينا'), o('Dentinogenesis', 'تكوّن العاج'), o('Apicoectomy', 'استئصال الذروة')],
+        explain: L('Odontogenesis = tooth development. It passes through the bud, cap and bell stages.', 'تكوّن الأسنان = تطور الأسنان، ويمر بمراحل البرعم والقبعة والجرس.') },
+      { sec: 10, kind: 'mc', vis: 'chart', hl: [35, 45], hint: PREFIX_HINT, q: L('Her X-ray shows that two permanent teeth (35 and 45) never developed. Decode the term.', 'تُظهر صورة الأشعة أن سنّين دائمين (35 و45) لم يتكوّنا. حلّل المصطلح.'),
+        options: MISS(0), explain: L('hypo- (deficient) + odont (tooth) + -ia (condition) = reduced number of teeth.', 'hypo- (ناقص) + odont (سن) + ‎-ia (حالة) = نقص عدد الأسنان.'),
+        rec: { k: L('X-ray', 'الأشعة'), v: L('Hypodontia (35, 45)', 'نقص عدد الأسنان (35، 45)') } },
+    ],
+  },
+  {
+    id: 'omar', name: L('Omar', 'عمر'), age: 24,
+    complaint: L('Pain at the back of his lower jaw, on the left.', 'ألم في مؤخرة الفك السفلي من الجهة اليسرى.'),
+    note: L('Omar, 24, has pain at the back of his lower jaw on the left. A tooth there is only partly through the gum. His X-ray report also mentions an infection at the tip of one root of tooth 36.',
+            'عمر، ٢٤ سنة، يشكو من ألم في مؤخرة الفك السفلي من الجهة اليسرى. سن هناك ظهر جزء منه فقط من اللثة. تقرير الأشعة يذكر أيضاً التهاباً عند قمة أحد جذور السن 36.'),
+    chart: { def: 'n', u: [38], sn: [34, 35] },
+    qs: [
+      { sec: 11, kind: 'mc', vis: 'chart', q: L('Omar is 24 and has no primary teeth left. What is this stage called?', 'عمر عمره ٢٤ سنة ولم يبقَ لديه أسنان لبنية. ماذا تسمى هذه المرحلة؟'),
+        options: DENT(2), explain: DENT_EXPL[2], rec: { k: L('Dentition', 'مجموعة الأسنان'), v: L('Permanent dentition', 'الأسنان الدائمة') } },
+      { sec: 1, kind: 'mc', vis: 'chart', hl: [38], q: L('Which molar is causing the pain?', 'أي طاحن يسبب الألم؟'),
+        options: [o('First molar', 'الطاحن الأول'), o('Second molar', 'الطاحن الثاني'), o('Third molar (wisdom tooth)', 'الطاحن الثالث (ضرس العقل)', true)],
+        explain: L('Molars are counted from the front: first, second, third. The third molar is the wisdom tooth.', 'تُعدّ الطواحن من الأمام: الأول، الثاني، الثالث. الطاحن الثالث هو ضرس العقل.'),
+        rec: { k: L('Tooth type', 'نوع السن'), v: L('Third molar (wisdom tooth)', 'الطاحن الثالث (ضرس العقل)') } },
+      buildQ(38),
+      { sec: 3, kind: 'tooth', vis: 'chart', q: L('Click any tooth in the quadrant where his pain is.', 'انقر على أي سن في الربع الذي فيه الألم.'),
+        acceptQ: 3, reveal: [31, 32, 33, 34, 35, 36, 37, 38], explain: QUAD_EXPL, rec: { k: L('Quadrant', 'الربع'), v: L('Lower left (3)', 'السفلي الأيسر (3)') } },
+      { sec: 9, kind: 'mc', vis: 'chart', hl: [38], q: L('The teeth next to it came in years ago, but 38 is still only partly through the gum. Which term?', 'الأسنان المجاورة بزغت منذ سنوات، لكن السن 38 ما زال ظاهراً جزئياً فقط. ما المصطلح؟'),
+        options: ER(1), explain: L('Delayed eruption = eruption later than expected.', 'تأخر البزوغ = بزوغ السن في وقت متأخر عن المتوقع.'), rec: { k: L('Finding', 'الملاحظة'), v: L('Delayed eruption of 38', 'تأخر بزوغ السن 38') } },
+      { sec: 4, kind: 'tooth', vis: 'chart', hint: FDI_HINT, q: L('The X-ray report mentions tooth 36. Click tooth 36.', 'تقرير الأشعة يذكر السن 36. انقر على السن 36.'),
+        accept: [36], reveal: [36], explain: fdiExplain(36), rec: { k: L('Infected tooth', 'السن الملتهب'), v: L('36 · Mandibular first molar', '36 · الطاحن الأول السفلي') } },
+      { sec: 6, kind: 'part', vis: 'roots', q: L('Tooth 36 is a lower molar with two roots. Click the tooth with a bifurcated root.', 'السن 36 طاحن سفلي له جذران. انقر على السن ذي الجذر المتفرع إلى قسمين.'),
+        accept: ['bi', 'furc_bi'], reveal: ['bi', 'furc_bi'], explain: L('bi- = two → bifurcation = division into two.', 'bi- = اثنان ← تفرع إلى قسمين.') },
+      { sec: 5, kind: 'part', vis: 'section', q: L('The infection is at the tip of the root. Click the root apex.', 'الالتهاب عند قمة الجذر. انقر على ذروة الجذر.'),
+        accept: ['apex'], reveal: ['apex'], explain: L('Apex = the tip of the tooth root.', 'الذروة = قمة جذر السن.'), rec: { k: L('Site', 'الموقع'), v: L('Root apex of 36', 'ذروة جذر السن 36') } },
+      { sec: 5, kind: 'mc', vis: 'section', hlParts: ['apex'], hint: L('apic/o = apex · -ectomy = removal', 'apic/o = الذروة · ‎-ectomy = استئصال'), q: L('The dentist plans surgical removal of the root apex. What is this procedure called?', 'يخطط الطبيب لاستئصال ذروة الجذر جراحياً. ما اسم هذا الإجراء؟'),
+        options: [o('Apicoectomy', 'استئصال ذروة الجذر', true), o('Odontogenesis', 'تكوّن الأسنان'), o('Exfoliation', 'السقوط الطبيعي للسن اللبني'), o('Bifurcation', 'تفرع إلى قسمين')],
+        explain: L('apic/o (apex) + -ectomy (removal) = removal of the root apex.', 'apic/o (الذروة) + ‎-ectomy (استئصال) = استئصال ذروة الجذر.'), rec: { k: L('Plan', 'الخطة'), v: L('Apicoectomy of 36', 'استئصال ذروة جذر السن 36') } },
+      { sec: 7, kind: 'part', vis: 'occlusal', q: L('Food packs onto the chewing surface of 36. Click the occlusal surface.', 'يتجمع الطعام على سطح المضغ في السن 36. انقر على السطح الإطباقي.'),
+        accept: ['occl', 'ridge', 'cusp0', 'cusp1', 'cusp2', 'cusp3'], reveal: ['occl'], explain: L('Occlusal surface = the chewing surface of posterior teeth.', 'السطح الإطباقي = سطح المضغ في الأسنان الخلفية.') },
+      { sec: 10, kind: 'tooth', vis: 'chart', q: L('There is one tooth too many in his lower left jaw. Click the supernumerary tooth.', 'يوجد سن زائد عن العدد في فكه السفلي الأيسر. انقر على السن الزائد.'),
+        accept: ['SN'], reveal: ['SN'], explain: L('Supernumerary tooth = an additional tooth beyond the normal number.', 'السن الزائد = سن إضافي فوق العدد الطبيعي.') },
+      { sec: 10, kind: 'mc', vis: 'chart', hl: ['SN'], hint: PREFIX_HINT, q: L('One tooth too many. Decode the term.', 'سن زائد عن العدد. حلّل المصطلح.'),
+        options: MISS(3), explain: L('hyper- (excessive) + odont + -ia = presence of extra teeth.', 'hyper- (زائد) + odont + ‎-ia = زيادة عدد الأسنان.'), rec: { k: L('Also found', 'وُجد أيضاً'), v: L('Hyperdontia (supernumerary tooth)', 'زيادة عدد الأسنان (سن زائد)') } },
+      { sec: 8, kind: 'mc', vis: 'stages', hint: L('amel/o = enamel · -genesis = formation', 'amel/o = مينا · ‎-genesis = تكوّن'), q: L('His enamel formed while his teeth were developing. Enamel formation is called…', 'تكوّنت المينا أثناء تطور أسنانه. تكوّن المينا يسمى…'),
+        options: [o('Amelogenesis', 'تكوّن المينا', true), o('Odontogenesis', 'تكوّن الأسنان'), o('Dentinogenesis', 'تكوّن العاج'), o('Exfoliation', 'السقوط الطبيعي للسن اللبني')],
+        explain: L('amel/o = enamel + -genesis = formation → amelogenesis = enamel formation.', 'amel/o = مينا + ‎-genesis = تكوّن ← تكوّن المينا.') },
+    ],
+  },
+  {
+    id: 'rami', name: L('Rami', 'رامي'), age: 11,
+    complaint: L('Several permanent teeth never formed.', 'عدة أسنان دائمة لم تتكوّن.'),
+    note: L('Rami, 11, was referred because several permanent teeth never formed. He lost his upper left primary first molar at age 6, much earlier than expected. His upper left canine is now coming in.',
+            'رامي، ١١ سنة، تم تحويله لأن عدة أسنان دائمة لم تتكوّن. فقد الطاحن اللبني الأول العلوي الأيسر في عمر ٦ سنوات، أبكر بكثير من المتوقع. الناب العلوي الأيسر يبزغ الآن.'),
+    chart: { def: '-', n: [11, 21, 31, 32, 41, 42, 16, 26, 36, 46, 33, 43, 14, 34, 44, 23], x: [12, 22, 15, 25, 35, 45], p: [13], u: [24, 17, 27, 37, 47] },
+    qs: [
+      { sec: 11, kind: 'mc', vis: 'chart', q: L('Rami still has a primary tooth next to his permanent teeth. What is this stage called?', 'ما زال لدى رامي سن لبني بجانب أسنانه الدائمة. ماذا تسمى هذه المرحلة؟'),
+        options: DENT(1), explain: DENT_EXPL[1], rec: { k: L('Dentition', 'مجموعة الأسنان'), v: L('Mixed dentition', 'مرحلة الأسنان المختلطة') } },
+      { sec: 10, kind: 'mc', vis: 'chart', hl: [12, 22, 15, 25, 35, 45], hint: PREFIX_HINT, q: L('Six permanent teeth never developed: 12, 22, 15, 25, 35 and 45. Decode the term.', 'ستة أسنان دائمة لم تتكوّن: 12، 22، 15، 25، 35، 45. حلّل المصطلح.'),
+        options: MISS(1), explain: L('oligo- (few) + odont + -ia = absence of several teeth.', 'oligo- (قليل) + odont + ‎-ia = غياب عدد كبير من الأسنان.'), rec: { k: L('Finding', 'الملاحظة'), v: L('Oligodontia (6 teeth)', 'غياب عدد كبير من الأسنان (٦ أسنان)') } },
+      { sec: 9, kind: 'mc', vis: 'chart', hl: [24], q: L('The primary molar in this spot came out at age 6, much earlier than expected. Which term?', 'الطاحن اللبني في هذا المكان سقط في عمر ٦ سنوات، أبكر بكثير من المتوقع. ما المصطلح؟'),
+        options: [o('Premature exfoliation', 'السقوط المبكر للسن اللبني', true), o('Exfoliation', 'السقوط الطبيعي للسن اللبني'), o('Delayed eruption', 'تأخر البزوغ'), o('Tooth eruption', 'بزوغ السن')],
+        explain: L('Exfoliation = natural shedding of a primary tooth. When it happens earlier than expected, it is premature exfoliation.', 'السقوط الطبيعي للسن اللبني. إذا حدث قبل الوقت المتوقع يسمى سقوطاً مبكراً.'),
+        rec: { k: L('History', 'التاريخ'), v: L('Premature exfoliation, age 6', 'سقوط مبكر لسن لبني في عمر ٦') } },
+      { sec: 4, kind: 'mc', vis: 'chart', hl: [23], hint: FDI_HINT, q: L('What is the FDI number of the highlighted tooth?', 'ما رقم FDI للسن المحدَّد؟'), mono: true,
+        options: [o('13', ''), o('23', '', true), o('24', ''), o('33', '')], explain: fdiExplain(23), rec: { k: L('Erupting now', 'يبزغ الآن'), v: L('Tooth 23', 'السن 23') } },
+      { sec: 1, kind: 'mc', vis: 'chart', hl: [23], q: L('What type of tooth is coming in?', 'ما نوع السن الذي يبزغ؟'),
+        options: typeOpts('canine'), explain: TYPE_EXPL.canine },
+      buildQ(23),
+      { sec: 3, kind: 'mc', vis: 'chart', hl: [23], q: L('Maxillary or mandibular?', 'علوي أم سفلي؟'),
+        options: [o('Maxillary', 'علوي · الفك العلوي', true), o('Mandibular', 'سفلي · الفك السفلي')],
+        explain: L('Maxillary relates to the maxilla (upper jaw). Mandibular relates to the mandible (lower jaw).', 'Maxillary تعني الفك العلوي. Mandibular تعني الفك السفلي.') },
+      { sec: 5, kind: 'part', vis: 'section', q: L('The dentist checks the X-ray of his canine. Click the tooth root.', 'يفحص الطبيب صورة الأشعة للناب. انقر على جذر السن.'),
+        accept: ['root', 'apex'], reveal: ['root', 'apex'], explain: L('Tooth root = the portion of the tooth located within the supporting tissues.', 'جذر السن = الجزء الموجود داخل الأنسجة الداعمة.') },
+      { sec: 6, kind: 'part', vis: 'roots', q: L('His upper first molar (26) has three roots. Click the tooth with a trifurcated root.', 'للطاحن الأول العلوي (26) ثلاثة جذور. انقر على السن ذي الجذر المتفرع إلى ثلاثة أقسام.'),
+        accept: ['tri', 'furc_tri'], reveal: ['tri', 'furc_tri'], explain: L('tri- = three → trifurcation = division into three.', 'tri- = ثلاثة ← تفرع إلى ثلاثة أقسام.') },
+      { sec: 7, kind: 'part', vis: 'occlusal', q: L('Look at the chewing surface of 26. Click a cusp.', 'انظر إلى سطح المضغ في السن 26. انقر على نتوء (cusp).'),
+        accept: ['cusp0', 'cusp1', 'cusp2', 'cusp3'], reveal: 'clicked', explain: L('Cusp = a raised projection on the crown.', 'النتوء = بروز مرتفع على تاج السن.') },
+      { sec: 7, kind: 'part', vis: 'occlusal', q: L('Now click the transverse ridge.', 'الآن انقر على العرف المستعرض.'),
+        accept: ['ridge'], reveal: ['ridge'], explain: L('Transverse ridge = a ridge crossing the occlusal surface.', 'العرف المستعرض = عرف يعبر السطح الإطباقي.') },
+      { sec: 8, kind: 'part', vis: 'stages', q: L('Teeth form in three stages: Bud → Cap → Bell. Click the bell stage.', 'تتكوّن الأسنان في ثلاث مراحل: البرعم ← القبعة ← الجرس. انقر على مرحلة الجرس.'),
+        accept: ['bell'], reveal: ['bell'], explain: L('Odontogenesis passes through the bud, cap and bell stages.', 'يمر تكوّن الأسنان بمراحل البرعم والقبعة والجرس.') },
+      { sec: 8, kind: 'mc', vis: 'stages', hint: L('-genesis = formation', '‎-genesis = تكوّن'), q: L('Dentin formation is called…', 'تكوّن العاج يسمى…'),
+        options: [o('Dentinogenesis', 'تكوّن العاج', true), o('Amelogenesis', 'تكوّن المينا'), o('Odontogenesis', 'تكوّن الأسنان'), o('Apicoectomy', 'استئصال الذروة')],
+        explain: L('Odontogenesis = tooth development · Amelogenesis = enamel formation · Dentinogenesis = dentin formation.', 'تكوّن الأسنان · تكوّن المينا · تكوّن العاج') },
+    ],
+  },
+];
+const TOTAL = PATIENTS.reduce((s, p) => s + p.qs.length, 0);
+
+// ───────── state ─────────
+const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+let S = freshState();
+function freshState() {
+  return { view: 'room', pid: null, showNums: false, prog: Object.fromEntries(PATIENTS.map(p => [p.id, { i: 0, results: [], order: p.qs.map(q => q.options ? (q.mono ? q.options : shuffle(q.options)) : null), done: false }])) };
+}
+const cur = { answered: false, picked: null, hint: false };
+const P = id => PATIENTS.find(p => p.id === id);
+const scoreOf = id => S.prog[id].results.filter(Boolean).length;
+const totalScore = () => PATIENTS.reduce((s, p) => s + scoreOf(p.id), 0);
+const answeredCount = () => PATIENTS.reduce((s, p) => s + S.prog[p.id].results.length, 0);
+const bi = (t, cls = '') => `<span class="${cls}">${t.en}</span>${t.ar ? `<span class="ar ${cls}">${t.ar}</span>` : ''}`;
+const esc = s => String(s);
+
+// ───────── dental chart (patient faces you: patient's right on your left) ─────────
+const W = { 1: 30, 2: 26, 3: 30, 4: 30, 5: 30, 6: 42, 7: 39, 8: 36 };
+const H = { incisor: 44, canine: 47, premolar: 38, molar: 36 };
+const R = { incisor: 42, canine: 52, premolar: 40, molar: 36 };
+const CX = 310, GAP = 3, UG = 96, LG = 206;
+function xOf(f) {
+  const q = Math.floor(f / 10), n = f % 10; let off = 5;
+  for (let k = 1; k < n; k++) off += W[k] + GAP;
+  off += W[n] / 2;
+  return (q === 1 || q === 4) ? CX - off : CX + off;
+}
+function crownPath(type, w, h) {
+  const a = w / 2;
+  if (type === 'incisor') return `M${-a * .72},0 L${-a},${h - 6} Q${-a},${h} ${-a + 5},${h} L${a - 5},${h} Q${a},${h} ${a},${h - 6} L${a * .72},0 Z`;
+  if (type === 'canine') return `M${-a * .7},0 L${-a},${h * .62} Q${-a * .6},${h * .82} 0,${h} Q${a * .6},${h * .82} ${a},${h * .62} L${a * .7},0 Z`;
+  if (type === 'premolar') return `M${-a * .72},0 L${-a},${h * .66} Q${-a * .55},${h + 3} 0,${h * .84} Q${a * .55},${h + 3} ${a},${h * .66} L${a * .72},0 Z`;
+  return `M${-a * .82},0 L${-a},${h * .7} Q${-a * .72},${h + 2} ${-a * .34},${h * .86} Q0,${h + 3} ${a * .34},${h * .86} Q${a * .72},${h + 2} ${a},${h * .7} L${a * .82},0 Z`;
+}
+function rootPath(type, w, r, up) {
+  const a = w / 2;
+  if (type !== 'molar') return `M${-a * .62},0 Q${-a * .5},${-r * .75} 0,${-r} Q${a * .5},${-r * .75} ${a * .62},0 Z`;
+  const one = (x0, x1, tip) => `M${x0},0 Q${(x0 + tip) / 2 - 2},${-r * .7} ${tip},${-r} Q${(x1 + tip) / 2 + 2},${-r * .7} ${x1},0 Z`;
+  let d = one(-a * .8, -a * .1, -a * .5) + ' ' + one(a * .1, a * .8, a * .5);
+  if (up) d += ' ' + one(-a * .22, a * .22, 0);
+  return d;
+}
+function toothSVG(f, st, extra = '') {
+  const i = info(f), w = W[i.n], h = H[i.type], r = R[i.type];
+  const x = xOf(f), g = i.up ? UG : LG;
+  let t = `translate(${x.toFixed(1)},${g})` + (i.up ? '' : ' scale(1,-1)');
+  if (st === 'p') t += ' scale(.78)';
+  if (st === 'u') t += ' translate(0,-30)';
+  if (st === 'e') t += ' rotate(14) translate(-2,-5)';
+  const cls = { p: 'prim', u: 'unerupted', x: 'missing', e: 'ectopic', n: '' }[st];
+  const label = st === 'p' ? `Primary tooth, ${QUAD[i.q].en.toLowerCase()} quadrant` : st === 'x' ? `Missing tooth ${f}` : `Tooth ${f}`;
+  return `<g class="tooth ${cls} ${extra}" data-id="${f}" ${st === 'x' ? '' : 'tabindex="-1" role="button"'} aria-label="${label}" transform="${t}">
+    <path class="rootp" d="${rootPath(i.type, w, r, i.up)}"/><path class="crown" d="${crownPath(i.type, w, h)}"/></g>`;
+}
+function chartStatus(p) {
+  const c = p.chart, m = {};
+  for (const q of [1, 2, 3, 4]) for (let n = 1; n <= 8; n++) m[q * 10 + n] = c.def;
+  for (const k of ['n', 'p', 'u', 'x', 'e']) (c[k] || []).forEach(f => m[f] = k);
+  return m;
+}
+function chartSVG(p, q, res) {
+  const m = chartStatus(p), hl = new Set((q && q.hl) || []);
+  const okSet = new Set(res ? res.okIds : []), badSet = new Set(res ? res.badIds : []);
+  const numsOn = S.showNums && !(q && q.sec === 4 && !cur.answered);
+  let s = `<svg class="chart ${q && q.kind === 'tooth' && !cur.answered ? 'clickable' : ''}" viewBox="0 0 620 300" role="img" aria-label="Dental chart for ${p.name.en}">`;
+  s += `<path class="gum" d="M18,${UG - 58} H602 V${UG - 6} Q602,${UG + 4} 592,${UG + 4} H28 Q18,${UG + 4} 18,${UG - 6} Z"/>`;
+  s += `<path class="gum" d="M18,${LG + 58} H602 V${LG + 6} Q602,${LG - 4} 592,${LG - 4} H28 Q18,${LG - 4} 18,${LG + 6} Z"/>`;
+  s += `<line class="axis" x1="${CX}" y1="20" x2="${CX}" y2="282"/><line class="axis" x1="20" y1="151" x2="600" y2="151"/>`;
+  s += `<text class="side" x="22" y="150" dy="-6">PATIENT'S RIGHT</text><text class="side" x="598" y="150" dy="-6" text-anchor="end">PATIENT'S LEFT</text>`;
+  s += `<text class="side" x="22" y="150" dy="14">يمين المريض</text><text class="side" x="598" y="150" dy="14" text-anchor="end">يسار المريض</text>`;
+  const order = Object.keys(m).map(Number).sort((a, b) => (m[a] === 'u') - (m[b] === 'u'));
+  for (const f of order) {
+    const st = m[f]; if (st === '-') continue;
+    const c = okSet.has(f) ? 'ok' : badSet.has(f) ? 'bad' : hl.has(f) ? 'hl' : '';
+    s += toothSVG(f, st, c);
+  }
+  if (p.chart.sn) {
+    const [a, b] = p.chart.sn, x = (xOf(a) + xOf(b)) / 2, up = info(a).up;
+    const c = okSet.has('SN') ? 'ok' : badSet.has('SN') ? 'bad' : hl.has('SN') ? 'hl' : '';
+    s += `<g class="tooth ${c}" data-id="SN" tabindex="-1" role="button" aria-label="Small extra tooth" transform="translate(${x},${up ? UG + 10 : LG - 10})${up ? '' : ' scale(1,-1)'}">
+      <path class="rootp" d="${rootPath('canine', 16, 24, up)}"/><path class="crown" d="${crownPath('canine', 17, 26)}"/></g>`;
+  }
+  for (const f of Object.keys(m).map(Number)) {
+    const st = m[f]; if (st === '-' || st === 'p') continue;
+    const reveal = res && res.okIds && res.okIds.includes(f);
+    if (!numsOn && !reveal) continue;
+    s += `<text class="num ${reveal ? 'show-ok' : ''}" x="${xOf(f).toFixed(1)}" y="${info(f).up ? 26 : 292}">${f}</text>`;
+  }
+  return s + '</svg>';
+}
+const LEGEND = `<div class="legend">
+  <span><svg viewBox="0 0 18 18"><rect x="3" y="3" width="12" height="12" rx="3" fill="var(--primary-tooth)" stroke="var(--enamel-line)"/></svg>Primary tooth · سن لبني</span>
+  <span><svg viewBox="0 0 18 18"><rect x="3" y="3" width="12" height="12" rx="3" fill="var(--enamel)" stroke="var(--enamel-line)" stroke-dasharray="3 2" opacity=".7"/></svg>Not erupted yet · لم يبزغ بعد</span>
+  <span><svg viewBox="0 0 18 18"><rect x="3" y="3" width="12" height="12" rx="3" fill="none" stroke="var(--enamel-line)" stroke-dasharray="3 3"/></svg>Never developed · لم يتكوّن</span>
+  <span><svg viewBox="0 0 18 18"><rect x="3" y="3" width="12" height="12" rx="3" fill="var(--mark-soft)" stroke="var(--mark)" stroke-width="2"/></svg>Highlighted · محدَّد</span></div>`;
+
+// ───────── illustrations (clickable parts) ─────────
+function partAttrs(id, q, res, cls = '') {
+  const c = res && res.okIds.includes(id) ? 'ok' : res && res.badIds.includes(id) ? 'bad' : (q.hlParts || []).includes(id) ? 'hl' : '';
+  return `class="part ${cls} ${c}" data-part="${id}" tabindex="-1" role="button"`;
+}
+function illSVG(kind, q, res) {
+  const A = (id, cls) => partAttrs(id, q, res, cls), clickable = q.kind === 'part' && !cur.answered ? 'clickable' : '';
+  const lab = (x, y, t, id) => res && res.okIds.includes(id) ? `<text class="plabel ok" x="${x}" y="${y}" text-anchor="middle">${t}</text>` : '';
+  if (kind === 'section') return `<svg class="ill ${clickable}" viewBox="0 0 320 320" role="img" aria-label="Tooth in its socket, side view">
+    <rect class="p-bone" x="20" y="150" width="280" height="160" rx="8"/>
+    <path class="p-gum" d="M20,128 Q90,118 112,140 L112,170 L20,170 Z M300,128 Q230,118 208,140 L208,170 L300,170 Z"/>
+    <path ${A('root', 'p-root')} d="M114,140 L206,140 L192,240 Q176,262 172,268 L148,268 Q142,262 128,240 Z"/>
+    <path ${A('apex', 'p-root')} d="M148,268 L172,268 Q166,292 160,296 Q154,292 148,268 Z"/>
+    <path ${A('crown', 'p-enamel')} d="M114,140 Q104,90 112,50 Q130,22 160,30 Q190,22 208,50 Q216,90 206,140 Z"/>
+    <path class="p-pulp" d="M146,80 Q160,70 174,80 L170,150 Q164,230 160,280 Q156,230 150,150 Z" pointer-events="none"/>
+    <text class="lbl" x="58" y="150">Gum · اللثة</text><text class="lbl" x="58" y="240">Bone · العظم</text>
+    ${lab(260, 70, 'Clinical crown', 'crown')}${lab(262, 210, 'Root', 'root')}${lab(232, 296, 'Apex', 'apex')}</svg>`;
+  if (kind === 'roots') {
+    const tA = `<g ${A('bi')}><path class="p-root" d="M60,110 L70,210 Q78,226 86,212 L94,140 L106,140 L114,212 Q122,226 130,210 L140,110 Z"/>
+      <path class="p-enamel" d="M52,110 Q46,60 58,40 Q100,24 142,40 Q154,60 148,110 Z"/></g>
+      <path ${A('furc_bi', 'p-furc')} d="M94,140 L106,140 L110,176 L90,176 Z"/>`;
+    const tB = `<g ${A('tri')}><path class="p-root" d="M220,110 L222,206 Q230,222 238,206 L246,140 L254,140 L258,218 Q266,232 274,218 L278,140 L286,140 L292,206 Q300,222 308,206 L310,110 Z"/>
+      <path class="p-enamel" d="M212,110 Q206,60 218,40 Q265,24 312,40 Q324,60 318,110 Z"/></g>
+      <path ${A('furc_tri', 'p-furc')} d="M246,140 L286,140 L282,172 L250,172 Z"/>`;
+    return `<svg class="ill ${clickable}" viewBox="0 0 370 270" role="img" aria-label="Two molars with different root forms">${tA}${tB}
+      <text class="lbl" x="100" y="252">A</text><text class="lbl" x="265" y="252">B</text>
+      ${lab(100, 20, 'Bifurcation', 'bi')}${lab(265, 20, 'Trifurcation', 'tri')}</svg>`;
+  }
+  if (kind === 'occlusal') return `<svg class="ill ${clickable}" viewBox="0 0 300 260" role="img" aria-label="Molar seen from the chewing surface">
+    <rect ${A('occl', 'p-occl')} x="40" y="24" width="220" height="212" rx="70"/>
+    <circle ${A('cusp0', 'p-cusp')} cx="100" cy="82" r="38"/><circle ${A('cusp1', 'p-cusp')} cx="200" cy="82" r="38"/>
+    <circle ${A('cusp2', 'p-cusp')} cx="100" cy="178" r="38"/><circle ${A('cusp3', 'p-cusp')} cx="200" cy="178" r="38"/>
+    <rect ${A('ridge', 'p-ridge')} x="186" y="104" width="28" height="52" rx="12"/>
+    <path class="p-groove" d="M150,40 Q146,130 150,220 M62,130 Q120,126 186,130" pointer-events="none"/>
+    ${lab(150, 252, 'Occlusal surface', 'occl')}${lab(255, 136, 'Ridge', 'ridge')}</svg>`;
+  if (kind === 'incisor') return `<svg class="ill ${clickable}" viewBox="0 0 300 300" role="img" aria-label="Upper incisor, front view">
+    <path class="p-gum" d="M30,20 H270 V110 Q210,96 150,118 Q90,96 30,110 Z"/>
+    <path ${A('face', 'p-enamel')} d="M98,106 Q150,90 202,106 L212,236 Q150,248 88,236 Z"/>
+    <path ${A('incisal', 'p-edge')} d="M88,236 Q150,248 212,236 L214,256 Q150,270 86,256 Z"/>
+    ${lab(150, 290, 'Incisal edge', 'incisal')}</svg>`;
+  if (kind === 'stages') return `<svg class="ill ${clickable}" viewBox="0 0 450 210" role="img" aria-label="Three stages of tooth development">
+    <rect class="p-epi" x="10" y="20" width="430" height="28" rx="6"/>
+    <g ${A('bud')}><rect x="20" y="20" width="120" height="170" rx="10" fill="transparent"/><path class="p-organ" d="M70,48 L90,48 Q120,90 80,120 Q40,90 70,48 Z"/></g>
+    <g ${A('cap')}><rect x="165" y="20" width="120" height="170" rx="10" fill="transparent"/><ellipse class="p-papilla" cx="225" cy="132" rx="30" ry="18"/><path class="p-organ" d="M215,48 L235,48 Q290,72 270,138 Q260,112 225,108 Q190,112 180,138 Q160,72 215,48 Z"/></g>
+    <g ${A('bell')}><rect x="310" y="20" width="120" height="170" rx="10" fill="transparent"/><path class="p-papilla" d="M340,166 Q340,108 370,104 Q400,108 400,166 Z"/><path class="p-organ" d="M360,48 L380,48 Q426,64 420,170 L404,170 Q406,96 370,92 Q334,96 336,170 L320,170 Q314,64 360,48 Z"/></g>
+    ${res && res.okIds.includes('bud') ? '<text class="plabel ok" x="80" y="204" text-anchor="middle">Bud</text>' : ''}
+    ${res && res.okIds.includes('cap') ? '<text class="plabel ok" x="225" y="204" text-anchor="middle">Cap</text>' : ''}
+    ${res && res.okIds.includes('bell') ? '<text class="plabel ok" x="370" y="204" text-anchor="middle">Bell</text>' : ''}
+    ${q.kind !== 'part' ? '<text class="lbl" x="80" y="204">Bud</text><text class="lbl" x="225" y="204">Cap</text><text class="lbl" x="370" y="204">Bell</text>' : ''}</svg>`;
+  return '';
+}
+
+// ───────── rendering ─────────
+const app = document.getElementById('app');
+function renderScore() {
+  document.getElementById('score').innerHTML =
+    `<span class="chip">Score <strong>${totalScore()}</strong> / ${TOTAL}</span>` +
+    `<span class="chip">Answered ${answeredCount()} / ${TOTAL}</span>` +
+    (S.view !== 'room' ? `<button class="btn" id="toRoom">← Waiting room · غرفة الانتظار</button>` : `<button class="btn" id="reset">Start over · ابدأ من جديد</button>`);
+  const tr = document.getElementById('toRoom'); if (tr) tr.onclick = () => { S.view = 'room'; render(); };
+  const rs = document.getElementById('reset'); if (rs) rs.onclick = () => { S = freshState(); render(); };
+}
+function render() { renderScore(); if (S.view === 'room') room(); else if (S.view === 'case') caseView(); else summary(); window.scrollTo({ top: 0 }); }
+
+function room() {
+  const allDone = PATIENTS.every(p => S.prog[p.id].done);
+  app.innerHTML = `<div style="display:grid;gap:20px">
+    <div class="intro"><h2>Three patients are waiting.</h2><p class="ar">ثلاثة مرضى في الانتظار.</p>
+      <p>Open each patient's file, look at the dental chart and answer the dentist's questions. Every correct answer fills in the patient file. Only first answers score.</p>
+      <p class="ar" style="color:var(--muted);font-size:15px">افتح ملف كل مريض، انظر إلى مخطط الأسنان وأجب عن أسئلة الطبيب. كل إجابة صحيحة تُكمل ملف المريض.</p></div>
+    <div class="patients">${PATIENTS.map((p, k) => { const pr = S.prog[p.id], n = p.qs.length, a = pr.results.length;
+      return `<button class="pcard ${pr.done ? 'done' : ''}" data-p="${p.id}">
+        <span class="tab">Patient ${k + 1} · ${n} Qs</span>
+        <h3>${p.name.en} <span class="ar">${p.name.ar}</span></h3>
+        <span class="age">Age ${p.age} · العمر ${p.age}</span>
+        <p class="complaint">${p.complaint.en}</p><p class="complaint ar">${p.complaint.ar}</p>
+        <div class="status"><span>${pr.done ? 'Seen' : a ? 'In progress' : 'Waiting'} · <b>${scoreOf(p.id)} / ${n}</b></span><span class="meter"><i style="width:${a / n * 100}%"></i></span></div>
+      </button>`; }).join('')}</div>
+    ${allDone ? `<div class="panel summary"><h2>Clinic closed for the day</h2><span class="bigscore">${totalScore()} / ${TOTAL}</span><p class="ar">انتهى يوم العيادة.</p><button class="btn btn-primary" id="again">Play again · العب مرة أخرى</button></div>` : ''}
+  </div>`;
+  app.querySelectorAll('[data-p]').forEach(b => b.onclick = () => openPatient(b.dataset.p));
+  const ag = document.getElementById('again'); if (ag) ag.onclick = () => { S = freshState(); render(); };
+}
+function openPatient(id) {
+  S.pid = id; const pr = S.prog[id];
+  Object.assign(cur, { answered: false, picked: null, hint: false, res: null });
+  S.view = pr.done ? 'summary' : 'case'; render();
+}
+
+function caseView() {
+  const p = P(S.pid), pr = S.prog[p.id], q = p.qs[pr.i], res = cur.res;
+  const opts = pr.order[pr.i];
+  const vis = q.vis === 'chart' ? chartSVG(p, q, res) : illSVG(q.vis, q, res);
+  const dots = p.qs.map((_, k) => `<i class="${k < pr.results.length ? (pr.results[k] ? 'ok' : 'bad') : k === pr.i ? 'on' : ''}"></i>`).join('');
+  let body = '';
+  if (q.kind === 'mc') body = `<div class="opts ${q.mono ? 'grid4' : ''}">${opts.map((op, k) => {
+      const c = cur.answered ? (op.ok ? 'ok' : cur.picked === k ? 'bad' : '') : '';
+      return `<button class="opt ${q.mono ? 'mono' : ''} ${c}" data-k="${k}" ${cur.answered ? 'disabled' : ''}><span>${op.en}</span>${op.ar ? `<span class="ar">${op.ar}</span>` : ''}</button>`; }).join('')}</div>`;
+  else if (q.kind === 'build') body = `<div class="slots">${q.slots.map((sl, k) => {
+      const v = cur.picked ? cur.picked[k] : '', c = cur.answered ? (v === sl.ans ? 'ok' : 'bad') : '';
+      return `<label class="slot" for="slot${k}">${sl.label.en} · <span class="ar">${sl.label.ar}</span>
+        <select id="slot${k}" class="${c}" ${cur.answered ? 'disabled' : ''}><option value="">—</option>${sl.opts.map(([v2, ar]) => `<option value="${v2}" ${v === v2 ? 'selected' : ''}>${v2} · ${ar}</option>`).join('')}</select></label>`; }).join('')}</div>
+      ${cur.answered ? '' : '<div class="actions"><button class="btn btn-primary" id="check">Check · تحقق</button></div>'}`;
+  else if (!cur.answered) body = `<p class="tap">${q.kind === 'tooth' ? 'Click on the chart' : 'Click on the picture'} · <span class="ar">انقر على ${q.kind === 'tooth' ? 'المخطط' : 'الصورة'}</span></p>`;
+
+  let fb = '';
+  if (cur.answered) {
+    const ok = pr.results[pr.i];
+    let ans = '';
+    if (!ok && q.kind === 'mc') { const c = opts.find(x => x.ok); ans = ` Correct answer: ${c.en}.`; }
+    if (!ok && q.kind === 'build') ans = ` Correct name: ${nameOf(q.hl[0]).en}.`;
+    fb = `<div class="feedback ${ok ? 'ok' : 'bad'}"><b>${ok ? 'Correct · صحيح' : 'Not quite · ليس تماماً'}</b><span>${q.explain.en}${ans}</span><span class="ar">${q.explain.ar}</span></div>
+      <div class="actions"><button class="btn btn-primary" id="next">${pr.i + 1 < p.qs.length ? 'Next question · التالي →' : 'Close the file · أغلق الملف →'}</button></div>`;
+  }
+  const rec = recordRows(p);
+  app.innerHTML = `<div class="case">
+    <section class="panel">
+      <div class="casehead"><h2>${p.name.en} <span class="ar">${p.name.ar}</span></h2><span class="chip">Age ${p.age}</span></div>
+      <p class="casenote">${p.note.en}</p><p class="casenote ar">${p.note.ar}</p>
+      <div class="vis">${vis}</div>
+      ${q.vis === 'chart' ? LEGEND : ''}
+      <div class="toolrow"><div class="dots" aria-label="Progress">${dots}</div>
+        ${q.vis === 'chart' ? `<button class="btn" id="nums" ${q.sec === 4 && !cur.answered ? 'disabled title="Hidden during FDI questions"' : ''}>${S.showNums ? 'Hide' : 'Show'} tooth numbers · الأرقام</button>` : ''}</div>
+    </section>
+    <div style="display:flex;flex-direction:column;gap:18px;min-width:0">
+      <section class="panel" aria-live="polite">
+        <div class="kicker"><span>Q${pr.i + 1} of ${p.qs.length} · ${SECTIONS[q.sec].en}</span><span class="ar">${SECTIONS[q.sec].ar}</span></div>
+        <p class="qtext">${q.q.en}</p><p class="qtext-ar ar">${q.q.ar}</p>
+        ${q.hint ? (cur.hint || cur.answered ? `<div class="hint"><span>${q.hint.en}</span><span class="ar">${q.hint.ar}</span></div>` : '<button class="linkish" id="hintBtn">Show hint · تلميح</button>') : ''}
+        ${body}${fb}
+      </section>
+      <section class="panel file"><h3>Patient file <span class="ar">ملف المريض</span></h3><dl>${rec}</dl></section>
+    </div></div>`;
+  bindCase(p, q);
+}
+function recordRows(p) {
+  const pr = S.prog[p.id];
+  let rows = `<dt>Name · الاسم</dt><dd>${p.name.en} <span class="ar">${p.name.ar} · ${p.age}</span></dd>`;
+  p.qs.forEach((q, k) => { if (!q.rec) return;
+    const filled = k < pr.results.length;
+    rows += `<dt>${q.rec.k.en}<br><span class="ar">${q.rec.k.ar}</span></dt>` + (filled ? `<dd class="${k === pr.results.length - 1 && cur.answered ? 'new' : ''}">${q.rec.v.en}<span class="ar">${q.rec.v.ar}</span></dd>` : `<dd class="empty">—</dd>`); });
+  return rows;
+}
+function bindCase(p, q) {
+  const h = document.getElementById('hintBtn'); if (h) h.onclick = () => { cur.hint = true; caseView(); };
+  const nb = document.getElementById('nums'); if (nb) nb.onclick = () => { S.showNums = !S.showNums; caseView(); };
+  const nx = document.getElementById('next'); if (nx) { nx.onclick = next; nx.focus({ preventScroll: true }); }
+  if (cur.answered) return;
+  if (q.kind === 'mc') app.querySelectorAll('.opt').forEach(b => b.onclick = () => answer(p, q, +b.dataset.k));
+  if (q.kind === 'build') {
+    const sels = q.slots.map((_, k) => document.getElementById('slot' + k));
+    document.getElementById('check').onclick = () => {
+      const vals = sels.map(s => s.value);
+      if (vals.some(v => !v)) { sels.forEach(s => { if (!s.value) s.classList.add('bad'); }); return; }
+      answer(p, q, vals);
+    };
+  }
+  if (q.kind === 'tooth') app.querySelectorAll('.chart .tooth:not(.missing)').forEach(g => {
+    g.setAttribute('tabindex', '0');
+    const go = () => { const id = g.dataset.id === 'SN' ? 'SN' : +g.dataset.id; answer(p, q, id); };
+    g.addEventListener('click', go); g.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); go(); } });
+  });
+  if (q.kind === 'part') app.querySelectorAll('.ill [data-part]').forEach(g => {
+    g.setAttribute('tabindex', '0');
+    const go = () => answer(p, q, g.dataset.part);
+    g.addEventListener('click', go); g.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); go(); } });
+  });
+}
+function answer(p, q, val) {
+  const pr = S.prog[p.id]; let ok = false; const res = { okIds: [], badIds: [] };
+  if (q.kind === 'mc') { ok = pr.order[pr.i][val].ok; cur.picked = val; }
+  if (q.kind === 'build') { ok = q.slots.every((sl, k) => val[k] === sl.ans); cur.picked = val; }
+  if (q.kind === 'tooth') {
+    ok = q.acceptQ ? (val !== 'SN' && Math.floor(val / 10) === q.acceptQ) : q.accept.includes(val);
+    res.okIds = ok && q.acceptQ ? [...new Set([val, ...q.reveal])] : q.reveal.slice();
+    if (!ok) res.badIds = [val];
+  }
+  if (q.kind === 'part') {
+    ok = q.accept.includes(val);
+    res.okIds = q.reveal === 'clicked' ? (ok ? [val] : q.accept.slice()) : q.reveal.slice();
+    if (!ok) res.badIds = [val];
+  }
+  if (q.kind === 'mc' || q.kind === 'build') res.okIds = (q.hl || []).filter(x => q.vis === 'chart' && ok);
+  pr.results.push(ok); cur.answered = true; cur.res = res; renderScore(); caseView();
+}
+function next() {
+  const p = P(S.pid), pr = S.prog[p.id];
+  Object.assign(cur, { answered: false, picked: null, hint: false, res: null });
+  if (pr.i + 1 < p.qs.length) { pr.i++; render(); }
+  else { pr.done = true; S.view = 'summary'; render(); }
+}
+function summary() {
+  const p = P(S.pid), pr = S.prog[p.id], n = p.qs.length, sc = scoreOf(p.id);
+  const secs = [...new Set(p.qs.map(q => q.sec))];
+  const chips = secs.map(s => { const idx = p.qs.map((q, k) => q.sec === s ? k : -1).filter(k => k >= 0); const all = idx.every(k => pr.results[k]);
+    return `<span class="${all ? 'ok' : 'bad'}">${SECTIONS[s].en}</span>`; }).join('');
+  const left = PATIENTS.filter(x => !S.prog[x.id].done);
+  Object.assign(cur, { answered: true, res: null });
+  app.innerHTML = `<div class="case">
+    <section class="panel summary">
+      <div class="kicker"><span>File closed</span><span class="ar">تم إغلاق الملف</span></div>
+      <h2>${p.name.en} <span class="ar">${p.name.ar}</span></h2>
+      <span class="bigscore">${sc} / ${n}</span>
+      <p style="margin:0">${sc === n ? 'Every answer right on the first try.' : sc >= n * 0.7 ? 'Good work. Review the red sections below.' : 'Review the red sections, then try this patient again.'}</p>
+      <div class="bysec">${chips}</div>
+      <div class="actions" style="justify-content:flex-start">
+        ${left.length ? `<button class="btn btn-primary" data-p="${left[0].id}">Next patient: ${left[0].name.en} · ${left[0].name.ar} →</button>` : `<button class="btn btn-primary" id="room">Back to the waiting room · غرفة الانتظار</button>`}
+        <button class="btn" id="retry">Retry ${p.name.en} · أعد المحاولة</button>
+      </div>
+    </section>
+    <section class="panel file"><h3>Patient file <span class="ar">ملف المريض</span></h3><dl>${recordRows(p)}</dl></section></div>`;
+  app.querySelectorAll('[data-p]').forEach(b => b.onclick = () => openPatient(b.dataset.p));
+  const r = document.getElementById('room'); if (r) r.onclick = () => { S.view = 'room'; render(); };
+  document.getElementById('retry').onclick = () => {
+    S.prog[p.id] = { i: 0, results: [], order: p.qs.map(q => q.options ? (q.mono ? q.options : shuffle(q.options)) : null), done: false };
+    openPatient(p.id);
+  };
+}
+render();
+</script>
+
+</body></html>
