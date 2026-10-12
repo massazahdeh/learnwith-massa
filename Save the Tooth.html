@@ -1,0 +1,1001 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Save the Tooth</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+Bhaijaan+2:wght@500;700;800&family=Cairo:wght@400;600;700&display=swap">
+<style>
+/* Layout: a classroom "stage" (tooth vs. Plaque Monster on gum-pink ground) beside one big question card; projector-first, single light look. */
+:root{
+  color-scheme: light;
+  --paper:#FBFBF8; --ink:#142B52; --ink-soft:#4A5872; --navy:#0B3C8F;
+  --red:#C03C43; --gum:#F6B9BB; --gum-deep:#E9878C; --enamel:#FFFDF7;
+  --prefix:#F6CD5A; --root:#81C3FF; --suffix:#EB6060;
+  --good:#0A7561; --good-bg:#D7F1E6; --bad-bg:#FBE0E1; --line:#E2E4EA; --card:#FFFFFF;
+  --monster:#93B83A; --monster-deep:#6E8F22;
+  --display:"Baloo Bhaijaan 2","Cairo",system-ui,sans-serif;
+  --body:"Cairo","Segoe UI",Tahoma,system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{height:100%}
+body{background:var(--paper);color:var(--ink);font-family:var(--body);font-size:17px;margin:0}
+.wrap{max-width:1280px;margin:0 auto;padding-inline:20px;padding-block:14px 24px;display:flex;flex-direction:column;gap:14px;min-height:100%}
+button{font:inherit;cursor:pointer}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid var(--navy);outline-offset:2px}
+
+/* header */
+header{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px}
+.brand{display:flex;flex-direction:column;line-height:1.05}
+.brand h1{font-family:var(--display);font-weight:800;font-size:clamp(28px,3.4vw,42px);margin:0;color:var(--red);text-wrap:balance}
+.brand h1 span{color:var(--navy)}
+.brand small{font-size:14px;color:var(--ink-soft);letter-spacing:.06em;text-transform:uppercase;font-weight:700}
+.teams{display:flex;gap:10px;flex-wrap:wrap}
+.team{display:flex;align-items:center;gap:10px;padding:8px 14px;border-radius:14px;background:var(--card);border:2px solid var(--line);min-width:170px;transition:border-color .2s,transform .2s}
+.team .nm{font-weight:700;font-size:16px;max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.team .pts{font-family:var(--display);font-weight:800;font-size:30px;font-variant-numeric:tabular-nums;margin-inline-start:auto}
+.team.on{border-color:var(--navy);transform:translateY(-2px);box-shadow:0 4px 0 var(--navy)}
+.team .dot{width:12px;height:12px;border-radius:50%;background:var(--line)}
+.team.on .dot{background:var(--prefix);box-shadow:0 0 0 3px var(--navy)}
+
+/* main */
+main{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,6fr);gap:16px;flex:1}
+@media (max-width:900px){main{grid-template-columns:1fr}}
+.stage{position:relative;border-radius:22px;background:linear-gradient(#EAF4FD 0 62%, var(--gum) 62%);overflow:hidden;min-height:340px;display:flex;flex-direction:column}
+.stage svg{width:100%;height:auto;display:block;flex:1}
+.meter{display:flex;align-items:center;gap:8px;padding:10px 16px;background:rgba(255,255,255,.75);font-weight:700;font-size:15px;flex-wrap:wrap}
+.meter .bar{flex:1;min-width:120px;height:14px;border-radius:8px;background:#F3D1D2;overflow:hidden}
+.meter .bar i{display:block;height:100%;background:var(--good);border-radius:8px;transition:width .5s}
+.status{position:absolute;inset-inline:0;top:12px;text-align:center;font-family:var(--display);font-weight:800;font-size:22px;color:var(--navy);pointer-events:none}
+
+#monster{transition:transform .7s cubic-bezier(.3,1.4,.5,1)}
+.bob{animation:bob 1.6s ease-in-out infinite}
+@keyframes bob{50%{transform:translateY(-8px)}}
+.shake{animation:shake .45s}
+@keyframes shake{20%{transform:translateX(-8px) rotate(-3deg)}40%{transform:translateX(8px) rotate(3deg)}60%{transform:translateX(-5px)}80%{transform:translateX(5px)}}
+.zap{animation:zap .7s ease-out forwards}
+@keyframes zap{0%{opacity:1;transform:scale(.4)}100%{opacity:0;transform:scale(1.6)}}
+@media (prefers-reduced-motion:reduce){.bob,.shake,.zap{animation:none}#monster{transition:none}}
+
+/* question card */
+.card{background:var(--card);border-radius:22px;border:2px solid var(--line);padding:20px 22px;display:flex;flex-direction:column;gap:14px;min-width:0}
+.qtop{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.badge{font-weight:700;font-size:14px;letter-spacing:.06em;text-transform:uppercase;padding:4px 12px;border-radius:999px;background:var(--ink);color:#fff}
+.badge.decode{background:var(--navy)} .badge.build{background:var(--red)} .badge.spot{background:#B7791F} .badge.clinic{background:var(--good)}
+.qnum{margin-inline-start:auto;font-weight:700;color:var(--ink-soft);font-variant-numeric:tabular-nums}
+.turn{font-weight:700;color:var(--navy)}
+.prompt{font-family:var(--display);font-weight:700;font-size:clamp(24px,2.5vw,32px);line-height:1.25;margin:0;text-wrap:balance}
+.prompt-ar{font-size:clamp(20px,2vw,26px);line-height:1.5;margin:0;color:var(--ink-soft);direction:rtl;text-align:right}
+.eq{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.chip{font-family:var(--display);font-weight:800;font-size:clamp(20px,2vw,26px);padding:4px 16px;border-radius:12px;color:var(--ink);border:0;line-height:1.35}
+.chip.p{background:var(--prefix)} .chip.r{background:var(--root)} .chip.s{background:var(--suffix)}
+.plus{font-weight:800;font-size:22px;color:#9AA0AA}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media (max-width:560px){.opts{grid-template-columns:1fr}}
+.opt{display:flex;align-items:center;gap:12px;text-align:start;padding:14px 16px;border-radius:16px;border:2px solid var(--line);background:#FDFDFB;font-size:19px;font-weight:600;color:var(--ink);transition:transform .12s,border-color .12s}
+.opt:hover:not(:disabled){border-color:var(--navy);transform:translateY(-2px)}
+.opt .k{flex:none;width:32px;height:32px;border-radius:10px;display:grid;place-items:center;background:var(--ink);color:#fff;font-weight:700;font-size:16px}
+.opt .t{display:flex;flex-direction:column;min-width:0}
+.opt .t small{font-size:16px;color:var(--ink-soft);direction:rtl;text-align:right;font-weight:400}
+.opt.right{border-color:var(--good);background:var(--good-bg)}
+.opt.wrong{border-color:var(--red);background:var(--bad-bg)}
+.opt:disabled{cursor:default}
+
+.build-slots{display:flex;flex-wrap:wrap;gap:8px;min-height:62px;padding:10px;border:2px dashed #C9CEDA;border-radius:16px;align-items:center}
+.build-slots .hint{color:var(--ink-soft);font-size:16px}
+.pool{display:flex;flex-wrap:wrap;gap:10px}
+.pool .chip{cursor:pointer;box-shadow:0 3px 0 rgba(20,43,82,.25);transition:transform .1s}
+.pool .chip:hover:not(:disabled){transform:translateY(-2px)}
+.pool .chip:disabled{opacity:.25;cursor:default;box-shadow:none}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.btn{padding:10px 20px;border-radius:14px;border:2px solid var(--ink);background:var(--card);color:var(--ink);font-weight:700;font-size:17px}
+.btn.primary{background:var(--navy);border-color:var(--navy);color:#fff}
+.btn.ghost{border-color:var(--line);color:var(--ink-soft)}
+.btn:disabled{opacity:.4;cursor:default}
+
+.explain{border-radius:16px;padding:14px 16px;display:flex;flex-direction:column;gap:6px}
+.explain.ok{background:var(--good-bg)} .explain.no{background:var(--bad-bg)}
+.explain b{font-family:var(--display);font-size:22px}
+.explain .ar{direction:rtl;text-align:right;color:var(--ink-soft)}
+.timer{height:8px;border-radius:6px;background:var(--line);overflow:hidden}
+.timer i{display:block;height:100%;background:var(--prefix);width:100%}
+.legend{display:flex;gap:6px;align-items:center;font-size:14px;color:var(--ink-soft);flex-wrap:wrap}
+.legend .chip{font-size:14px;padding:1px 10px}
+
+/* overlays */
+.overlay{position:fixed;inset:0;background:rgba(20,43,82,.55);display:grid;place-items:center;padding:16px;z-index:5}
+.panel{background:var(--paper);border-radius:24px;padding:26px;max-width:620px;width:100%;display:flex;flex-direction:column;gap:16px;max-height:100%;overflow:auto}
+.panel h2{font-family:var(--display);font-weight:800;font-size:36px;margin:0;color:var(--red);line-height:1.1}
+.panel h2 .ar{display:block;color:var(--navy);font-size:30px}
+.panel p{margin:0;line-height:1.55}
+.panel .rtl{direction:rtl;text-align:right;color:var(--ink-soft)}
+.field{display:flex;flex-direction:column;gap:4px;flex:1;min-width:180px}
+.field label{font-weight:700;font-size:15px}
+.field input,.field select{font:inherit;padding:10px 12px;border-radius:12px;border:2px solid var(--line);background:#fff;color:var(--ink)}
+.rules{display:grid;gap:8px;padding:0;margin:0;list-style:none}
+.rules li{display:flex;gap:10px;align-items:flex-start}
+.rules li > span:first-child{flex:none;width:28px;height:28px;border-radius:9px;display:grid;place-items:center;font-weight:800}
+.big{font-family:var(--display);font-weight:800;font-size:48px;line-height:1}
+footer{font-size:13px;color:var(--ink-soft);text-align:center}
+
+/* lecture map + extra question types */
+.map{display:flex;gap:4px;flex-wrap:wrap}
+.map span{flex:1;min-width:16px;height:8px;border-radius:4px;background:var(--line)}
+.map span.done{background:#9FD9C4}
+.map span.now{background:var(--navy)}
+.topic{font-weight:700;font-size:14px;color:var(--red);letter-spacing:.04em;text-transform:uppercase}
+.badge.tf{background:#7A4FB5} .badge.odd{background:#B54F84} .badge.match{background:#1F7A8C} .badge.arabic{background:#5A6B2A}
+.bigar{font-family:var(--display);font-weight:800;font-size:clamp(34px,3.6vw,48px);direction:rtl;text-align:center;color:var(--navy);margin:0;padding:8px;border-radius:16px;background:#EEF5FD}
+.steal{border-radius:14px;padding:10px 14px;background:#FDF1C7;font-weight:700;display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.steal .ar{direction:rtl;font-weight:600;color:var(--ink-soft)}
+.match{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,3fr);gap:10px}
+.match .col{display:flex;flex-direction:column;gap:8px;min-width:0}
+.mitem{text-align:start;padding:10px 12px;border-radius:14px;border:2px solid var(--line);background:#FDFDFB;font-size:17px;font-weight:600;color:var(--ink);display:flex;flex-direction:column;gap:2px}
+.mitem small{font-size:15px;color:var(--ink-soft);direction:rtl;text-align:right;font-weight:400}
+.mitem.term{font-family:var(--display);font-weight:800;font-size:20px}
+.mitem.sel{border-color:var(--navy);box-shadow:0 0 0 3px #C9DDF8}
+.mitem.pair0{border-color:#F2B92B;background:#FFF5D6} .mitem.pair1{border-color:#4FA3E8;background:#E3F1FC}
+.mitem.pair2{border-color:#E36A6A;background:#FBE3E3} .mitem.pair3{border-color:#3BA57D;background:#DDF3EA}
+.mitem.right{border-color:var(--good);background:var(--good-bg)} .mitem.wrong{border-color:var(--red);background:var(--bad-bg)}
+.mitem .tag{font-size:13px;font-weight:700;color:var(--ink-soft)}
+.lost{position:absolute;inset:0;display:grid;place-items:center;background:rgba(251,224,225,.92);text-align:center;padding:16px;font-family:var(--display);font-weight:800;color:var(--red);font-size:28px;line-height:1.2}
+.lost small{display:block;font-family:var(--body);font-weight:600;font-size:17px;color:var(--ink);margin-top:6px}
+.teeth{display:flex;gap:4px;align-items:center}
+.teeth svg{width:22px;height:22px}
+
+#scene{flex:1;display:flex;align-items:flex-end} #scene svg{width:100%;height:auto;display:block}
+.stage{background:var(--card)}
+.stage.dark .meter{background:rgba(30,40,54,.85);color:#E6ECF5}
+.stage.dark .status{color:#E6ECF5}
+.enemy{font-weight:700;color:var(--red)}
+.stage.dark .enemy{color:#FFB4B0}
+.bubble{position:absolute;top:9%;max-width:46%;padding:8px 14px;border-radius:18px;background:#fff;border:3px solid var(--ink);font-family:var(--display);font-weight:800;font-size:clamp(18px,1.8vw,24px);color:var(--ink);z-index:3}
+#bubT{left:5%} #bubM{right:5%;border-color:var(--red);color:var(--red)}
+.pow{position:absolute;right:16%;top:36%;font-family:var(--display);font-weight:800;font-size:clamp(40px,4.6vw,64px);color:#F6CD5A;transform:rotate(-12deg);text-shadow:3px 3px 0 #142B52,-2px -2px 0 #142B52,2px -2px 0 #142B52,-2px 2px 0 #142B52;z-index:3;pointer-events:none}
+.levelup{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(88%,460px);background:var(--navy);color:#fff;border-radius:20px;padding:16px 20px;text-align:center;display:flex;flex-direction:column;gap:4px;z-index:4;box-shadow:0 8px 0 #071F4A}
+.levelup small{font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#C9DDF8}
+.levelup b{font-family:var(--display);font-weight:800;font-size:clamp(22px,2.4vw,30px);line-height:1.15}
+.levelup span{font-size:20px;color:#E3EEFB}
+.levelup em{font-style:normal;font-weight:700;color:#F6CD5A;font-size:18px}
+.pop{animation:popIn .35s cubic-bezier(.3,1.6,.5,1)}
+.levelup.pop{animation:popC .45s cubic-bezier(.3,1.6,.5,1)}
+@keyframes popIn{from{transform:scale(.4);opacity:0}}
+.pow.pop{animation:powIn .5s cubic-bezier(.3,1.6,.5,1)}
+@keyframes powIn{from{transform:rotate(-12deg) scale(.2);opacity:0}}
+@keyframes popC{from{transform:translate(-50%,-50%) scale(.5);opacity:0}}
+.cf{position:absolute;top:-12px;width:10px;height:14px;border-radius:2px;z-index:2;animation:fall 1.4s ease-in forwards;pointer-events:none}
+@keyframes fall{to{top:105%;transform:rotate(600deg)}}
+.stage.flash{animation:flash .5s}
+@keyframes flash{30%{box-shadow:inset 0 0 0 10px rgba(192,60,67,.75)}}
+.combo{background:#FDF1C7;border-color:#E0B23A;font-weight:800}
+.combo b{font-family:var(--display);font-size:26px}
+@media (prefers-reduced-motion:reduce){.pop,.pow.pop,.levelup.pop,.stage.flash{animation:none}}
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="brand">
+      <small>Lecture 8 · Caries &amp; Periodontal Terminology</small>
+      <h1>Save the Tooth <span>· أنقذ السن</span></h1>
+    </div>
+    <div class="teams">
+      <div class="team combo" id="combo" hidden>Streak ×<b id="streakN">0</b></div>
+      <div class="team on"><span class="nm" style="max-width:none">Class score · نقاط الصف</span><span class="pts" id="s0">0</span></div>
+    </div>
+  </header>
+
+  <main>
+    <section class="stage" id="stage" aria-label="Game stage">
+      <div class="status" id="status">The Plaque Monster is coming!</div>
+      <div id="scene"></div>
+      <div class="meter">
+        <span>Tooth health · صحة السن</span>
+        <span class="bar" aria-hidden="true"><i id="hp"></i></span>
+        <span id="hpTxt" style="font-variant-numeric:tabular-nums">5 / 5</span>
+        <span class="teeth" id="teethLost" title="Teeth lost to the monster"></span>
+        <span class="enemy" id="enemy"></span>
+      </div>
+      <div class="lost" id="lostMsg" hidden></div>
+      <div class="bubble" id="bubT" hidden></div><div class="bubble" id="bubM" hidden></div><div class="pow" id="pow" hidden></div><div class="levelup" id="levelup" hidden></div>
+    </section>
+
+    <section class="card" id="card" aria-live="polite"></section>
+  </main>
+  <footer>Keys: 1–4 choose an answer · Enter = next question · لوحة المفاتيح: ١–٤ للاختيار، Enter للسؤال التالي</footer>
+</div>
+
+<div class="overlay" id="setup">
+  <div class="panel">
+    <h2>Save the Tooth <span class="ar">أنقذ السن</span></h2>
+    <p>The Plaque Monster wants to reach the tooth. The whole class answers questions that walk through all of Lecture 8, from caries to treatment terms. Every question is about what a term means or how it is built.</p>
+    <p class="rtl">وحش اللويحة يريد الوصول إلى السن! يجيب الصف كله عن أسئلة تغطي المحاضرة الثامنة كاملة، من النخر إلى العلاج.</p>
+    <ul class="rules">
+      <li><span style="background:var(--good-bg);color:var(--good)">✓</span><span>Right answer: +100 points and the monster is pushed back. <span class="rtl" style="display:block">إجابة صحيحة: ١٠٠ نقطة ودفع الوحش للخلف.</span></span></li>
+      <li><span style="background:var(--bad-bg);color:var(--red)">✗</span><span>Wrong answer: the monster moves closer and the tooth gets a caries spot. <span class="rtl" style="display:block">إجابة خاطئة: يقترب الوحش ويظهر نخر على السن.</span></span></li>
+      <li><span style="background:#FDF1C7;color:#8A5A00">!</span><span>If the monster reaches the tooth, the class loses that tooth and a new one comes in. Lose as few teeth as you can! <span class="rtl" style="display:block">إذا وصل الوحش يخسر الصف سنّاً ويبدأ بسنّ جديد. حاولوا ألا تخسروا أي سن!</span></span></li>
+    </ul>
+    <div class="row">
+      <div class="field"><label for="qcount">Game length</label>
+        <select id="qcount"><option value="18">Short · 15 min (18 questions)</option><option value="30" selected>Full · 25 min (30 questions)</option><option value="999">Everything · 45+ min (all questions)</option></select></div>
+      <div class="field"><label for="tsec">Timer per question</label>
+        <select id="tsec"><option value="0">Off</option><option value="20">20 seconds</option><option value="30" selected>30 seconds</option><option value="45">45 seconds</option></select></div>
+    </div>
+    <p style="font-size:15px;color:var(--ink-soft)">Question types: Decode it · Build it · Spot the term · Clinical case · Myth or fact · Odd one out · Match it · Arabic → English. Questions follow the order of the lecture.</p>
+    <div class="row"><button class="btn primary" id="startBtn">Start the game · ابدأ</button></div>
+  </div>
+</div>
+
+<div class="overlay" id="end" hidden>
+  <div class="panel" id="endPanel"></div>
+</div>
+
+<script>
+/* ================= Lecture map ================= */
+const TOPICS = [
+  ['caries','Part 1 · Caries','النخر'],
+  ['demin','Part 1 · Demineralization & Prevention','نزع المعادن والوقاية'],
+  ['plaque','Part 2 · Plaque & Calculus','اللويحة والجير'],
+  ['location','Part 2 · Location Terms','مصطلحات الموقع'],
+  ['struct','Part 3 · Gingiva & Periodontium','اللثة والنسج الداعمة'],
+  ['gingivitis','Part 4 · Gingivitis & Signs','التهاب اللثة وعلاماته'],
+  ['perio','Part 4 · Periodontitis','التهاب النسج الداعمة'],
+  ['pocket','Part 5 · Periodontal Pockets','الجيوب اللثوية'],
+  ['bone','Part 6 · Bone Loss','فقدان العظم'],
+  ['furc','Part 7 · Furcation & Mobility','التفرع وحركة السن'],
+  ['treat','Part 8 · Treatment Terms','مصطلحات العلاج'],
+  ['decode','Part 9 · Decoding','تحليل المصطلحات'],
+  ['clinic','Part 10 · Terms in a Dental Note','المصطلحات في الملاحظة الطبية'],
+];
+
+/* ================= Question bank ================= */
+const BANK = [];
+const mc = (t,type,q,qa,opts,a,ex,exa,parts) => BANK.push({t,type,q,qa,opts,a,ex,exa,parts});
+const tf = (t,q,qa,isTrue,ex,exa) => BANK.push({t,type:'tf',q,qa,opts:[['Fact (true)','صحيح'],['Myth (false)','خطأ']],a:isTrue?0:1,ex,exa});
+const bd = (t,q,qa,ans,extra,word,ex,exa) => BANK.push({t,type:'build',q,qa,ans,extra,word,ex,exa});
+const mt = (t,q,qa,pairs,ex,exa) => BANK.push({t,type:'match',q,qa,pairs,ex,exa});
+const P='p', R='r', S_='s';
+
+/* --- Part 1 · Caries --- */
+mc('caries','spot','Caries between two adjacent teeth is called…','النخر بين سنّين متجاورين يُسمّى…',
+  [['incipient caries','نخر مبكر'],['interproximal caries','نخر بين السطوح'],['occlusal caries','نخر إطباقي'],['root caries','نخر الجذر']],1,
+  'Inter- = between, proximal = next to: between neighbouring teeth.','inter = بين ← نخر بين سنّين متجاورين.');
+mc('caries','spot','An early, small caries lesion is called…','آفة نخر صغيرة ومبكرة تُسمّى…',
+  [['rampant caries','نخر منتشر'],['arrested caries','نخر متوقف'],['incipient caries','نخر مبكر'],['recurrent caries','نخر ناكس']],2,
+  'Incipient = just beginning.','incipient = في بدايته.');
+mc('caries','arabic','نخر ناكس (ثانوي)','ما المصطلح بالإنجليزية؟',
+  [['root caries'],['recurrent caries'],['rampant caries'],['pit & fissure caries']],1,
+  'Recurrent (secondary) caries = new caries around an existing restoration.','نخر جديد حول حشوة موجودة.');
+mc('caries','odd','Odd one out: which is NOT a type of caries?','الدخيل: أيّها ليس نوعاً من النخر؟',
+  [['enamel caries','نخر المينا'],['dentinal caries','نخر العاج'],['gingival recession','انحسار اللثة'],['root caries','نخر الجذر']],2,
+  'Gingival recession is the gum moving down, not caries. (It can lead to root caries.)','انحسار اللثة ليس نخراً، لكنه قد يؤدي إلى نخر الجذر.');
+mc('caries','decode','Pulp + -itis means…','‏pulp + -itis‏ تعني…',
+  [['inflammation of the dental pulp','التهاب لب السن'],['removal of the pulp','استئصال اللب'],['caries in enamel','نخر المينا'],['study of the pulp','علم اللب']],0,
+  'Pulpitis: deep caries can reach the pulp and inflame it.','التهاب اللب: قد يصل النخر العميق إلى اللب.',[['pulp',R],['-itis',S_]]);
+mt('caries','Match each caries term to its meaning','صِل كل نوع نخر بمعناه',
+  [['Incipient','an early, small lesion','آفة مبكرة صغيرة'],['Interproximal','between two adjacent teeth','بين سنّين متجاورين'],['Rampant','fast, on many teeth','سريع وعلى أسنان كثيرة'],['Arrested','has stopped progressing','نخر متوقف']],
+  'These words describe where caries is and how it behaves.','هذه الكلمات تصف مكان النخر وسلوكه.');
+tf('caries','Arrested caries is caries that has stopped progressing.','النخر المتوقف هو نخر توقف عن التقدم.',true,
+  'Correct: arrested = stopped.','صحيح: arrested = متوقف.');
+bd('caries','Build the term: study of dental caries','كوّن المصطلح: علم نخر الأسنان',
+  [['cari/o',R],['-logy',S_]],[['-genic',S_],['odont/o',R],['peri-',P]],'Cariology',
+  'cari/o (decay) + -logy (study of).','cari/o = نخر، -logy = علم.');
+
+/* --- Part 1 · Demineralization & prevention --- */
+mc('demin','decode','What does this term mean?','ماذا يعني هذا المصطلح؟',
+  [['minerals return to the tooth','عودة المعادن إلى السن'],['mineral loss from the tooth surface','فقدان المعادن من سطح السن'],['a hole in the tooth','تجويف في السن'],['hardened plaque','لويحة متكلّسة']],1,
+  'Demineralization: acid removes minerals. It is the first step toward caries.','نزع المعادن بسبب الحمض، وهو الخطوة الأولى نحو النخر.',[['de-',P],['mineral',R],['-ization',S_]]);
+mc('demin','spot','Minerals return to the tooth surface and can reverse early damage. This is…','عودة المعادن إلى سطح السن وعكس الضرر المبكر تُسمّى…',
+  [['demineralization','نزع المعادن'],['calcification','التكلّس'],['remineralization','إعادة التمعدن'],['cavitation','تشكّل التجويف']],2,
+  're- = again: minerals come back.','re- = إعادة ← عودة المعادن.');
+mc('demin','decode','What does this term mean?','ماذا يعني هذا المصطلح؟',
+  [['fluoride varnish','ورنيش الفلورايد'],['enamel changes from too much fluoride during tooth development','تغيّرات في المينا من زيادة الفلور أثناء تكوّن الأسنان'],['caries caused by fluoride','نخر بسبب الفلور'],['fluoride allergy','حساسية الفلور']],1,
+  'Fluorosis happens while enamel is forming. -osis = abnormal condition.','يحدث التفلور أثناء تكوّن المينا. -osis = حالة غير طبيعية.',[['fluor',R],['-osis',S_]]);
+mc('demin','decode','What does this term mean?','ماذا يعني هذا المصطلح؟',
+  [['dry mouth','جفاف الفم'],['bad breath','رائحة الفم الكريهة'],['mouth ulcer','قرحة الفم'],['gum swelling','تورّم اللثة']],0,
+  'Xerostomia increases caries risk because saliva protects the teeth.','جفاف الفم يزيد خطر النخر لأن اللعاب يحمي الأسنان.',[['xer/o',R],['stom/o',R],['-ia',S_]]);
+mc('demin','spot','A thin coating that seals the pits and grooves of a tooth is a…','طبقة رقيقة تسدّ الحفر والشقوق تُسمّى…',
+  [['fissure sealant','سادّ الشقوق'],['bone graft','طُعم عظمي'],['pellicle','القُشيرة المكتسبة'],['calculus','الجير']],0,
+  'Sealants protect the chewing surface from pit & fissure caries.','السادّ يحمي من نخر الحفر والشقوق.');
+tf('demin','Fluoride helps strengthen enamel and prevent caries.','الفلورايد يساعد في تقوية المينا والوقاية من النخر.',true,
+  'Fact. Too much during tooth development can cause fluorosis.','صحيح، لكن زيادته أثناء تكوّن الأسنان تسبب التفلور.');
+mc('demin','decode','What does this term mean?','ماذا يعني هذا المصطلح؟',
+  [['study of caries','علم النخر'],['causing caries','مسبّب للنخر'],['stopped caries','نخر متوقف'],['caries under the gum','نخر تحت اللثة']],1,
+  'Cariogenic = producing caries, e.g. sugary foods.','مسبّب للنخر، مثل الأطعمة السكرية.',[['cari/o',R],['-genic',S_]]);
+
+/* --- Part 2 · Plaque & calculus --- */
+mc('plaque','spot','Hardened (calcified) plaque is called…','اللويحة المتكلّسة تُسمّى…',
+  [['pellicle','القُشيرة المكتسبة'],['materia alba','المادة البيضاء'],['calculus (tartar)','الجير'],['biofilm','غشاء حيوي']],2,
+  'Calculus forms when plaque calcifies.','يتكوّن الجير عندما تتكلّس اللويحة.');
+mc('plaque','spot','A soft, sticky film of bacteria on the teeth is…','غشاء طري لزج من البكتيريا على الأسنان هو…',
+  [['dental plaque','اللويحة السنية'],['calculus','الجير'],['enamel','المينا'],['cementum','الملاط']],0,
+  'Plaque is soft and can be brushed off; calculus is hard.','اللويحة طرية تُزال بالتفريش، والجير صلب.');
+mc('plaque','arabic','غشاء حيوي','ما المصطلح بالإنجليزية؟',
+  [['pellicle'],['biofilm'],['materia alba'],['tartar']],1,
+  'Biofilm: bi/o (life) + film. Plaque is a biofilm.','اللويحة غشاء حيوي من البكتيريا.');
+tf('plaque','Tartar is another name for calculus.','الجير (tartar) اسم آخر لـ calculus.',true,
+  'Fact.','صحيح.');
+mt('plaque','Match each term to its meaning','صِل كل مصطلح بمعناه',
+  [['Plaque','soft, sticky bacterial film','غشاء بكتيري طري لزج'],['Calculus','hardened plaque','لويحة متكلّسة'],['Pellicle','saliva film that forms first','غشاء من اللعاب يتكوّن أولاً'],['Materia alba','soft white debris, rinses off','بقايا بيضاء طرية تزول بالمضمضة']],
+  'Order of build-up: pellicle → plaque → calculus.','الترتيب: القُشيرة ← اللويحة ← الجير.');
+mc('plaque','odd','Odd one out: which does NOT cause an extrinsic (outside) stain?','الدخيل: أيّها لا يسبب تصبّغاً خارجياً؟',
+  [['tea','الشاي'],['coffee','القهوة'],['smoking','التدخين'],['too much fluoride during tooth development','زيادة الفلور أثناء تكوّن الأسنان']],3,
+  'Fluorosis changes the enamel from inside (intrinsic). Tea, coffee and smoking stain the outside.','التفلور تغيّر داخلي، أما الشاي والقهوة والتدخين فتصبّغ خارجي.');
+
+/* --- Part 2 · Location terms --- */
+mc('location','decode','Where is it?','أين يقع؟',
+  [['below the gingival margin','تحت حافة اللثة'],['between two teeth','بين سنّين'],['above the gingival margin','فوق حافة اللثة'],['inside the pulp','داخل اللب']],2,
+  'Supra- = above. Sub- = below.','supra- = فوق، sub- = تحت.',[['supra-',P],['gingiv/o',R],['-al',S_]]);
+bd('location','Build the term: below the gingival margin','كوّن المصطلح: تحت حافة اللثة',
+  [['sub-',P],['gingiv/o',R],['-al',S_]],[['supra-',P],['oste/o',R],['-itis',S_]],'Subgingival',
+  'Subgingival calculus is below the gingival margin.','الجير تحت حافة اللثة.');
+tf('location','Supragingival means above the gingival margin.','‏Supragingival‏ تعني فوق حافة اللثة.',true,
+  'Fact: supra- = above. Subgingival = below the gingival margin.','صحيح: supra- = فوق، sub- = تحت.');
+mc('location','spot','Caries located below the gingival margin is called…','النخر تحت حافة اللثة يُسمّى…',
+  [['supragingival caries','نخر فوق اللثة'],['subgingival caries','نخر تحت اللثة'],['occlusal caries','نخر إطباقي'],['incipient caries','نخر مبكر']],1,
+  'sub- + gingiv/o + -al = below the gingival margin.','sub- = تحت ← تحت حافة اللثة.');
+
+/* --- Part 3 · Gingiva & periodontium --- */
+mt('struct','Match each structure to its meaning','صِل كل بنية بمعناها',
+  [['Gingiva','gum tissue','نسيج اللثة'],['PDL','ligament around the root','رباط حول الجذر'],['Cementum','hard tissue covering the root','نسيج صلب يغطي الجذر'],['Alveolar bone','bone supporting the teeth','العظم الداعم للأسنان']],
+  'Together these four make up the periodontium.','هذه الأربعة معاً تكوّن النسج الداعمة.');
+mc('struct','decode','Word by word, what does this mean?','ماذا يعني حرفياً؟',
+  [['structure around the tooth','البنية المحيطة بالسن'],['inflammation of the tooth','التهاب السن'],['study of teeth','علم الأسنان'],['inside the tooth','داخل السن']],0,
+  'Periodontium = all tissues that support and surround the tooth.','النسج الداعمة = كل الأنسجة المحيطة بالسن والداعمة له.',[['peri-',P],['odont/o',R],['-ium',S_]]);
+mc('struct','odd','Odd one out: which is NOT part of the periodontium?','الدخيل: أيّها ليس من النسج الداعمة؟',
+  [['gingiva','اللثة'],['PDL','الرباط حول السني'],['enamel','المينا'],['alveolar bone','العظم السنخي']],2,
+  'Enamel covers the crown; it is part of the tooth, not the supporting tissues.','المينا جزء من السن نفسه وليست من النسج الداعمة.');
+mc('struct','arabic','الرباط حول السني','ما المصطلح بالإنجليزية؟',
+  [['cementum'],['gingival sulcus'],['periodontal ligament (PDL)'],['alveolar crest']],2,
+  'PDL anchors the root to the bone.','الرباط حول السني يثبّت الجذر بالعظم.');
+mc('struct','spot','The gum that fills the space between two teeth is the…','اللثة التي تملأ الفراغ بين سنّين هي…',
+  [['attached gingiva','اللثة الملتصقة'],['interdental papilla','الحليمة بين السنية'],['gingival margin','حافة اللثة'],['mucogingival junction','الملتقى المخاطي اللثوي']],1,
+  'inter- (between) + dent (tooth) + -al.','inter = بين، dent = سن.');
+mc('struct','spot','The highest point of the alveolar bone is the…','أعلى نقطة في العظم السنخي هي…',
+  [['alveolar crest','قمة العظم السنخي'],['furcation','التفرع'],['cementum','الملاط'],['apex','الذروة']],0,
+  'Bone loss is measured from the alveolar crest.','يُقاس فقدان العظم من قمة العظم السنخي.');
+mc('struct','spot','The shallow groove between the tooth and the gum is the…','الأخدود الضحل بين السن واللثة هو…',
+  [['gingival sulcus','الميزاب اللثوي'],['furcation','التفرع'],['pocket','الجيب'],['papilla','الحليمة']],0,
+  'Healthy sulcus depth is 1–3 mm.','عمق الميزاب الطبيعي ١–٣ مم.');
+
+/* --- Part 4 · Gingivitis & signs --- */
+bd('gingivitis','Build the term: inflammation of the gingiva','كوّن المصطلح: التهاب اللثة',
+  [['gingiv/o',R],['-itis',S_]],[['odont/o',R],['peri-',P],['-ectomy',S_]],'Gingivitis',
+  'Inflammation of the gingiva, with no attachment or bone loss.','التهاب اللثة دون فقدان ارتباط أو عظم.');
+tf('gingivitis','“-itis” always means infection.','‏-itis‏ تعني دائماً عدوى.',false,
+  'Myth. -itis means inflammation. Inflammation is not always infection.','خطأ: -itis تعني التهاب، والالتهاب ليس دائماً عدوى.');
+mt('gingivitis','Match each sign to its meaning','صِل كل علامة بمعناها',
+  [['Erythema','redness','احمرار'],['Edema','swelling from fluid','تورّم بسبب السوائل'],['BOP','bleeding when probed','نزف عند السبر'],['Halitosis','bad breath','رائحة فم كريهة']],
+  'These are signs we see or measure; they are not diagnoses.','هذه علامات نراها أو نقيسها وليست تشخيصاً.');
+mc('gingivitis','decode','Gingival hyper·plas·ia means…','فرط تنسّج اللثة يعني…',
+  [['overgrowth of the gingiva','زيادة نمو اللثة'],['loss of gingiva','فقدان اللثة'],['redness of the gingiva','احمرار اللثة'],['bleeding gingiva','نزف اللثة']],0,
+  'hyper- = excessive, plas = formation.','hyper- = فرط، plas = تكوّن.',[['hyper-',P],['plas',R],['-ia',S_]]);
+mc('gingivitis','spot','The gum moves down and exposes the root. This is…','تنزل اللثة وينكشف الجذر. هذا…',
+  [['gingival recession','انحسار اللثة'],['gingival hyperplasia','فرط تنسّج اللثة'],['erythema','احمرار'],['edema','وذمة']],0,
+  'Recession exposes the root and can lead to root caries.','الانحسار يكشف الجذر وقد يؤدي إلى نخر الجذر.');
+mc('gingivitis','arabic','رائحة الفم الكريهة','ما المصطلح بالإنجليزية؟',
+  [['halitosis'],['xerostomia'],['erythema'],['suppuration']],0,
+  'halit (breath) + -osis (condition).','halit = نَفَس، -osis = حالة.');
+
+/* --- Part 4 · Periodontitis --- */
+mc('perio','decode','Word by word, what does this mean?','ماذا يعني المصطلح حرفياً؟',
+  [['inflammation around the tooth','التهاب حول السن'],['tumour of the tooth','ورم في السن'],['removal of the gum','استئصال اللثة'],['study of teeth','علم الأسنان']],0,
+  'Clinically, periodontitis = inflammation of the periodontium with attachment loss and/or alveolar bone loss.','سريرياً: التهاب النسج الداعمة مع فقدان الارتباط و/أو العظم السنخي.',[['peri-',P],['odont/o',R],['-itis',S_]]);
+tf('perio','Gingivitis has bone loss, but periodontitis does not.','التهاب اللثة فيه فقدان عظم، والتهاب النسج الداعمة لا.',false,
+  'Myth: it is the other way round. Gingivitis = inflammation only; periodontitis = attachment loss, often with bone loss.','خطأ: العكس هو الصحيح.');
+mc('perio','spot','Loss of tooth support, measured with a probe, is called…','فقدان دعم السن الذي يُقاس بالمسبر يُسمّى…',
+  [['clinical attachment loss (CAL)','فقدان الارتباط السريري'],['bleeding on probing (BOP)','نزف عند السبر'],['halitosis','رائحة الفم'],['calcification','التكلّس']],0,
+  'CAL is a key sign of periodontitis.','فقدان الارتباط علامة أساسية لالتهاب النسج الداعمة.');
+mc('perio','spot','Periodontal disease that is slow and long-lasting is…','المرض البطيء طويل الأمد يوصف بأنه…',
+  [['acute','حاد'],['chronic','مزمن'],['localized','موضّع'],['generalized','معمّم']],1,
+  'chron = time. Acute = sudden and short.','chron = زمن. الحاد = مفاجئ وقصير.');
+mc('perio','spot','Disease that affects only a few teeth or sites is…','المرض الذي يصيب أسناناً قليلة يوصف بأنه…',
+  [['generalized','معمّم'],['rampant','منتشر'],['localized','موضّع'],['chronic','مزمن']],2,
+  'Localized = few sites; generalized = many teeth.','موضّع = مواقع قليلة، معمّم = أسنان كثيرة.');
+bd('perio','Build the term: inflammation around the crown of a partly erupted tooth','كوّن المصطلح: التهاب حول تاج سن بازغ جزئياً',
+  [['peri-',P],['coron',R],['-itis',S_]],[['sub-',P],['gingiv/o',R],['-osis',S_]],'Pericoronitis',
+  'Common around partly erupted wisdom teeth.','شائع حول ضرس العقل.');
+mc('perio','spot','A collection of pus in the periodontal tissues is a…','تجمّع القيح في النسج الداعمة يُسمّى…',
+  [['periodontal abscess','خرّاج لثوي'],['periodontal pocket','جيب لثوي'],['fissure sealant','سادّ الشقوق'],['pellicle','القُشيرة المكتسبة']],0,
+  'periodontal = peri- + odont/o + -al; abscess = localized collection of pus.','الخرّاج = تجمّع موضعي للقيح.');
+
+/* --- Part 5 · Pockets --- */
+mc('pocket','spot','A probing reading of 6 mm is called…','قراءة سبر ٦ مم تُسمّى…',
+  [['normal sulcus depth','العمق الطبيعي للميزاب'],['increased probing depth / periodontal pocket','زيادة عمق السبر / جيب لثوي'],['furcation involvement','إصابة منطقة التفرع'],['gingival recession','انحسار اللثة']],1,
+  'Normal sulcus depth is 1–3 mm.','العمق الطبيعي للميزاب ١–٣ مم.');
+mc('pocket','spot','Normal sulcus depth in healthy gingiva is…','العمق الطبيعي للميزاب في اللثة السليمة…',
+  [['0 mm','٠ مم'],['1–3 mm','١–٣ مم'],['4–6 mm','٤–٦ مم'],['7–10 mm','٧–١٠ مم']],1,
+  'Deeper than this suggests a pocket.','أعمق من ذلك يدل على جيب.');
+mc('pocket','decode','What does this word mean?','ماذا تعني هذه الكلمة؟',
+  [['related to the tissues around the tooth','متعلق بالأنسجة المحيطة بالسن'],['inside the tooth','داخل السن'],['under the tongue','تحت اللسان'],['tooth removal','قلع السن']],0,
+  'Periodontal pocket = a pocket in the tissues around the tooth.','الجيب اللثوي في الأنسجة المحيطة بالسن.',[['peri-',P],['odont/o',R],['-al',S_]]);
+mc('pocket','spot','A deeper reading caused by gum swelling, with NO bone loss, is a…','عمق زائد بسبب تورّم اللثة دون فقدان عظم يُسمّى…',
+  [['true periodontal pocket','جيب لثوي حقيقي'],['gingival (false) pocket','جيب لثوي كاذب'],['furcation','تفرع'],['abscess','خرّاج']],1,
+  'A true pocket involves attachment and bone loss.','الجيب الحقيقي فيه فقدان ارتباط وعظم.');
+mc('pocket','arabic','مسبر لثوي','ما المصطلح بالإنجليزية؟',
+  [['periodontal chart'],['periodontal probe'],['scaler'],['radiograph']],1,
+  'A thin marked instrument that measures depth in mm.','أداة رفيعة مدرّجة تقيس العمق بالملم.');
+tf('pocket','A true periodontal pocket involves attachment loss and bone loss.','الجيب اللثوي الحقيقي فيه فقدان ارتباط وفقدان عظم.',true,
+  'Fact. A false (gingival) pocket is from swelling only.','صحيح. الجيب الكاذب سببه التورّم فقط.');
+
+/* --- Part 6 · Bone loss --- */
+mt('bone','Match each bone term to its meaning','صِل كل مصطلح بمعناه',
+  [['Horizontal bone loss','even drop in bone height','انخفاض منتظم في ارتفاع العظم'],['Vertical bone loss','angular, localized defect','عيب زاوي موضعي'],['Radiographic bone loss','seen on an x-ray','يُرى بالأشعة'],['Bone resorption','bone broken down and lost','هدم العظم وفقدانه']],
+  'Horizontal = even; vertical = angular along one tooth.','أفقي = منتظم، عمودي = زاوي على سطح سن واحد.');
+mc('bone','decode','What does this term mean?','ماذا يعني هذا المصطلح؟',
+  [['cell that builds bone','خلية تبني العظم'],['bone infection','التهاب العظم'],['cell that breaks down bone','خلية تهدم العظم'],['bone graft','طُعم عظمي']],2,
+  'Osteoclast = bone breaker. Osteoblast = bone builder.','الناقضة تهدم العظم، والبانية تبنيه.',[['oste/o',R],['-clast',S_]]);
+bd('bone','Build the term: cell that builds new bone','كوّن المصطلح: خلية تبني العظم',
+  [['oste/o',R],['-blast',S_]],[['-clast',S_],['odont/o',R],['-ia',S_]],'Osteoblast',
+  '-blast = builder; -clast = breaker.','-blast = بانٍ، -clast = هادم.');
+mc('bone','spot','Bone loss looks dark on an x-ray. Dark on x-ray is called…','المنطقة الداكنة في الأشعة تُسمّى…',
+  [['radiopaque','ظليل للأشعة'],['radiolucent','شفاف للأشعة'],['calcified','متكلّس'],['vertical','عمودي']],1,
+  'Radiolucent = dark (less dense). Radiopaque = white (dense).','شفاف = داكن، ظليل = أبيض.');
+tf('bone','Radiopaque areas look white on an x-ray.','المناطق الظليلة تظهر بيضاء في الأشعة.',true,
+  'Fact: bone and metal are radiopaque.','صحيح: العظم والمعادن ظليلة.');
+mc('bone','spot','Bone loss at an angle along one tooth surface is…','فقدان العظم بشكل مائل على سطح سن واحد هو…',
+  [['horizontal bone loss','فقدان عظم أفقي'],['vertical bone loss','فقدان عظم عمودي'],['furcation involvement','إصابة التفرع'],['recession','انحسار']],1,
+  'Vertical (angular) bone loss.','فقدان عظم عمودي (زاوي).');
+
+/* --- Part 7 · Furcation & mobility --- */
+mc('furc','spot','Bone loss between the roots of a lower molar is called…','فقدان العظم بين جذور الطاحن السفلي يُسمّى…',
+  [['horizontal bone loss','فقدان عظم أفقي'],['furcation involvement','إصابة منطقة التفرع'],['root caries','نخر الجذر'],['pericoronitis','التهاب حول التاج']],1,
+  'Furcation = the area where the roots divide.','التفرع = منطقة انقسام الجذور.');
+mc('furc','spot','A loose tooth is described as…','السن المتحرك يوصف بـ…',
+  [['tooth mobility','حركة السن'],['furcation','التفرع'],['cavitation','تشكّل التجويف'],['recession','انحسار']],0,
+  'Tooth mobility: abnormal movement of a tooth in its socket.','حركة غير طبيعية للسن داخل حفرته.');
+mc('furc','spot','Furcation Class III means…','الدرجة الثالثة من إصابة التفرع تعني…',
+  [['early: the probe just enters','بداية: يدخل المسبر قليلاً'],['partial: the probe goes part way','جزئية'],['through-and-through: the probe passes from one side to the other','نافذة: يمرّ المسبر من جهة إلى أخرى'],['no furcation involvement','لا إصابة']],2,
+  'Class III = through-and-through.','الدرجة الثالثة = إصابة نافذة.');
+mc('furc','spot','Mobility Grade 3 means the tooth…','الدرجة ٣ من حركة السن تعني أن السن…',
+  [['moves slightly more than normal','يتحرك أكثر من الطبيعي قليلاً'],['moves more than 1 mm sideways only','يتحرك أكثر من ١ مم أفقياً فقط'],['moves up and down (vertically) as well','يتحرك عمودياً أيضاً'],['does not move','لا يتحرك']],2,
+  'Grade 2 = more than 1 mm horizontally, no vertical movement. Grade 3 = vertical movement too.','الدرجة ٢ أفقية فقط، والدرجة ٣ فيها حركة عمودية.');
+tf('furc','Mobility Grade 2 includes vertical movement.','الدرجة ٢ من الحركة تشمل حركة عمودية.',false,
+  'Myth. Vertical movement means Grade 3.','خطأ: الحركة العمودية تعني الدرجة ٣.');
+mc('furc','arabic','إصابة منطقة التفرع','ما المصطلح بالإنجليزية؟',
+  [['furcation involvement'],['tooth mobility'],['vertical bone loss'],['root planing']],0,
+  'Disease that reaches the area where the roots divide.','وصول المرض إلى منطقة انقسام الجذور.');
+
+/* --- Part 8 · Treatment --- */
+mc('treat','spot','Scaling + root planing is abbreviated as…','التقليح + تسوية الجذر اختصارهما…',
+  [['BOP','BOP'],['CAL','CAL'],['SRP','SRP'],['PDL','PDL']],2,
+  'BOP = bleeding on probing; CAL = clinical attachment loss; PDL = periodontal ligament.','SRP = التقليح وتسوية الجذر.');
+mc('treat','spot','Removing plaque and calculus from the tooth surface is…','إزالة اللويحة والجير عن سطح السن تُسمّى…',
+  [['root planing','تسوية الجذر'],['scaling','التقليح'],['bone graft','طُعم عظمي'],['gingivoplasty','رأب اللثة']],1,
+  'Root planing = smoothing the root surface.','تسوية الجذر = تنعيم سطح الجذر.');
+mc('treat','decode','What does this term mean?','ماذا يعني هذا المصطلح؟',
+  [['reshaping of the gum','إعادة تشكيل اللثة'],['surgical removal of gum tissue','استئصال نسيج اللثة'],['inflammation of the gum','التهاب اللثة'],['study of the gum','علم اللثة']],1,
+  '-ectomy = removal. Gingivoplasty (-plasty) = reshaping.','-ectomy = استئصال، -plasty = رأب.',[['gingiv/o',R],['-ectomy',S_]]);
+bd('treat','Build the term: surgical reshaping of the gum','كوّن المصطلح: إعادة تشكيل اللثة جراحياً',
+  [['gingiv/o',R],['-plasty',S_]],[['-ectomy',S_],['peri-',P],['oste/o',R]],'Gingivoplasty',
+  '-plasty = reshaping.','-plasty = رأب/تشكيل.');
+mc('treat','decode','What does this term mean?','ماذا يعني هذا المصطلح؟',
+  [['professional cleaning to prevent disease','تنظيف احترافي للوقاية'],['removal of a tooth','قلع السن'],['bone rebuilding','إعادة بناء العظم'],['gum surgery','جراحة اللثة']],0,
+  'Prophylaxis (prophy): pro- = before, phylaxis = protection.','pro- = قبل، phylaxis = حماية.',[['pro-',P],['phylaxis',R]]);
+mc('treat','odd','Odd one out: which is NOT a treatment?','الدخيل: أيّها ليس علاجاً؟',
+  [['scaling','التقليح'],['root planing','تسوية الجذر'],['gingivectomy','استئصال اللثة'],['gingivitis','التهاب اللثة']],3,
+  'Gingivitis is a disease (-itis), not a treatment.','التهاب اللثة مرض وليس علاجاً.');
+mt('treat','Match each treatment to its meaning','صِل كل علاج بمعناه',
+  [['Root planing','smoothing the root surface','تنعيم سطح الجذر'],['Bone graft','material to rebuild lost bone','مادة لإعادة بناء العظم'],['Flap surgery','lifting the gum to clean root and bone','رفع اللثة لتنظيف الجذر والعظم'],['Periodontal maintenance','regular follow-up cleaning','متابعة وتنظيف دوري']],
+  'These are the names of procedures you will read in a treatment plan.','هذه أسماء إجراءات ستقرؤها في خطة العلاج.');
+
+/* --- Part 9 · Decoding --- */
+bd('decode','Build the term: dry mouth','كوّن المصطلح: جفاف الفم',
+  [['xer/o',R],['stom/o',R],['-ia',S_]],[['-itis',S_],['gingiv/o',R],['hyper-',P]],'Xerostomia',
+  'xer/o (dry) + stom/o (mouth) + -ia (condition).','xer/o = جاف، stom/o = فم، -ia = حالة.');
+mt('decode','Match each suffix to its meaning','صِل كل لاحقة بمعناها',
+  [['-itis','inflammation','التهاب'],['-osis','abnormal condition','حالة غير طبيعية'],['-ectomy','removal','استئصال'],['-logy','study of','علم']],
+  'Know the suffix and you know half the word.','إذا عرفت اللاحقة عرفت نصف الكلمة.');
+mt('decode','Match each prefix to its meaning','صِل كل سابقة بمعناها',
+  [['sub-','under / below','تحت'],['supra-','above','فوق'],['peri-','around','حول'],['inter-','between','بين']],
+  'Prefixes usually tell you position.','السوابق غالباً تدل على الموقع.');
+mc('decode','odd','Odd one out: which part is a SUFFIX?','الدخيل: أيّها لاحقة؟',
+  [['gingiv/o','gingiv/o'],['odont/o','odont/o'],['-plasty','-plasty'],['oste/o','oste/o']],2,
+  'gingiv/o, odont/o and oste/o are roots. -plasty (reshaping) is a suffix.','الثلاثة الأخرى جذور.');
+
+/* --- Part 10 · Terms in a dental note --- */
+mc('clinic','clinic','The dentist writes: “Erythema of the gingiva.” What does erythema mean?','كتب الطبيب: ‏Erythema of the gingiva‏. ماذا تعني erythema؟',
+  [['redness','احمرار'],['swelling','تورّم'],['bleeding','نزف'],['pus','قيح']],0,
+  'Erythema = redness. Edema = swelling.','erythema = احمرار، edema = تورّم.');
+mc('clinic','clinic','The note says: “Generalized bone loss.” What does generalized mean?','في الملاحظة: ‏Generalized bone loss‏. ماذا تعني generalized؟',
+  [['affects many teeth','يصيب أسناناً كثيرة'],['affects only a few sites','يصيب مواقع قليلة'],['sudden and short','مفاجئ وقصير'],['seen on x-ray','يُرى بالأشعة']],0,
+  'Generalized = many teeth. Localized = a few teeth or sites.','معمّم = أسنان كثيرة، موضّع = مواقع قليلة.');
+mc('clinic','clinic','The note says: “Pericoronitis, lower third molar.” What does pericoronitis mean?','في الملاحظة: ‏Pericoronitis‏. ماذا تعني؟',
+  [['inflammation of the tissue around the crown of a partly erupted tooth','التهاب الأنسجة حول تاج سن بازغ جزئياً'],['inflammation of the pulp','التهاب اللب'],['removal of the crown','إزالة التاج'],['caries on the crown','نخر على التاج']],0,
+  'peri- (around) + coron (crown) + -itis (inflammation). Often around wisdom teeth.','peri = حول، coron = تاج، itis = التهاب.');
+mc('clinic','clinic','The note says: “White spot lesion on the upper incisor.” What is a white spot lesion?','في الملاحظة: ‏White spot lesion‏. ما معناها؟',
+  [['an early chalky white area with no hole yet','منطقة بيضاء طباشيرية مبكرة دون تجويف'],['a white filling','حشوة بيضاء'],['fluorosis','تفلور الأسنان'],['a hole in the enamel','تجويف في المينا']],0,
+  'It is an early caries lesion before cavitation.','آفة نخر مبكرة قبل تشكّل التجويف.');
+mc('clinic','clinic','The note says: “Suppuration from the pocket.” What does suppuration mean?','في الملاحظة: ‏Suppuration‏. ماذا تعني؟',
+  [['discharge of pus','خروج القيح'],['bleeding','نزف'],['swelling','تورّم'],['bone loss','فقدان العظم']],0,
+  'Suppuration = discharge of pus.','التقيّح = خروج القيح.');
+mc('clinic','clinic','The note says: “Patient reports xerostomia.” What does the patient have?','في الملاحظة: ‏xerostomia‏. ماذا لدى المريض؟',
+  [['dry mouth','جفاف الفم'],['bad breath','رائحة فم كريهة'],['bleeding gums','نزف اللثة'],['a loose tooth','سن متحرك']],0,
+  'xer/o (dry) + stom/o (mouth) + -ia (condition).','xer/o = جاف، stom/o = فم.');
+mc('clinic','odd','Note: “BOP, 5 mm probing depth, mobility, periodontitis.” Which term is the name of a DISEASE?','في الملاحظة: أيّ مصطلح هو اسم مرض؟',
+  [['BOP','نزف عند السبر'],['probing depth','عمق السبر'],['periodontitis','التهاب النسج الداعمة'],['mobility','حركة السن']],2,
+  'Periodontitis ends in -itis and names a disease. The others are signs or measurements.','periodontitis اسم مرض، والباقي علامات أو قياسات.');
+
+/* ================= Game ================= */
+const $ = id => document.getElementById(id);
+const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const TYPE = {decode:['Decode it','حلّل'], build:['Build it','كوّن'], spot:['Spot the term','حدّد المصطلح'], clinic:['In the dental note','في الملاحظة'],
+  tf:['Myth or fact','صح أم خطأ'], odd:['Odd one out','الدخيل'], match:['Match it','صِل'], arabic:['Arabic → English','عربي ← إنجليزي']};
+const chips = parts => parts.map((p,k)=>(k?'<span class="plus">+</span>':'')+`<span class="chip ${p[1]}">${esc(p[0])}</span>`).join('');
+let S;
+
+function pickQuestions(n){
+  const by = {}; BANK.forEach((q,i)=>(by[q.t] ||= []).push(i));
+  const pools = TOPICS.map(([k]) => shuffle(by[k] || []));
+  const picks = TOPICS.map(() => []);
+  let total = 0, guard = 0;
+  while (total < n && guard++ < 500) {
+    let added = false;
+    pools.forEach((pool, ti) => {
+      if (total >= n || !pool.length) return;
+      const used = new Set(picks[ti].map(i => BANK[i].type));
+      let k = pool.findIndex(i => !used.has(BANK[i].type)); if (k < 0) k = 0;
+      picks[ti].push(pool.splice(k,1)[0]); total++; added = true;
+    });
+    if (!added) break;
+  }
+  return picks.flat();
+}
+
+function shuffleOptions(){
+  BANK.forEach(q => {
+    if (!q.opts || q.type === 'tf') return;
+    const idx = shuffle(q.opts.map((_, k) => k));
+    q.a = idx.indexOf(q.a);
+    q.opts = idx.map(k => q.opts[k]);
+  });
+}
+function newGame(names, count, tsec){
+  shuffleOptions();
+  S = {names, scores:[0,0], turn:0, hp:5, spots:0, lost:0, order:pickQuestions(count), i:0,
+       stage:'ask', picked:[], pool:null, choice:null, wrong:null, tsec, phase:'play', right:0, msel:null, mpairs:null, mright:null, mres:null};
+  prepQ(); render();
+}
+function prepQ(){
+  const q = BANK[S.order[S.i]];
+  S.stage = 'ask'; S.bonus = 0; S.picked = []; S.choice = null; S.wrong = null; S.msel = null; S.mres = null; S.result = null;
+  S.pool = q.type === 'build' ? shuffle(q.ans.concat(q.extra)) : null;
+  if (q.type === 'match') { S.mpairs = [-1,-1,-1,-1]; S.mright = shuffle([0,1,2,3]); }
+}
+
+/* ================= Levels: a new scene + villain for every part ================= */
+const LEVELS = [
+  {sky:['#FFE9F1','#FFF6FA'], ground:'#F6B9BB', v:'bug',  c:['#8B5A2B','#4A2E12','#6B4220'], name:['Cavity Bug','حشرة النخر'], item:'shield', props:'candy',
+   taunt:['Crunch crunch!','Sugar time!','هههه، نخر!'], },
+  {sky:['#EFE6FB','#F8F3FE'], ground:'#F6B9BB', v:'drop', c:['#A06CD5','#5E3591','#C9A4F0'], name:['Acid Drop','قطرة الحمض'], item:'shield', props:'rain',
+   taunt:['Sssizzle!','Bye bye minerals!','وداعاً للمعادن!']},
+  {sky:['#E4F7EF','#F3FBF7'], ground:'#F6B9BB', v:'blob', c:['#93B83A','#4E6A12','#6E8F22'], name:['Plaque Monster','وحش اللويحة'], item:'brush', props:'bubbles',
+   taunt:['Sticky!','Plaque party!','لويحة في كل مكان!']},
+  {sky:['#E6F1FC','#F4F9FE'], ground:'#F6B9BB', v:'rock', c:['#CDB57E','#7A6332','#A88F55'], name:['Tartar Rock','صخرة الجير'], item:'brush', props:'gumline',
+   taunt:['Rock solid!','Brush me off, I dare you!','أنا صلب!']},
+  {sky:['#FDF6E3','#FFFBF0'], ground:'#F3D78A', v:'germ', c:['#5BB6A8','#22675E','#9EDDD3'], name:['Germ Gang','عصابة الجراثيم'], item:'brush', props:'bone',
+   taunt:['Attack the periodontium!','We are everywhere!','نحن في كل مكان!'], },
+  {sky:['#FFEDE4','#FFF7F2'], ground:'#EE8E93', v:'flame', c:['#E2504A','#9C2620','#F6A04D'], name:['Inflammo','ملتهب'], item:'brush', props:'swollen',
+   taunt:['So inflamed!','Red and swollen!','احمرار وتورّم!']},
+  {sky:['#FFF1E2','#FFF9F1'], ground:'#F3D78A', v:'muncher', c:['#F08A3C','#9A4A12','#FFC27A'], name:['Bone Muncher','آكل العظم'], item:'brush', props:'cracks',
+   taunt:['Yum, bone!','Munch munch!','أكلت العظم!']},
+  {sky:['#E9EEFB','#F5F7FE'], ground:'#F6B9BB', v:'blob', c:['#8B7BE0','#3F3196','#B1A6F2'], name:['Pocket Goblin','عفريت الجيب'], item:'probe', props:'ruler',
+   taunt:['Deeper, deeper!','6 mm, hehe!','جيب أعمق!']},
+  {sky:['#1E2836','#2A3546'], ground:'#3A475C', v:'muncher', c:['#C9D2DF','#5B6B82','#EEF2F7'], name:['X-ray Ghost','شبح الأشعة'], item:'brush', props:'xray', dark:true,
+   taunt:['Radiolucent!','Boo! Bone loss!','بووو!']},
+  {sky:['#E6F7E9','#F3FBF4'], ground:'#F3D78A', v:'bug', c:['#4E9A5B','#22562C','#7CC489'], name:['Root Splitter','مُفرّق الجذور'], item:'probe', props:'furcation',
+   taunt:['Into the furcation!','Wiggle wiggle!','السن يتحرك!']},
+  {sky:['#E3F3FB','#F2FAFE'], ground:'#F6B9BB', v:'rock', c:['#9C8A5C','#4F4426','#C2B080'], name:['Mega Tartar','الجير العملاق'], item:'scaler', props:'lamp',
+   taunt:['You need a professional!','I am stuck here!','لن تزيلني!']},
+  {sky:['#FFF9E0','#FFFDF2'], ground:'#F6B9BB', v:'drop', c:['#4F8FD8','#1D4F8C','#9CC6F5'], name:['Word Scrambler','مُبعثر الكلمات'], item:'magnifier', props:'puzzle',
+   taunt:['Words all mixed up!','Prefix? Suffix? Hehe!','بعثرت الكلمات!']},
+  {sky:['#F1E8FB','#FAF6FE'], ground:'#F6B9BB', v:'germ', c:['#7B4FB5','#4A2C78','#B79BE0'], name:['The Final Boss','الزعيم الأخير'], item:'magnifier', props:'clipboard', crown:true,
+   taunt:['I am the boss!','Ha ha ha!','أنا الزعيم!']},
+];
+const CHEERS = ['Yes!','أحسنت!','Sparkling!','Bravo!','ممتاز!','Clean!','Nice decoding!','رائع!'];
+
+function villainSVG(L){
+  const [f, s, l] = L.c;
+  const eye = (x,y,r) => `<circle cx="${x}" cy="${y}" r="${r}" fill="#fff" stroke="${s}" stroke-width="4"/><circle cx="${x-3}" cy="${y+3}" r="${r*0.45}" fill="#142B52"/>`;
+  switch (L.v) {
+    case 'bug': return `
+      <path d="M215 318 L196 345 M255 334 L250 352 M300 334 L306 352 M338 316 L358 342" stroke="${s}" stroke-width="7" stroke-linecap="round"/>
+      <ellipse cx="278" cy="280" rx="86" ry="58" fill="${f}" stroke="${s}" stroke-width="5"/>
+      <path d="M278 224 L278 336" stroke="${s}" stroke-width="4"/>
+      <circle cx="248" cy="262" r="9" fill="${l}"/><circle cx="312" cy="300" r="11" fill="${l}"/><circle cx="318" cy="252" r="7" fill="${l}"/>
+      <path d="M187 230 Q176 200 160 196 M207 228 Q214 198 230 192" stroke="${s}" stroke-width="5" fill="none" stroke-linecap="round"/>
+      <circle cx="160" cy="196" r="7" fill="${f}" stroke="${s}" stroke-width="3"/><circle cx="230" cy="192" r="7" fill="${f}" stroke="${s}" stroke-width="3"/>
+      <circle cx="197" cy="264" r="40" fill="${l}" stroke="${s}" stroke-width="5"/>
+      ${eye(184,254,11)}${eye(212,252,10)}
+      <path d="M182 284 Q197 296 214 282" stroke="${s}" stroke-width="5" fill="none" stroke-linecap="round"/>
+      <path d="M160 262 L128 271 L160 280Z" fill="#9AA3B2" stroke="#142B52" stroke-width="4" stroke-linejoin="round"/>`;
+    case 'drop': return `
+      <path d="M265 165 Q338 255 338 290 Q338 344 265 344 Q192 344 192 290 Q192 255 265 165Z" fill="${f}" stroke="${s}" stroke-width="5"/>
+      <path d="M222 268 Q226 236 244 214" stroke="${l}" stroke-width="9" fill="none" stroke-linecap="round"/>
+      ${eye(245,275,14)}${eye(288,275,13)}
+      <path d="M232 250 L258 258 M276 258 L300 248" stroke="${s}" stroke-width="5" stroke-linecap="round"/>
+      <path d="M240 308 Q265 326 292 306" stroke="${s}" stroke-width="6" fill="none" stroke-linecap="round"/>
+      <path d="M205 338 Q212 350 205 356 Q198 350 205 338Z M332 326 Q339 338 332 344 Q325 338 332 326Z" fill="${f}"/>`;
+    case 'rock': return `
+      <path d="M180 336 L166 270 L205 214 L276 196 L342 228 L364 300 L332 340Z" fill="${f}" stroke="${s}" stroke-width="5" stroke-linejoin="round"/>
+      <path d="M212 230 L232 258 L216 282 M322 246 L302 272 L318 296" stroke="${s}" stroke-width="4" fill="none"/>
+      <circle cx="200" cy="300" r="8" fill="${l}"/><circle cx="340" cy="282" r="7" fill="${l}"/>
+      ${eye(245,262,13)}${eye(292,258,12)}
+      <path d="M228 238 L260 248 M278 244 L306 234" stroke="${s}" stroke-width="6" stroke-linecap="round"/>
+      <path d="M236 300 L248 290 L260 302 L272 290 L284 302 L296 290" stroke="${s}" stroke-width="5" fill="none" stroke-linejoin="round"/>`;
+    case 'flame': return `
+      <path d="M265 158 Q294 210 320 196 Q302 242 354 262 Q374 336 265 344 Q156 336 176 262 Q222 248 206 200 Q240 216 265 158Z" fill="${f}" stroke="${s}" stroke-width="5" stroke-linejoin="round"/>
+      <path d="M266 226 Q306 268 296 302 Q286 334 266 334 Q242 334 236 306 Q230 272 266 226Z" fill="${l}"/>
+      ${eye(246,280,12)}${eye(288,280,12)}
+      <path d="M232 260 L258 268 M276 268 L300 258" stroke="${s}" stroke-width="5" stroke-linecap="round"/>
+      <path d="M248 312 Q268 300 288 312" stroke="${s}" stroke-width="5" fill="none" stroke-linecap="round"/>`;
+    case 'muncher': return `
+      <ellipse cx="232" cy="342" rx="22" ry="9" fill="${s}"/><ellipse cx="306" cy="342" rx="22" ry="9" fill="${s}"/>
+      <circle cx="268" cy="272" r="72" fill="${f}" stroke="${s}" stroke-width="5"/>
+      <path d="M214 282 Q268 348 324 282Z" fill="#5C1E0A" stroke="${s}" stroke-width="4" stroke-linejoin="round"/>
+      <path d="M222 286 L232 300 L242 288 M250 290 L260 304 L270 291 M280 291 L290 304 L300 288 M306 287 L314 298" fill="#fff" stroke="#fff" stroke-width="3" stroke-linejoin="round"/>
+      <circle cx="268" cy="236" r="22" fill="#fff" stroke="${s}" stroke-width="4"/><circle cx="263" cy="240" r="10" fill="#142B52"/>
+      <path d="M244 210 L292 210" stroke="${s}" stroke-width="6" stroke-linecap="round"/>
+      <g transform="translate(150 292) rotate(-25)"><rect x="0" y="-6" width="48" height="12" rx="6" fill="#FFF8E7" stroke="#8A7A55" stroke-width="3"/><circle cx="0" cy="-7" r="8" fill="#FFF8E7" stroke="#8A7A55" stroke-width="3"/><circle cx="0" cy="7" r="8" fill="#FFF8E7" stroke="#8A7A55" stroke-width="3"/><circle cx="48" cy="-7" r="8" fill="#FFF8E7" stroke="#8A7A55" stroke-width="3"/><circle cx="48" cy="7" r="8" fill="#FFF8E7" stroke="#8A7A55" stroke-width="3"/></g>`;
+    case 'germ': {
+      let spikes = '';
+      for (let k = 0; k < 12; k++) { const a = k / 12 * Math.PI * 2; spikes += `<line x1="268" y1="268" x2="${(268 + Math.cos(a) * 88).toFixed(1)}" y2="${(268 + Math.sin(a) * 82).toFixed(1)}" stroke="${s}" stroke-width="6"/><circle cx="${(268 + Math.cos(a) * 88).toFixed(1)}" cy="${(268 + Math.sin(a) * 82).toFixed(1)}" r="9" fill="${l}" stroke="${s}" stroke-width="3"/>`; }
+      return `${spikes}<circle cx="268" cy="268" r="66" fill="${f}" stroke="${s}" stroke-width="5"/>
+      ${L.crown ? `<path d="M226 206 L236 170 L254 194 L268 162 L282 194 L300 170 L310 206Z" fill="#F6CD5A" stroke="#8A5A00" stroke-width="4" stroke-linejoin="round"/>` : ''}
+      ${eye(246,258,13)}${eye(290,258,13)}
+      <path d="M230 236 L258 246 M278 246 L306 236" stroke="${s}" stroke-width="6" stroke-linecap="round"/>
+      <path d="M240 292 Q268 314 296 292" stroke="${s}" stroke-width="6" fill="none" stroke-linecap="round"/>
+      <path d="M252 298 L256 308 L262 300 M276 300 L281 309 L286 297" fill="#fff" stroke="#fff" stroke-width="2"/>`;
+    }
+    default: return `
+      <path d="M200 330 Q170 330 172 290 Q160 250 190 225 Q190 180 235 178 Q265 150 300 175 Q345 170 350 215 Q378 240 365 285 Q372 330 335 332 Q320 345 300 333 Q285 346 268 333 Q250 346 232 333 Q216 344 200 330Z" fill="${f}" stroke="${s}" stroke-width="5" stroke-linejoin="round"/>
+      <circle cx="205" cy="268" r="9" fill="${l}"/><circle cx="335" cy="300" r="12" fill="${l}"/><circle cx="300" cy="200" r="7" fill="${l}"/>
+      <ellipse cx="240" cy="235" rx="20" ry="23" fill="#fff" stroke="${s}" stroke-width="4"/>
+      <ellipse cx="290" cy="232" rx="17" ry="20" fill="#fff" stroke="${s}" stroke-width="4"/>
+      <circle cx="236" cy="240" r="9" fill="#142B52"/><circle cx="286" cy="237" r="8" fill="#142B52"/>
+      <path d="M222 210 L256 218 M276 214 L306 206" stroke="${s}" stroke-width="6" stroke-linecap="round"/>
+      <path d="M228 280 Q262 306 300 278 Q262 292 228 280Z" fill="${s}"/>
+      <path d="M178 278 Q150 268 148 248" stroke="${s}" stroke-width="9" fill="none" stroke-linecap="round"/>
+      <circle cx="148" cy="244" r="9" fill="${f}" stroke="${s}" stroke-width="4"/>`;
+  }
+}
+
+function itemSVG(kind){
+  switch (kind) {
+    case 'shield': return `<g transform="translate(262 222)"><path d="M0 0 L38 -10 L76 0 L76 38 Q76 78 38 92 Q0 78 0 38Z" fill="#81C3FF" stroke="#142B52" stroke-width="5" stroke-linejoin="round"/><text x="38" y="56" font-size="40" font-weight="800" text-anchor="middle" fill="#142B52" font-family="Baloo Bhaijaan 2, Cairo, sans-serif">F</text></g>`;
+    case 'magnifier': return `<path d="M268 206 L282 220" stroke="#142B52" stroke-width="6" stroke-linecap="round"/><circle cx="306" cy="238" r="32" fill="#E3F1FB" stroke="#142B52" stroke-width="7"/><path d="M290 226 Q296 214 310 212" stroke="#fff" stroke-width="5" fill="none" stroke-linecap="round"/><path d="M328 262 L352 288" stroke="#142B52" stroke-width="12" stroke-linecap="round"/>`;
+    case 'probe': return `<g transform="translate(258 262) rotate(-55)"><rect x="0" y="-6" width="80" height="12" rx="6" fill="#B8C2D1" stroke="#142B52" stroke-width="4"/><path d="M80 0 L118 0" stroke="#142B52" stroke-width="5"/><path d="M92 -5 L92 5 M100 -5 L100 5 M108 -5 L108 5" stroke="#C03C43" stroke-width="3"/></g>`;
+    case 'scaler': return `<g transform="translate(258 262) rotate(-50)"><rect x="0" y="-7" width="86" height="14" rx="7" fill="#B8C2D1" stroke="#142B52" stroke-width="4"/><path d="M86 0 Q110 0 112 -22" stroke="#142B52" stroke-width="6" fill="none" stroke-linecap="round"/></g>`;
+    default: return `<g transform="translate(250 250) rotate(-35)"><rect x="0" y="0" width="120" height="16" rx="8" fill="#81C3FF" stroke="#142B52" stroke-width="4"/><rect x="94" y="-22" width="24" height="22" rx="4" fill="#fff" stroke="#142B52" stroke-width="4"/></g>`;
+  }
+}
+
+function propsSVG(kind){
+  const t = (x,y,s,c,txt,anchor='start') => `<text x="${x}" y="${y}" font-size="${s}" font-weight="800" fill="${c}" text-anchor="${anchor}" font-family="Baloo Bhaijaan 2, Cairo, sans-serif">${txt}</text>`;
+  switch (kind) {
+    case 'candy': return [[330,50],[450,90],[540,40]].map(([x,y],k)=>`<g transform="translate(${x} ${y}) rotate(${k*25-15})"><path d="M-30 -12 L-18 0 L-30 12Z M30 -12 L18 0 L30 12Z" fill="${['#F28B82','#F6CD5A','#81C3FF'][k]}"/><ellipse cx="0" cy="0" rx="20" ry="14" fill="${['#F28B82','#F6CD5A','#81C3FF'][k]}" stroke="#142B52" stroke-width="3"/><path d="M-8 -8 L8 8" stroke="#fff" stroke-width="3"/></g>`).join('');
+    case 'rain': { let r=''; for (let k=0;k<14;k++){ const x=300+(k*23)%290, y=20+(k*37)%170; r+=`<path d="M${x} ${y} Q${x+6} ${y+12} ${x} ${y+16} Q${x-6} ${y+12} ${x} ${y}Z" fill="#B992E6" opacity=".8"/>`; } return r + t(330,215,18,'#5E3591','acid · حمض'); }
+    case 'bubbles': return [[340,60,18],[400,110,10],[470,50,22],[540,120,14],[300,140,9],[520,190,8]].map(([x,y,r])=>`<circle cx="${x}" cy="${y}" r="${r}" fill="#fff" fill-opacity=".5" stroke="#93B83A" stroke-width="3"/>`).join('');
+    case 'gumline': return `<path d="M0 236 L600 236" stroke="#C03C43" stroke-width="4" stroke-dasharray="12 9"/>${t(4,226,15,'#B7791F','supra ↑')}${t(4,256,15,'#1F5F9E','sub ↓')}`;
+    case 'bone': { let b=''; for (let k=0;k<16;k++){ const x=20+(k*41)%580, y=262+(k*29)%100; b+=`<ellipse cx="${x}" cy="${y}" rx="${8+k%3*4}" ry="${6+k%2*3}" fill="#E2C062"/>`; } return b; }
+    case 'swollen': { let b=''; for (let k=0;k<12;k++){ b+=`<circle cx="${k*52+10}" cy="240" r="22" fill="#E9878C"/>`; } return b + t(470,60,22,'#C03C43','‑itis!','middle'); }
+    case 'cracks': return `<path d="M30 300 L60 285 L80 305 L110 290 M420 310 L450 290 L470 312 L500 296 L530 320" stroke="#B9913A" stroke-width="4" fill="none"/>` + t(470,60,20,'#9A4A12','bone loss!','middle');
+    case 'ruler': { let r=`<rect x="545" y="30" width="34" height="196" rx="6" fill="#fff" stroke="#142B52" stroke-width="3"/>`; for (let k=1;k<=6;k++){ r+=`<path d="M545 ${30+k*28} L563 ${30+k*28}" stroke="#142B52" stroke-width="3"/>`+t(568,36+k*28,14,'#142B52',k); } return r + t(530,22,16,'#3F3196','mm','end'); }
+    case 'xray': { let s=''; for (let k=0;k<18;k++){ s+=`<circle cx="${(k*67)%600}" cy="${(k*41)%220}" r="${1.5+k%3}" fill="#9FB2CC" opacity=".6"/>`; } return s + t(470,60,22,'#9FB2CC','X-RAY','middle'); }
+    case 'furcation': return `<circle cx="182" cy="300" r="7" fill="#22562C"/><path d="M182 300 L60 372" stroke="#22562C" stroke-width="3" stroke-dasharray="6 5"/>` + t(4,368,15,'#22562C','furcation');
+    case 'lamp': return `<g transform="translate(520 40)"><circle r="30" fill="#FFF3B0" stroke="#142B52" stroke-width="4"/><path d="M0 30 L0 70 M-40 0 L-56 0 M40 0 L56 0 M-28 -28 L-40 -40 M28 -28 L40 -40" stroke="#E0B23A" stroke-width="5" stroke-linecap="round"/></g>` + t(400,210,18,'#1F5F9E','scaling · SRP','middle');
+    case 'puzzle': return [['prefix','#F6CD5A',340,40],['root','#81C3FF',430,80],['suffix','#EB6060',520,40]].map(([w,c,x,y])=>`<g transform="translate(${x} ${y})"><rect x="-38" y="-20" width="76" height="40" rx="10" fill="${c}" stroke="#142B52" stroke-width="3"/>${t(0,7,18,'#142B52',w,'middle')}</g>`).join('');
+    case 'clipboard': return `<g transform="translate(500 30)"><rect width="76" height="96" rx="8" fill="#FFF8E7" stroke="#142B52" stroke-width="4"/><rect x="22" y="-8" width="32" height="16" rx="4" fill="#B8C2D1" stroke="#142B52" stroke-width="3"/><path d="M14 30 L62 30 M14 46 L62 46 M14 62 L48 62 M14 78 L56 78" stroke="#8A94A6" stroke-width="4" stroke-linecap="round"/></g>`;
+    default: return '';
+  }
+}
+
+function sceneSVG(L){
+  return `<svg viewBox="0 0 600 380" role="img" aria-label="A cartoon tooth facing ${L.name[0]}">
+    <rect width="600" height="236" fill="${L.sky[0]}"/><rect y="236" width="600" height="144" fill="${L.ground}"/>
+    ${propsSVG(L.props)}
+    <ellipse cx="300" cy="352" rx="290" ry="30" fill="#000" opacity=".08"/>
+    <g id="tooth">
+      <path d="M70 150 Q70 80 135 80 Q160 80 172 96 Q184 80 209 80 Q274 80 274 150 Q274 220 254 280 Q242 350 222 362 Q205 370 196 340 L182 285 Q172 268 162 285 L148 340 Q139 370 122 362 Q102 350 90 280 Q70 220 70 150Z" fill="#FFFDF7" stroke="#142B52" stroke-width="6" stroke-linejoin="round"/>
+      <path d="M96 128 Q102 102 126 96" stroke="#D8ECFB" stroke-width="9" fill="none" stroke-linecap="round"/>
+      <g id="spots"></g>
+      <g id="face">
+        <circle cx="140" cy="168" r="10" fill="#142B52"/><circle cx="204" cy="168" r="10" fill="#142B52"/>
+        <circle cx="143" cy="165" r="3" fill="#fff"/><circle cx="207" cy="165" r="3" fill="#fff"/>
+        <ellipse cx="122" cy="196" rx="12" ry="7" fill="#F6B3AD"/><ellipse cx="222" cy="196" rx="12" ry="7" fill="#F6B3AD"/>
+        <path id="mouth" d="M148 200 Q172 224 196 200" stroke="#142B52" stroke-width="6" fill="none" stroke-linecap="round"/>
+        <path id="sweat" d="M250 120 Q258 136 250 144 Q242 136 250 120Z" fill="#81C3FF" opacity="0"/>
+      </g>
+      ${itemSVG(L.item)}
+    </g>
+    <g id="monster" transform="translate(230 0)"><g class="bob">${villainSVG(L)}</g></g>
+    <g id="fx"></g>
+  </svg>`;
+}
+
+function setLevel(ti, announce){
+  if (S.level === ti) return;
+  S.level = ti;
+  const L = LEVELS[ti];
+  $('scene').innerHTML = sceneSVG(L);
+  $('stage').classList.toggle('dark', !!L.dark);
+  $('stage').style.background = L.sky[0];
+  $('enemy').textContent = `${L.name[0]} · ${L.name[1]}`;
+  if (announce) {
+    const b = $('levelup');
+    b.innerHTML = `<small>Level ${ti + 1} of ${TOPICS.length} · المستوى ${ti + 1}</small><b>${esc(TOPICS[ti][1])}</b><span>${esc(TOPICS[ti][2])}</span><em>${ti === TOPICS.length - 1 ? 'FINAL BOSS' : 'New enemy'}: ${esc(L.name[0])} · ${esc(L.name[1])}</em>`;
+    b.hidden = false; b.classList.remove('pop'); void b.offsetWidth; b.classList.add('pop');
+    clearTimeout(setLevel.t); setLevel.t = setTimeout(() => { b.hidden = true; }, 2300);
+  }
+}
+
+const rnd = a => a[Math.floor(Math.random() * a.length)];
+function bubble(side, text){
+  const el = $(side === 'tooth' ? 'bubT' : 'bubM');
+  el.textContent = text; el.hidden = false; el.classList.remove('pop'); void el.offsetWidth; el.classList.add('pop');
+  clearTimeout(el.t); el.t = setTimeout(() => { el.hidden = true; }, 1700);
+}
+function pow(text){
+  const el = $('pow'); el.textContent = text; el.hidden = false; el.classList.remove('pop'); void el.offsetWidth; el.classList.add('pop');
+  clearTimeout(el.t); el.t = setTimeout(() => { el.hidden = true; }, 900);
+}
+function confetti(){
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const st = $('stage'), cols = ['#F6CD5A','#81C3FF','#EB6060','#93B83A','#fff'];
+  for (let k = 0; k < 34; k++) {
+    const c = document.createElement('i'); c.className = 'cf';
+    c.style.left = (8 + Math.random() * 84) + '%'; c.style.background = rnd(cols);
+    c.style.animationDelay = (Math.random() * .25) + 's'; c.style.transform = `rotate(${Math.random()*360}deg)`;
+    st.appendChild(c); setTimeout(() => c.remove(), 1600);
+  }
+}
+function react(ok){
+  const L = LEVELS[S.level || 0];
+  if (ok) {
+    confetti(); pow(rnd(['POW!','ZAP!','BOOM!','WHAM!']));
+    bubble('tooth', S.streak >= 3 ? `${S.streak} in a row!` : rnd(CHEERS));
+  } else {
+    bubble('monster', rnd(L.taunt));
+    const st = $('stage'); st.classList.remove('flash'); void st.offsetWidth; st.classList.add('flash');
+  }
+}
+
+/* ---------- stage ---------- */
+const SPOT_POS = [[110,240,13],[232,150,11],[178,118,9],[100,170,9],[226,250,12]];
+const MINI = '<svg viewBox="0 0 40 40" aria-hidden="true"><path d="M8 14 Q8 5 16 5 Q19 5 20 7 Q21 5 24 5 Q32 5 32 14 Q32 22 29 30 Q27 37 25 37 Q23 37 22 32 L20 27 L18 32 Q17 37 15 37 Q13 37 11 30 Q8 22 8 14Z" fill="#E9D3B6" stroke="#C03C43" stroke-width="3"/><path d="M12 12 L28 30 M28 12 L12 30" stroke="#C03C43" stroke-width="3"/></svg>';
+function drawStage(){
+  $('hp').style.width = (S.hp/5*100) + '%';
+  $('hpTxt').textContent = S.hp + ' / 5';
+  $('teethLost').innerHTML = MINI.repeat(S.lost);
+  $('monster').setAttribute('transform', `translate(${30 + S.hp*40} 0)`);
+  $('spots').innerHTML = SPOT_POS.slice(0, S.spots).map(([x,y,r]) =>
+    `<circle cx="${x}" cy="${y}" r="${r}" fill="#8B5A2B"/><circle cx="${x+1}" cy="${y+1}" r="${r*0.55}" fill="#5C3A1A"/>`).join('');
+  $('mouth').setAttribute('d', S.hp >= 4 ? 'M148 200 Q172 224 196 200' : S.hp >= 2 ? 'M150 210 L194 210' : 'M148 216 Q172 194 196 216');
+  $('sweat').setAttribute('opacity', S.hp <= 2 ? '1' : '0');
+  const nm = LEVELS[S.level || 0].name[0];
+  $('status').textContent = S.phase !== 'play' ? `${nm} is coming!` : S.hp >= 4 ? 'The tooth is safe… for now!' : S.hp >= 2 ? `Careful! ${nm} is close.` : 'Danger! One more mistake…';
+  $('combo').hidden = !(S.streak >= 2); $('streakN').textContent = S.streak || 0;
+}
+function fx(kind){
+  react(kind === 'zap');
+  const g = $('fx');
+  if (kind === 'zap') {
+    const x = 30 + S.hp*40 + 260;
+    g.innerHTML = `<g class="zap" style="transform-origin:${x}px 250px"><circle cx="${x}" cy="250" r="70" fill="none" stroke="#F6CD5A" stroke-width="10"/><path d="M${x-50} 200 L${x-20} 230 M${x+50} 200 L${x+20} 230 M${x} 170 L${x} 205" stroke="#F6CD5A" stroke-width="8" stroke-linecap="round"/></g>`;
+  } else {
+    const t = $('tooth'); t.classList.remove('shake'); void t.getBBox(); t.classList.add('shake'); g.innerHTML = '';
+  }
+}
+function scoreRight(){ S.streak = (S.streak || 0) + 1; S.bonus = S.streak >= 3 ? 50 : 0; S.scores[S.turn] += 100 + S.bonus; }
+function hurt(){
+  S.streak = 0; S.bonus = 0;
+  S.hp = Math.max(0, S.hp - 1); S.spots = Math.min(5, S.spots + 1);
+  if (S.hp === 0) {
+    S.lost++;
+    const m = $('lostMsg');
+    m.innerHTML = `The monster got the tooth!<small>A new tooth grows in… Teeth lost: ${S.lost} · خسرنا سنّاً! سنّ جديد يبدأ الآن</small>`;
+    m.hidden = false;
+    setTimeout(() => { S.hp = 5; S.spots = 0; m.hidden = true; drawStage(); }, 2600);
+  }
+}
+function heal(){ if (S.hp > 0 && S.hp < 5) S.hp++; }
+
+/* ---------- timer ---------- */
+let timerId = null;
+function stopTimer(){ if (timerId) { clearInterval(timerId); timerId = null; } }
+function startTimer(){
+  stopTimer(); if (!S.tsec || S.phase !== 'play') return;
+  const q = BANK[S.order[S.i]];
+  const secs = S.tsec * (q.type === 'match' || q.type === 'build' ? 1.5 : 1) * (S.stage === 'steal' ? 0.6 : 1);
+  const start = Date.now();
+  timerId = setInterval(() => {
+    const left = Math.max(0, 1 - (Date.now() - start) / (secs * 1000));
+    const bar = document.querySelector('.timer i'); if (bar) bar.style.width = (left * 100) + '%';
+    if (left <= 0) { stopTimer(); timeUp(); }
+  }, 100);
+}
+function timeUp(){
+  const q = BANK[S.order[S.i]];
+  if (S.stage === 'ask') {
+    if (q.type === 'build') return judgeBuild(true);
+    if (q.type === 'match') return judgeMatch(true);
+    S.wrong = -1; hurt(); S.result = 'timeout'; S.stage = 'done'; render(); fx('hit');
+  } else if (S.stage === 'steal') { S.result = 'nosteal'; S.stage = 'done'; render(); }
+}
+
+/* ---------- answering ---------- */
+function choose(k){
+  const q = BANK[S.order[S.i]];
+  stopTimer();
+  if (S.stage === 'ask') {
+    S.choice = k;
+    if (k === q.a) { scoreRight(); S.right++; heal(); S.result = 'right'; S.stage = 'done'; render(); fx('zap'); }
+    else { S.wrong = k; hurt(); S.result = 'wrong'; S.stage = 'done'; render(); fx('hit'); }
+  } else if (S.stage === 'steal') {
+    S.choice = k;
+    const ok = k === q.a;
+    if (ok) { S.scores[1 - S.turn] += 50; heal(); S.result = 'stolen'; } else S.result = 'stealfail';
+    S.stage = 'done'; render(); if (ok) fx('zap');
+  }
+}
+function judgeBuild(timeout){
+  stopTimer();
+  const q = BANK[S.order[S.i]];
+  const ok = !timeout && S.picked.length === q.ans.length && S.picked.every((p,k) => S.pool[p][0] === q.ans[k][0]);
+  if (ok) { scoreRight(); S.right++; heal(); S.result = 'right'; }
+  else { hurt(); S.result = timeout ? 'timeout' : 'wrong'; }
+  S.stage = 'done'; render(); fx(ok ? 'zap' : 'hit');
+}
+function judgeMatch(timeout){
+  stopTimer();
+  const correct = S.mpairs.filter((r,l) => r === l).length;
+  S.mres = correct;
+  S.scores[S.turn] += correct * 25;
+  const ok = correct >= 3;
+  if (ok) { S.right++; S.streak = (S.streak || 0) + 1; heal(); S.result = 'right'; } else { hurt(); S.result = timeout ? 'timeout' : 'wrong'; }
+  S.stage = 'done'; render(); fx(ok ? 'zap' : 'hit');
+}
+function next(){
+  if (S.i + 1 >= S.order.length) return finish();
+  S.i++; prepQ(); render();
+}
+
+/* ---------- card ---------- */
+function render(){
+  { const q0 = BANK[S.order[S.i]]; setLevel(TOPICS.findIndex(t => t[0] === q0.t), S.phase === 'play'); }
+  $('s0').textContent = S.scores[0] + S.scores[1];
+  drawStage();
+
+  const q = BANK[S.order[S.i]];
+  const ti = TOPICS.findIndex(t => t[0] === q.t);
+  const doneTopics = new Set(S.order.slice(0, S.i).map(i => BANK[i].t));
+  const [ten, tar] = TYPE[q.type];
+  let h = `<div class="map" aria-hidden="true">${TOPICS.map((t,k) => `<span class="${k === ti ? 'now' : doneTopics.has(t[0]) ? 'done' : ''}" title="${esc(t[1])}"></span>`).join('')}</div>
+    <div class="topic">${esc(TOPICS[ti][1])} · ${esc(TOPICS[ti][2])}</div>
+    <div class="qtop"><span class="badge ${q.type}">${ten} · ${tar}</span>
+    <span class="turn">${S.right} correct so far · ${S.right} إجابة صحيحة</span>
+    <span class="qnum">${S.i + 1} / ${S.order.length}</span></div>`;
+  if (S.tsec && S.stage !== 'done' && S.phase === 'play') h += `<div class="timer" aria-hidden="true"><i></i></div>`;
+
+  if (q.parts) h += `<div class="eq">${chips(q.parts)}</div>`;
+  if (q.type === 'arabic') h += `<p class="bigar">${esc(q.q)}</p><p class="prompt">What is this term in English?</p><p class="prompt-ar">${esc(q.qa)}</p>`;
+  else h += `<p class="prompt">${esc(q.q)}</p><p class="prompt-ar">${esc(q.qa)}</p>`;
+
+  if (q.type === 'build') h += buildHTML(q);
+  else if (q.type === 'match') h += matchHTML(q);
+  else h += optsHTML(q);
+
+  if (S.stage === 'steal') {
+    h += `<div class="steal"><span>Steal! ${esc(S.names[1 - S.turn])}, choose another answer for 50 points.</span><span class="ar">فرصة سرقة للفريق الآخر!</span>
+      <button class="btn ghost" id="nosteal">No steal · reveal</button></div>`;
+  }
+  if (S.stage === 'done') h += explainHTML(q);
+  $('card').innerHTML = h;
+  if (S.stage !== 'done') startTimer();
+}
+
+function optsHTML(q){
+  return `<div class="opts">${q.opts.map((o,k) => {
+    let cls = '', dis = false;
+    if (S.stage === 'steal' && k === S.wrong) { cls = 'wrong'; dis = true; }
+    if (S.stage === 'done') { dis = true; if (k === q.a) cls = 'right'; else if (k === S.wrong || k === S.choice) cls = 'wrong'; }
+    const ar = o[1] && o[1] !== o[0] ? `<small>${esc(o[1])}</small>` : '';
+    return `<button class="opt ${cls}" data-opt="${k}" ${dis ? 'disabled' : ''}><span class="k">${k + 1}</span><span class="t">${esc(o[0])}${ar}</span></button>`;
+  }).join('')}</div>`;
+}
+function buildHTML(q){
+  const done = S.stage === 'done';
+  return `<div class="legend"><span class="chip p">prefix</span><span class="chip r">root</span><span class="chip s">suffix</span><span>Click the parts in order · اضغط الأجزاء بالترتيب</span></div>
+    <div class="build-slots">${S.picked.length ? S.picked.map((p,k) => (k ? '<span class="plus">+</span>' : '') + `<span class="chip ${S.pool[p][1]}">${esc(S.pool[p][0])}</span>`).join('') : '<span class="hint">Your term appears here…</span>'}</div>
+    <div class="pool">${S.pool.map((p,k) => `<button class="chip ${p[1]}" data-pool="${k}" ${S.picked.includes(k) || done ? 'disabled' : ''}>${esc(p[0])}</button>`).join('')}</div>
+    ${done ? '' : `<div class="row"><button class="btn ghost" id="undo" ${!S.picked.length ? 'disabled' : ''}>Undo · تراجع</button>
+    <button class="btn primary" id="check" ${!S.picked.length ? 'disabled' : ''}>Check · تحقّق</button></div>`}`;
+}
+function matchHTML(q){
+  const done = S.stage === 'done';
+  const left = q.pairs.map((p,l) => {
+    let cls = 'mitem term';
+    if (done) cls += S.mpairs[l] === l ? ' right' : ' wrong';
+    else { if (S.msel === l) cls += ' sel'; if (S.mpairs[l] >= 0) cls += ' pair' + l; }
+    return `<button class="${cls}" data-ml="${l}" ${done ? 'disabled' : ''}>${esc(p[0])}</button>`;
+  }).join('');
+  const right = S.mright.map(r => {
+    const owner = S.mpairs.indexOf(r);
+    let cls = 'mitem';
+    if (done) cls += ' ' + (owner === r ? 'right' : 'wrong');
+    else if (owner >= 0) cls += ' pair' + owner;
+    const tag = done ? `<span class="tag">→ ${esc(q.pairs[r][0])}</span>` : '';
+    return `<button class="${cls}" data-mr="${r}" ${done ? 'disabled' : ''}>${esc(q.pairs[r][1])}<small>${esc(q.pairs[r][2])}</small>${tag}</button>`;
+  }).join('');
+  const all = S.mpairs.every(x => x >= 0);
+  return `<p style="margin:0;color:var(--ink-soft)">Click a term, then its meaning. 25 points per correct pair · اضغط المصطلح ثم معناه</p>
+    <div class="match"><div class="col">${left}</div><div class="col">${right}</div></div>
+    ${done ? '' : `<div class="row"><button class="btn ghost" id="mclear">Clear · مسح</button><button class="btn primary" id="mcheck" ${all ? '' : 'disabled'}>Check · تحقّق</button></div>`}`;
+}
+function explainHTML(q){
+  const r = S.result;
+  const ok = r === 'right' || r === 'stolen';
+  let title;
+  if (q.type === 'match') title = `${S.mres} of 4 pairs correct (+${S.mres * 25}) · ${S.mres >= 3 ? 'Monster pushed back!' : 'The monster moves closer'}`;
+  else title = {right:'Correct! The monster is pushed back · إجابة صحيحة', stolen:`Stolen! +50 for ${esc(S.names[1 - S.turn])} · سرقة ناجحة`,
+    stealfail:'Not quite, for both teams · إجابة غير صحيحة', nosteal:'Here is the answer · الإجابة', wrong:'Not quite · إجابة غير صحيحة', timeout:'Time’s up! · انتهى الوقت'}[r] || 'Answer';
+  if (r === 'right' && S.bonus) title += ` · Streak ×${S.streak}: +${S.bonus} bonus`;
+  const word = q.type === 'build' ? `<span class="eq">${chips(q.ans)}<span class="plus">=</span><b>${esc(q.word)}</b></span>` : '';
+  const last = S.i + 1 >= S.order.length;
+  return `<div class="explain ${ok || (q.type==='match' && S.mres>=3) ? 'ok' : 'no'}"><b>${title}</b>${word}<span>${esc(q.ex)}</span><span class="ar">${esc(q.exa)}</span></div>
+    <div class="row"><button class="btn primary" id="next">${last ? 'See the result · النتيجة' : 'Next question · السؤال التالي'}</button></div>`;
+}
+
+/* ---------- end ---------- */
+function finish(){
+  stopTimer(); S.phase = 'end';
+  const total = S.scores[0] + S.scores[1];
+  const saved = S.lost === 0;
+  $('endPanel').innerHTML = `
+    <h2>${saved ? 'The tooth is saved!' : `The monster took ${S.lost} ${S.lost === 1 ? 'tooth' : 'teeth'}`}<span class="ar">${saved ? 'تم إنقاذ السن!' : 'خسرنا ' + S.lost + ' من الأسنان'}</span></h2>
+    <p>The class answered ${S.right} of ${S.order.length} questions correctly and walked through all ${new Set(S.order.map(i => BANK[i].t)).size} parts of Lecture 8.</p>
+    <p class="rtl">${saved ? 'عمل جماعي رائع!' : 'راجعوا أجزاء الكلمات وجرّبوا مرة أخرى!'}</p>
+    <div style="text-align:center"><div class="big">${total}</div><div>Class score · نقاط الصف</div></div>
+    <p style="text-align:center;font-style:italic;color:var(--red)">If you can break the word, you can understand the diagnosis.<span class="rtl" style="display:block;text-align:center">إذا قدرت تحلّل المصطلح، بتقدر تفهم التشخيص.</span></p>
+    <div class="row" style="justify-content:center"><button class="btn primary" id="again">Play again · العب مرة أخرى</button></div>`;
+  $('end').hidden = false; $('again').focus();
+}
+
+/* ---------- events ---------- */
+document.addEventListener('click', e => {
+  const t = e.target.closest('button'); if (!t || t.disabled) return;
+  if (t.id === 'startBtn') {
+    $('setup').hidden = true; newGame(['Class','Class'], +$('qcount').value, +$('tsec').value); return;
+  }
+  if (t.id === 'again') { $('end').hidden = true; $('setup').hidden = false; $('startBtn').focus(); return; }
+  if (!S || S.phase !== 'play') return;
+  if (t.dataset.opt != null) choose(+t.dataset.opt);
+  else if (t.dataset.pool != null) { S.picked.push(+t.dataset.pool); render(); }
+  else if (t.id === 'undo') { S.picked.pop(); render(); }
+  else if (t.id === 'check') judgeBuild(false);
+  else if (t.dataset.ml != null) { S.msel = +t.dataset.ml; render(); }
+  else if (t.dataset.mr != null) {
+    if (S.msel == null) return;
+    const r = +t.dataset.mr; S.mpairs = S.mpairs.map(x => x === r ? -1 : x); S.mpairs[S.msel] = r;
+    const nextFree = S.mpairs.findIndex(x => x < 0); S.msel = nextFree >= 0 ? nextFree : null; render();
+  }
+  else if (t.id === 'mclear') { S.mpairs = [-1,-1,-1,-1]; S.msel = 0; render(); }
+  else if (t.id === 'mcheck') judgeMatch(false);
+  else if (t.id === 'nosteal') { stopTimer(); S.result = 'nosteal'; S.stage = 'done'; render(); }
+  else if (t.id === 'next') next();
+});
+document.addEventListener('keydown', e => {
+  if (!S || S.phase !== 'play' || !$('setup').hidden || !$('end').hidden) return;
+  if (e.target.matches('input,select')) return;
+  const q = BANK[S.order[S.i]];
+  if (S.stage !== 'done' && q.opts && /^[1-4]$/.test(e.key)) {
+    const k = +e.key - 1; if (k < q.opts.length && !(S.stage === 'steal' && k === S.wrong)) choose(k);
+  } else if (S.stage === 'done' && e.key === 'Enter') { e.preventDefault(); next(); }
+});
+
+/* idle preview behind the setup screen */
+S = {names:['Team A','Team B'], scores:[0,0], turn:0, hp:5, spots:0, lost:0, order:[BANK.findIndex(q=>q.type==='decode')], i:0, stage:'ask', picked:[], tsec:0, phase:'idle', right:0};
+render();
+$('startBtn').focus();
+
+</script>
+
+</body></html>
