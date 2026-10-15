@@ -1,0 +1,233 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>DMT Reading Passages</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:wght@400;600;700;800&family=Baloo+Bhaijaan+2:wght@500;600;700&display=swap">
+<style>
+/* Layout: playful study app. Passage tabs on top, activity chips below, one big reading card, bottom sheet for meanings */
+:root{
+  --bg:#f4f6fb; --card:#ffffff; --fg:#1d2233; --muted:#5f6680; --line:#e1e5f0;
+  --c0:#e8553f; --c0s:#ffe4dd; --c1:#1b86cc; --c1s:#d9eeff; --c2:#7b4bd8; --c2s:#ece3ff;
+  --good:#1f9d5c; --goods:#d9f5e6; --bad:#d93a3a; --bads:#ffe0e0; --sun:#f5b700;
+  --f-disp:"Baloo 2","Trebuchet MS",system-ui,sans-serif; --f-body:"Nunito",system-ui,sans-serif; --f-ar:"Baloo Bhaijaan 2","Noto Naskh Arabic",Tahoma,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#12141d; --card:#1b1f2c; --fg:#eef0f7; --muted:#a3a9c2; --line:#2c3245;
+  --c0:#ff8a76; --c0s:#46231e; --c1:#5ab6f2; --c1s:#16324a; --c2:#a98bf5; --c2s:#2d2350;
+  --good:#4fd18d; --goods:#163a28; --bad:#ff7070; --bads:#4a1d1d; --sun:#ffd04d; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#12141d; --card:#1b1f2c; --fg:#eef0f7; --muted:#a3a9c2; --line:#2c3245;
+  --c0:#ff8a76; --c0s:#46231e; --c1:#5ab6f2; --c1s:#16324a; --c2:#a98bf5; --c2s:#2d2350;
+  --good:#4fd18d; --goods:#163a28; --bad:#ff7070; --bads:#4a1d1d; --sun:#ffd04d; color-scheme:dark}
+body{background:var(--bg);color:var(--fg);font-family:var(--f-body)}
+body.p0{--pc:var(--c0);--ps:var(--c0s)} body.p1{--pc:var(--c1);--ps:var(--c1s)} body.p2{--pc:var(--c2);--ps:var(--c2s)}
+.wrap{max-width:900px;margin:0 auto;padding-block:28px 140px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:20px}
+header{display:flex;align-items:center;gap:14px}
+.tooth{width:52px;height:52px;flex:none}
+header h1{font-family:var(--f-disp);font-size:clamp(1.6rem,4vw,2.2rem);line-height:1.05;margin:0;font-weight:800}
+header h1 span{color:var(--pc);transition:color .3s}
+header p{margin:2px 0 0;color:var(--muted);font-weight:600}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible{outline:3px solid var(--pc);outline-offset:2px}
+.tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.tab{border:2px solid var(--line);background:var(--card);border-radius:16px;padding:10px 14px;text-align:left;display:flex;flex-direction:column;gap:0;transition:transform .15s,border-color .2s,background .2s}
+.tab:hover{transform:translateY(-2px)}
+.tab b{font-family:var(--f-disp);font-size:1.15rem;line-height:1.2}
+.tab small{color:var(--muted);font-weight:600;line-height:1.3}
+.tab[data-i="0"]{--tc:var(--c0);--ts:var(--c0s)} .tab[data-i="1"]{--tc:var(--c1);--ts:var(--c1s)} .tab[data-i="2"]{--tc:var(--c2);--ts:var(--c2s)}
+.tab b{color:var(--tc)}
+.tab[aria-selected="true"]{border-color:var(--tc);background:var(--ts)}
+.modes{display:flex;flex-wrap:wrap;gap:8px}
+.mode{border:0;background:var(--card);border-radius:999px;padding:8px 16px;font-weight:800;box-shadow:inset 0 0 0 2px var(--line);transition:background .2s,color .2s}
+.mode[aria-pressed="true"]{background:var(--pc);color:var(--card);box-shadow:none}
+.stage{background:var(--card);border-radius:22px;padding:26px 28px;border:2px solid var(--line);position:relative;min-width:0}
+.stage h2{font-family:var(--f-disp);margin:0 0 4px;font-size:1.5rem;color:var(--pc);line-height:1.2}
+.hint{margin:0 0 16px;color:var(--muted);font-weight:600}
+.text{font-size:1.15rem;line-height:2.15;margin:0;max-width:70ch}
+.text .t,.text .w{border-radius:6px;transition:background .2s,color .2s}
+.m-hunt .text .w,.m-hunt .text .t{cursor:pointer}
+.m-hunt .text .w:hover,.m-hunt .text .t:not(.found):hover{background:var(--line)}
+.text .t.found,.m-mark .text .t{background:var(--ps);color:var(--fg);box-shadow:inset 0 -3px 0 var(--pc);font-weight:800;padding:1px 3px;-webkit-box-decoration-break:clone;box-decoration-break:clone}
+.m-mark .text .t{cursor:pointer}
+.m-mark .text .t:hover{background:var(--pc);color:var(--card)}
+.text .t.missed{background:var(--bads);box-shadow:inset 0 -3px 0 var(--bad);font-weight:800;padding:1px 3px}
+.pop{animation:pop .35s ease}
+@keyframes pop{0%{transform:scale(1)}40%{transform:scale(1.18)}100%{transform:scale(1)}}
+.shake{animation:shake .35s ease;background:var(--bads)!important;color:var(--bad)}
+@keyframes shake{25%{transform:translateX(-3px)}75%{transform:translateX(3px)}}
+.text span{display:inline-block} .text .t{display:inline}
+.huntbar{display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px;margin-bottom:18px;background:var(--bg);border-radius:14px;padding:12px 14px}
+.meter{flex:1 1 200px;height:14px;background:var(--line);border-radius:99px;overflow:hidden;min-width:0}
+.meter i{display:block;height:100%;background:var(--pc);border-radius:99px;transition:width .4s}
+.score{font-family:var(--f-disp);font-weight:700;font-size:1.1rem;font-variant-numeric:tabular-nums}
+.score .bad{color:var(--bad)}
+.btn{border:0;border-radius:12px;padding:8px 14px;font-weight:800;background:var(--card);box-shadow:inset 0 0 0 2px var(--line)}
+.btn.main{background:var(--pc);color:var(--card);box-shadow:none}
+.win{margin:0 0 16px;padding:14px 16px;border-radius:14px;background:var(--goods);color:var(--good);font-family:var(--f-disp);font-size:1.25rem;font-weight:700}
+/* word list */
+.tw{overflow-x:auto;border-radius:14px;border:2px solid var(--line)}
+table{border-collapse:collapse;width:100%}
+th{text-align:left;font-size:.8rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);padding:10px 12px;background:var(--bg)}
+th.ar{text-align:right;font-family:var(--f-ar);text-transform:none;letter-spacing:0;font-size:1rem}
+td{padding:10px 12px;border-top:1px solid var(--line);vertical-align:top;line-height:1.45}
+td.n{color:var(--pc);font-weight:800;font-variant-numeric:tabular-nums;width:2em}
+td.en{font-weight:800;min-width:9em}
+td.mn{min-width:14em}
+td.ar{font-family:var(--f-ar);font-size:1.1rem;text-align:right;min-width:9em}
+tr:nth-child(even) td{background:color-mix(in srgb,var(--ps) 40%,transparent)}
+/* flashcards */
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px}
+.fc{perspective:900px;border:0;background:none;padding:0;height:150px;text-align:center}
+.fc .in{position:relative;width:100%;height:100%;transition:transform .5s;transform-style:preserve-3d}
+.fc.flip .in{transform:rotateY(180deg)}
+.fc .f,.fc .b{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:16px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:12px;gap:6px}
+.fc .f{background:var(--ps);border:2px solid var(--pc);font-family:var(--f-disp);font-weight:700;font-size:1.2rem;line-height:1.2;color:var(--fg)}
+.fc .f small{font-family:var(--f-body);font-size:.75rem;color:var(--muted);font-weight:700}
+.fc .b{background:var(--pc);color:var(--card);transform:rotateY(180deg);font-weight:700;font-size:.92rem;line-height:1.3}
+.fc .b .a{font-family:var(--f-ar);font-size:1.15rem}
+.tools{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+/* quiz */
+.q{display:flex;flex-direction:column;gap:14px}
+.qtop{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.qdots{display:flex;gap:5px;flex-wrap:wrap}
+.qdots i{width:12px;height:12px;border-radius:50%;background:var(--line)}
+.qdots i.ok{background:var(--good)} .qdots i.no{background:var(--bad)} .qdots i.now{background:var(--pc)}
+.qbox{background:var(--ps);border-radius:18px;padding:18px 20px}
+.qbox .lbl{font-size:.8rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--pc)}
+.qbox p{margin:6px 0 0;font-size:1.25rem;font-weight:800;line-height:1.35}
+.qbox .a{font-family:var(--f-ar);font-weight:600;font-size:1.2rem;color:var(--muted);margin-top:4px}
+.opts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.opt{border:2px solid var(--line);background:var(--card);border-radius:14px;padding:14px;font-weight:800;font-size:1.05rem;text-align:left;transition:transform .12s}
+.opt:hover:not(:disabled){transform:translateY(-2px);border-color:var(--pc)}
+.opt.ok{background:var(--goods);border-color:var(--good);color:var(--good)}
+.opt.no{background:var(--bads);border-color:var(--bad);color:var(--bad)}
+.opt:disabled{cursor:default}
+.end{text-align:center;padding:10px 0}
+.end .big{font-family:var(--f-disp);font-size:3rem;font-weight:800;color:var(--pc);line-height:1}
+/* meaning sheet */
+.sheet{position:fixed;left:0;right:0;bottom:0;display:flex;justify-content:center;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-bottom:calc(16px + env(safe-area-inset-bottom,0px));pointer-events:none;z-index:5}
+.sheet .in{pointer-events:auto;width:100%;max-width:560px;background:var(--card);border:3px solid var(--pc);border-radius:20px;padding:16px 18px;box-shadow:0 12px 40px rgba(0,0,0,.18);display:grid;grid-template-columns:1fr auto;gap:4px 12px;animation:up .25s ease}
+@keyframes up{from{transform:translateY(30px);opacity:.3}to{transform:none;opacity:1}}
+.sheet h3{margin:0;font-family:var(--f-disp);font-size:1.45rem;color:var(--pc);line-height:1.2}
+.sheet p{margin:0;grid-column:1/-1;font-weight:700;line-height:1.4}
+.sheet .a{font-family:var(--f-ar);font-size:1.3rem;color:var(--fg);direction:rtl;text-align:right}
+.x{border:0;background:var(--bg);border-radius:50%;width:34px;height:34px;font-size:1.1rem;font-weight:800}
+canvas#fx{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:9}
+@media (max-width:560px){.tabs{grid-template-columns:1fr}.stage{padding:20px 16px}.text{font-size:1.05rem;line-height:2}.opts{grid-template-columns:1fr}.cards{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+<div class="wrap">
+  <header>
+    <svg class="tooth" viewBox="0 0 64 64" aria-hidden="true"><path d="M32 12c-6-6-20-6-22 6-2 9 3 15 5 24 2 10 4 16 8 16s4-12 9-12 5 12 9 12 6-6 8-16c2-9 7-15 5-24-2-12-16-12-22-6z" fill="var(--ps)" stroke="var(--pc)" stroke-width="3.5" stroke-linejoin="round"/><circle cx="25" cy="26" r="2.6" fill="var(--pc)"/><circle cx="39" cy="26" r="2.6" fill="var(--pc)"/><path d="M26 33q6 5 12 0" fill="none" stroke="var(--pc)" stroke-width="2.8" stroke-linecap="round"/></svg>
+    <div><h1>Dental Terms <span>Reading Lab</span></h1><p>Dental Medical Terminology</p></div>
+  </header>
+  <nav class="tabs" id="tabs" role="tablist"></nav>
+  <div class="modes" id="modes"></div>
+  <main class="stage" id="stage"></main>
+</div>
+<div class="sheet" id="sheet" hidden></div>
+<canvas id="fx"></canvas>
+<script>
+const DATA=[{"lab": "Passage 1", "title": "The Oral Cavity and the Jaws", "text": "The [[oral cavity]] is lined by a soft [[oral mucosa]]. The inner surface of the cheek is called the [[buccal mucosa]], and the [[parotid duct]] ([[Stensen's duct]]) opens onto it opposite the [[maxillary second molar]]. The roof of the mouth is the [[palate]]. Its front two-thirds is the [[hard palate]], formed by the [[palatine process]] of the maxilla, and its back one-third is the [[soft palate]], with the [[uvula]] hanging from its free edge. The tongue has a [[tip]], a [[body]] and a [[base]]. Its [[dorsal surface]] carries the [[lingual papillae]] ([[filiform]], [[fungiform]], [[foliate]] and [[circumvallate]]), and many of these hold [[taste buds]]. The [[submandibular gland]] and the [[sublingual gland]] empty into the [[sublingual region]], under the tongue, through [[Wharton's duct]] and smaller ducts. The upper jaw is the [[maxilla]]. It contains the [[maxillary sinus]], an air-filled space above the roots of the upper [[posterior teeth]], and the [[maxillary tuberosity]] lies behind the last molar. The lower jaw is the [[mandible]], made of a body and a [[ramus]]. The ramus ends in the [[coronoid process]] and the [[condyle]]. The condyle meets the [[temporal bone]] at the [[temporomandibular joint (TMJ)]], where the [[articular disc]] sits between the two bones. The [[muscles of mastication]] are the [[masseter]], the [[temporalis]], and the [[medial pterygoid]] and [[lateral pterygoid]]. They move the jaw in [[elevation]], [[depression]], [[protrusion]], [[retraction]] and [[lateral excursion]].", "order": ["oral cavity", "oral mucosa", "buccal mucosa", "parotid duct", "Stensen's duct", "maxillary second molar", "palate", "hard palate", "palatine process", "soft palate", "uvula", "tip", "body", "base", "dorsal surface", "lingual papillae", "filiform", "fungiform", "foliate", "circumvallate", "taste buds", "submandibular gland", "sublingual gland", "sublingual region", "Wharton's duct", "maxilla", "maxillary sinus", "posterior teeth", "maxillary tuberosity", "mandible", "ramus", "coronoid process", "condyle", "temporal bone", "temporomandibular joint (TMJ)", "articular disc", "muscles of mastication", "masseter", "temporalis", "medial pterygoid", "lateral pterygoid", "elevation", "depression", "protrusion", "retraction", "lateral excursion"], "g": {"oral cavity": ["The space inside the mouth", "تجويف الفم"], "oral mucosa": ["The soft lining inside the mouth", "الغشاء المخاطي للفم"], "buccal mucosa": ["The soft lining of the inner cheek", "الغشاء المخاطي للخد"], "parotid duct": ["The duct that carries saliva from the parotid gland into the cheek", "قناة الغدة النكفية"], "Stensen's duct": ["Another name for the parotid duct", "قناة ستنسن"], "maxillary second molar": ["The second molar of the upper jaw", "الضرس الثاني في الفك العلوي"], "palate": ["The roof of the mouth", "الحنك (سقف الفم)"], "hard palate": ["The bony front two-thirds of the palate", "الحنك الصلب"], "palatine process": ["The part of the maxilla that forms most of the hard palate", "الناتئ الحنكي"], "soft palate": ["The muscular back one-third of the palate", "الحنك الرخو"], "uvula": ["The small soft tissue that hangs from the back of the soft palate", "اللهاة"], "tip": ["The front end of the tongue", "رأس اللسان"], "body": ["The front two-thirds of the tongue", "جسم اللسان"], "base": ["The back one-third of the tongue", "قاعدة اللسان"], "dorsal surface": ["The top surface of the tongue", "السطح الظهري للسان"], "lingual papillae": ["Small projections on the surface of the tongue", "حليمات اللسان"], "filiform": ["Thread-like papillae with no taste buds", "الحليمات الخيطية"], "fungiform": ["Mushroom-shaped papillae", "الحليمات الفطرية"], "foliate": ["Leaf-like papillae on the sides of the tongue", "الحليمات الورقية"], "circumvallate": ["Large papillae in a V-shaped row at the back of the tongue", "الحليمات الكأسية"], "taste buds": ["Small sense organs that detect taste", "براعم التذوق"], "submandibular gland": ["Salivary gland below the lower jaw", "الغدة تحت الفك السفلي"], "sublingual gland": ["Salivary gland under the tongue", "الغدة تحت اللسان"], "sublingual region": ["The area under the tongue", "المنطقة تحت اللسان"], "Wharton's duct": ["The duct of the submandibular gland", "قناة وارتون"], "maxilla": ["The upper jaw", "الفك العلوي"], "maxillary sinus": ["Air-filled space inside the upper jaw", "الجيب الفكي"], "posterior teeth": ["The back teeth (premolars and molars)", "الأسنان الخلفية"], "maxillary tuberosity": ["Rounded bump of bone behind the last upper molar", "الحدبة الفكية"], "mandible": ["The lower jaw", "الفك السفلي"], "ramus": ["The vertical part of the mandible", "فرع الفك السفلي"], "coronoid process": ["The front projection at the top of the ramus", "الناتئ الإكليلي"], "condyle": ["The rounded back projection of the ramus that forms the jaw joint", "لقمة الفك السفلي"], "temporal bone": ["The skull bone at the side of the head", "العظم الصدغي"], "temporomandibular joint (TMJ)": ["The jaw joint", "المفصل الصدغي الفكي"], "articular disc": ["A disc of tissue between the condyle and the temporal bone", "القرص المفصلي"], "muscles of mastication": ["The muscles used for chewing", "عضلات المضغ"], "masseter": ["Strong chewing muscle at the side of the jaw", "العضلة الماضغة"], "temporalis": ["Fan-shaped chewing muscle at the side of the head", "العضلة الصدغية"], "medial pterygoid": ["Chewing muscle on the inner side of the ramus", "العضلة الجناحية الإنسية"], "lateral pterygoid": ["Chewing muscle with two bellies that pulls the jaw forward", "العضلة الجناحية الوحشية"], "elevation": ["Raising the jaw (closing the mouth)", "رفع الفك"], "depression": ["Lowering the jaw (opening the mouth)", "خفض الفك"], "protrusion": ["Moving the jaw forward", "دفع الفك للأمام"], "retraction": ["Moving the jaw backward", "سحب الفك للخلف"], "lateral excursion": ["Moving the jaw to the side", "الحركة الجانبية للفك"]}}, {"lab": "Passage 2", "title": "Dentition, Caries and the Periodontium", "text": "The [[primary dentition]] ([[deciduous teeth]]) has 20 teeth. Between about 6 and 12 years of age the child has a [[mixed dentition]], when primary and permanent teeth are both present. [[Exfoliation]] of the primary teeth is followed by [[eruption]] of the permanent teeth, and the full [[permanent dentition]] has 32 teeth arranged in two [[dental arches]] and four [[quadrants]]. Each quadrant contains a [[central incisor]], a [[lateral incisor]], a [[canine]], a first and a second [[premolar]], and three [[molars]]. A tooth that stays blocked in the bone is called [[impacted]]. A [[mesiodens]] is a [[supernumerary tooth]] between the maxillary central incisors, and [[hypodontia]] means some teeth are missing. [[Dental plaque]] is a soft [[biofilm]] of bacteria that forms on the [[pellicle]]. Acid from plaque causes [[demineralization]] of enamel, and the first sign is a [[white spot lesion]], which [[fluoride]] can help reverse by [[remineralization]]. If the process continues, [[cavitation]] occurs and the lesion becomes [[dentinal caries]]. Hardened plaque is [[calculus]]. It can be [[supragingival]] or [[subgingival]]. The [[periodontium]] includes the [[gingiva]], the [[periodontal ligament]], the [[cementum]] and the [[alveolar bone]]. In [[gingivitis]] the gingiva shows [[erythema]], [[edema]] and [[bleeding on probing (BOP)]], but there is no [[attachment loss]]. In [[periodontitis]] the [[probing depth]] increases, a [[periodontal (true) pocket]] forms, and [[radiographic bone loss]], [[furcation involvement]] and [[tooth mobility]] may follow.", "order": ["primary dentition", "deciduous teeth", "mixed dentition", "Exfoliation", "eruption", "permanent dentition", "dental arches", "quadrants", "central incisor", "lateral incisor", "canine", "premolar", "molars", "impacted", "mesiodens", "supernumerary tooth", "hypodontia", "Dental plaque", "biofilm", "pellicle", "demineralization", "white spot lesion", "fluoride", "remineralization", "cavitation", "dentinal caries", "calculus", "supragingival", "subgingival", "periodontium", "gingiva", "periodontal ligament", "cementum", "alveolar bone", "gingivitis", "erythema", "edema", "bleeding on probing (BOP)", "attachment loss", "periodontitis", "probing depth", "periodontal (true) pocket", "radiographic bone loss", "furcation involvement", "tooth mobility"], "g": {"primary dentition": ["The first set of teeth (20 teeth)", "الإطباق اللبني"], "deciduous teeth": ["Another name for primary (baby) teeth", "الأسنان اللبنية"], "mixed dentition": ["A stage when both primary and permanent teeth are in the mouth", "الإطباق المختلط"], "Exfoliation": ["Natural shedding of a primary tooth", "تساقط السن اللبني"], "eruption": ["Movement of a developing tooth into the mouth", "بزوغ السن"], "permanent dentition": ["The complete set of permanent (adult) teeth, 32 teeth", "الإطباق الدائم"], "dental arches": ["The curved arrangement of teeth in each jaw", "الأقواس السنية"], "quadrants": ["One quarter of the dentition", "أرباع الفم"], "central incisor": ["The front tooth nearest the midline", "القاطع المركزي"], "lateral incisor": ["The front tooth next to the central incisor", "القاطع الجانبي"], "canine": ["The pointed tooth between the incisors and premolars", "الناب"], "premolar": ["Tooth between the canine and the molars", "الضاحك"], "molars": ["The large back chewing teeth", "الأضراس (الأرحاء)"], "impacted": ["A tooth blocked from erupting", "سن منطمرة"], "mesiodens": ["A supernumerary tooth in the front of the upper jaw, between the central incisors", "سن زائدة وسطية"], "supernumerary tooth": ["An extra tooth beyond the normal number", "سن زائدة"], "hypodontia": ["A reduced number of teeth (some teeth missing)", "نقص عدد الأسنان"], "Dental plaque": ["A soft, sticky film of bacteria on the teeth", "اللويحة السنية (البلاك)"], "biofilm": ["A layer of living bacteria stuck to a surface", "غشاء حيوي"], "pellicle": ["A thin layer from saliva that forms on the tooth surface", "القشيرة المكتسبة"], "demineralization": ["Loss of minerals from the tooth surface caused by acid", "إزالة المعادن من السن"], "white spot lesion": ["An early chalky white area of demineralized enamel", "آفة البقعة البيضاء"], "fluoride": ["A mineral that strengthens enamel", "الفلورايد"], "remineralization": ["Return of minerals to the tooth surface", "إعادة التمعدن"], "cavitation": ["Formation of a hole (cavity) in the tooth", "تكوّن التجويف"], "dentinal caries": ["Caries that has reached the dentin", "تسوس العاج"], "calculus": ["Hardened (calcified) plaque, also called tartar", "الجير (القلح)"], "supragingival": ["Above the gum margin", "فوق اللثة"], "subgingival": ["Below the gum margin", "تحت اللثة"], "periodontium": ["All the tissues that support and surround the tooth", "النسج الداعمة للسن"], "gingiva": ["The gum tissue", "اللثة"], "periodontal ligament": ["Fibres that attach the root to the bone", "الرباط حول السني"], "cementum": ["The hard tissue covering the root", "الملاط"], "alveolar bone": ["The bone that holds the teeth", "العظم السنخي"], "gingivitis": ["Inflammation of the gingiva only, with no attachment or bone loss", "التهاب اللثة"], "erythema": ["Redness", "احمرار"], "edema": ["Swelling caused by fluid", "وذمة (تورم)"], "bleeding on probing (BOP)": ["Bleeding when the probe is gently placed in the sulcus", "النزف عند السبر"], "attachment loss": ["Loss of the fibres that attach the tooth to the bone", "فقدان الارتباط"], "periodontitis": ["Inflammation of the periodontium with attachment and bone loss", "التهاب دواعم السن"], "probing depth": ["Depth measured with the periodontal probe", "عمق السبر"], "periodontal (true) pocket": ["An abnormally deep space between tooth and gum, with attachment loss", "الجيب حول السني (الحقيقي)"], "radiographic bone loss": ["Bone loss seen on an x-ray", "فقدان العظم الظاهر في الأشعة"], "furcation involvement": ["Bone loss in the area where the roots divide", "إصابة منطقة تفرّع الجذور"], "tooth mobility": ["Abnormal movement of a tooth in its socket", "حركة السن (تخلخل السن)"]}}, {"lab": "Passage 3", "title": "Endodontic Diagnosis and Treatment", "text": "[[Endodontics]] is the dental specialty concerned with the [[dental pulp]] and the tissues around the [[root apex]]. The pulp fills the [[pulp chamber]] in the crown and the [[root canals]] in the root. Blood vessels and nerves enter through the [[apical foramen]]. [[Pulp vitality]] depends on its blood supply, while [[pulp sensibility]] describes how the pulpal nerves respond to [[cold or electric testing]]. In [[reversible pulpitis]], the pain stops when the stimulus is removed. In [[irreversible pulpitis]] the patient often reports [[lingering pain]] or [[spontaneous pain]]. If the inflammation is not treated, [[pulp necrosis]] follows. Bacteria then spread to the [[periapical tissues]] and cause [[apical periodontitis]]. [[Symptomatic]] apical periodontitis gives [[tenderness]] to [[percussion]] and [[palpation]]. [[Asymptomatic]] apical periodontitis appears only as a [[radiolucent]] area at the apex on the [[radiograph]]. An [[apical abscess]] is a localized collection of pus, and it may drain through a [[sinus tract]]. Treatment begins with an [[access cavity]]. The dentist measures the [[working length]], then cleans and shapes the canals with an [[endodontic file]] and uses an [[irrigant]] for [[irrigation]] and [[disinfection]]. [[Obturation]] fills the canal with [[gutta-percha]] and [[sealer]], and a [[coronal restoration]] seals the crown. In children, a [[pulpotomy]] removes only the coronal pulp, while a [[pulpectomy]] removes the entire pulp. When the disease comes back, the options are [[endodontic retreatment]] or an [[apicoectomy]], which is surgical removal of the root tip.", "order": ["Endodontics", "dental pulp", "root apex", "pulp chamber", "root canals", "apical foramen", "Pulp vitality", "pulp sensibility", "cold or electric testing", "reversible pulpitis", "irreversible pulpitis", "lingering pain", "spontaneous pain", "pulp necrosis", "periapical tissues", "apical periodontitis", "Symptomatic", "tenderness", "percussion", "palpation", "Asymptomatic", "radiolucent", "radiograph", "apical abscess", "sinus tract", "access cavity", "working length", "endodontic file", "irrigant", "irrigation", "disinfection", "Obturation", "gutta-percha", "sealer", "coronal restoration", "pulpotomy", "pulpectomy", "endodontic retreatment", "apicoectomy"], "g": {"Endodontics": ["The dental specialty concerned with the pulp and tissues around the root apex", "علاج لب السن والجذور"], "dental pulp": ["Soft connective tissue inside the tooth with blood vessels and nerves", "لب السن"], "root apex": ["The tip of the root", "ذروة الجذر"], "pulp chamber": ["Pulp space within the crown", "حجرة اللب"], "root canals": ["Pulp space within the root", "قنوات الجذر"], "apical foramen": ["An opening near the root tip", "الثقبة الذروية"], "Pulp vitality": ["The living state of the pulp, supported by its blood supply", "حيوية اللب"], "pulp sensibility": ["The ability of pulpal nerves to respond to a stimulus", "حساسية اللب"], "cold or electric testing": ["Tests that check the response of the pulp nerves", "اختبار البرودة أو الاختبار الكهربائي"], "reversible pulpitis": ["Pulp inflammation expected to heal after removing the cause", "التهاب اللب القابل للشفاء"], "irreversible pulpitis": ["Inflamed, living pulp judged unable to heal", "التهاب اللب غير القابل للشفاء"], "lingering pain": ["Pain that continues after the stimulus ends", "ألم مستمر بعد زوال المنبّه"], "spontaneous pain": ["Pain without an apparent stimulus", "ألم تلقائي"], "pulp necrosis": ["Death of the dental pulp", "موت اللب (تنخر اللب)"], "periapical tissues": ["Tissues around the root apex", "الأنسجة حول الذروة"], "apical periodontitis": ["Inflammation of the tissues around the root apex, usually from pulp disease", "التهاب ما حول الذروة"], "Symptomatic": ["With symptoms", "مصحوب بأعراض"], "tenderness": ["Pain on touch or pressure", "إيلام عند اللمس"], "percussion": ["Gentle tapping on a tooth", "القرع (الطرق)"], "palpation": ["Pressing on the tissues with the fingers", "الجسّ"], "Asymptomatic": ["Without symptoms", "بدون أعراض"], "radiolucent": ["Dark on an x-ray because x-rays pass through", "شفاف للأشعة (يظهر داكناً)"], "radiograph": ["An x-ray image", "صورة شعاعية"], "apical abscess": ["A localized collection of pus from infection of pulpal origin", "خراج ذروي"], "sinus tract": ["A pathway that lets an infection drain to a surface", "ناسور (مسلك تصريف)"], "access cavity": ["An opening prepared in the tooth to reach the pulp chamber and canals", "فتحة الوصول"], "working length": ["The distance from a crown reference point to where canal preparation and filling should end", "طول العمل"], "endodontic file": ["An instrument used to prepare the root canal", "مبرد علاج الجذور"], "irrigant": ["The fluid used for irrigation", "سائل الإرواء"], "irrigation": ["Flushing the canal with fluid to help cleaning", "الإرواء (الغسل)"], "disinfection": ["Reducing or removing microorganisms", "التطهير"], "Obturation": ["Filling the prepared root canal system to seal it", "حشو القنوات"], "gutta-percha": ["The main core material for root canal filling", "الكوتا بيركا"], "sealer": ["Material used with the core filling to seal spaces", "المادة السادّة (السيلر)"], "coronal restoration": ["A restoration that rebuilds and seals the crown of the tooth", "ترميم تاجي"], "pulpotomy": ["Removal of part of the pulp, usually from the crown", "بتر اللب"], "pulpectomy": ["Removal of the entire pulp, including the pulp in the root canals", "استئصال اللب"], "endodontic retreatment": ["Treatment of a previously root-filled tooth with persistent or returning disease", "إعادة علاج الجذور"], "apicoectomy": ["Surgical removal of the root tip", "قطع ذروة الجذر"]}}];
+const MODES=[["read","📖 Read"],["hunt","🔍 Find the terms"],["mark","🖍️ Show the terms"],["list","📋 Word list"],["cards","🃏 Flip cards"],["quiz","🎯 Quiz"]];
+const HINTS={read:"Read the passage carefully. How many dental terms can you understand?",hunt:"Tap every dental term you can find. Correct terms light up. Wrong words shake!",mark:"All the dental terms are coloured. Tap any term to see its meaning.",list:"All the terms in this passage with their meanings.",cards:"Tap a card to flip it and check the meaning.",quiz:"Read the meaning, then choose the correct term."};
+let cur=0,mode="read";
+const st=DATA.map(()=>({found:new Set(),wrong:0,gave:false,quiz:null}));
+const $=s=>document.querySelector(s);
+const esc=s=>s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/"/g,"&quot;");
+const cap=s=>s[0].toUpperCase()+s.slice(1);
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a};
+
+function tabs(){$("#tabs").innerHTML=DATA.map((p,i)=>`<button class="tab" role="tab" data-i="${i}" aria-selected="${i===cur}"><small>${p.lab}</small><b>${p.title}</b></button>`).join("")}
+function modes(){$("#modes").innerHTML=MODES.map(([k,l])=>`<button class="mode" data-m="${k}" aria-pressed="${k===mode}">${l}</button>`).join("")}
+function textHTML(p){
+  return p.text.split(/(\[\[.+?\]\])/).map(part=>{
+    if(part.startsWith("[[")){const k=part.slice(2,-2);return `<span class="t" data-k="${esc(k)}">${esc(k)}</span>`}
+    return esc(part).replace(/[A-Za-z0-9’'\-]+/g,m=>`<span class="w">${m}</span>`);
+  }).join("");
+}
+function render(){
+  document.body.className="p"+cur;
+  tabs();modes();hideSheet();
+  const p=DATA[cur],s=st[cur],stage=$("#stage");
+  stage.className="stage m-"+mode;
+  let h=`<h2>${p.title}</h2><p class="hint">${HINTS[mode]}</p>`;
+  if(mode==="read"||mode==="hunt"||mode==="mark"){
+    if(mode==="hunt"){
+      const n=p.order.length,f=s.found.size;
+      if(f===n) h+=`<div class="win">🎉 Amazing! You found all ${n} terms with ${s.wrong} wrong tap${s.wrong===1?"":"s"}.</div>`;
+      h+=`<div class="huntbar"><span class="score">${f} / ${n} found · <span class="bad">${s.wrong} wrong</span></span><div class="meter"><i style="width:${f/n*100}%"></i></div><button class="btn" data-a="missed">Show the ones I missed</button><button class="btn" data-a="reset">Start again</button></div>`;
+    }
+    h+=`<p class="text" id="txt">${textHTML(p)}</p>`;
+    stage.innerHTML=h;
+    if(mode==="hunt") stage.querySelectorAll(".t").forEach(el=>{if(s.found.has(el.dataset.k))el.classList.add("found");else if(s.gave)el.classList.add("missed")});
+  } else if(mode==="list"){
+    h+=`<div class="tw"><table><thead><tr><th>#</th><th>Term</th><th>Meaning</th><th class="ar" dir="rtl" lang="ar">المعنى</th></tr></thead><tbody>${p.order.map((k,i)=>`<tr><td class="n">${i+1}</td><td class="en">${esc(cap(k))}</td><td class="mn">${p.g[k][0]}</td><td class="ar" dir="rtl" lang="ar">${p.g[k][1]}</td></tr>`).join("")}</tbody></table></div>`;
+    stage.innerHTML=h;
+  } else if(mode==="cards"){
+    h+=`<div class="tools"><button class="btn main" data-a="shuf">🔀 Shuffle</button><button class="btn" data-a="flipall">Flip all back</button></div><div class="cards" id="cards">${cardsHTML(p,p.order)}</div>`;
+    stage.innerHTML=h;
+  } else if(mode==="quiz"){
+    if(!s.quiz) newQuiz();
+    stage.innerHTML=h+quizHTML();
+  }
+}
+function cardsHTML(p,order){return order.map(k=>`<button class="fc"><div class="in"><div class="f">${esc(cap(k))}<small>tap to flip</small></div><div class="b"><span>${p.g[k][0]}</span><span class="a" dir="rtl" lang="ar">${p.g[k][1]}</span></div></div></button>`).join("")}
+function newQuiz(){
+  const p=DATA[cur];const pick=shuffle(p.order).slice(0,10);
+  st[cur].quiz={qs:pick.map(k=>({k,opts:shuffle([k,...shuffle(p.order.filter(x=>x!==k)).slice(0,3)])})),i:0,res:[],ans:null};
+}
+function quizHTML(){
+  const p=DATA[cur],q=st[cur].quiz,dots=q.qs.map((_,i)=>`<i class="${q.res[i]===true?"ok":q.res[i]===false?"no":i===q.i?"now":""}"></i>`).join("");
+  if(q.i>=q.qs.length){
+    const sc=q.res.filter(Boolean).length,msg=sc===10?"Perfect! You are a terminology star ⭐":sc>=7?"Great job! Almost there 💪":sc>=4?"Good try! Read the passage again 📖":"Keep practising with the flip cards 🃏";
+    return `<div class="q"><div class="qtop"><div class="qdots">${dots}</div></div><div class="end"><div class="big">${sc} / 10</div><p style="font-weight:800;font-size:1.15rem">${msg}</p><button class="btn main" data-a="again">Play again</button></div></div>`;
+  }
+  const cq=q.qs[q.i];
+  return `<div class="q"><div class="qtop"><span class="score">Question ${q.i+1} of 10</span><div class="qdots">${dots}</div></div>
+  <div class="qbox"><div class="lbl">Which term means…</div><p>${p.g[cq.k][0]}</p><div class="a" dir="rtl" lang="ar">${p.g[cq.k][1]}</div></div>
+  <div class="opts">${cq.opts.map(o=>{let c="";if(q.ans!==null){if(o===cq.k)c="ok";else if(o===q.ans)c="no"}return `<button class="opt ${c}" data-o="${esc(o)}" ${q.ans!==null?"disabled":""}>${esc(cap(o))}</button>`}).join("")}</div>
+  ${q.ans!==null?`<div><button class="btn main" data-a="next">${q.i===9?"See my score":"Next question →"}</button></div>`:""}</div>`;
+}
+function showSheet(k){
+  const g=DATA[cur].g[k];
+  $("#sheet").innerHTML=`<div class="in" role="dialog" aria-label="Meaning"><h3>${esc(cap(k))}</h3><button class="x" data-a="close" aria-label="Close">✕</button><p>${g[0]}</p><p class="a" lang="ar">${g[1]}</p></div>`;
+  $("#sheet").hidden=false;
+}
+function hideSheet(){$("#sheet").hidden=true}
+function hunt(){const p=DATA[cur],s=st[cur],n=p.order.length,f=s.found.size;
+  const bar=document.querySelector(".huntbar .score");if(!bar)return;
+  bar.innerHTML=`${f} / ${n} found · <span class="bad">${s.wrong} wrong</span>`;document.querySelector(".meter i").style.width=f/n*100+"%";
+  if(f===n){render();confetti()}}
+
+document.addEventListener("click",e=>{
+  const tb=e.target.closest(".tab");if(tb){cur=+tb.dataset.i;render();return}
+  const md=e.target.closest(".mode");if(md){mode=md.dataset.m;render();return}
+  const a=e.target.closest("[data-a]")?.dataset.a;const s=st[cur],p=DATA[cur];
+  if(a==="close"){hideSheet();return}
+  if(a==="reset"){s.found.clear();s.wrong=0;s.gave=false;render();return}
+  if(a==="missed"){s.gave=true;render();return}
+  if(a==="shuf"){$("#cards").innerHTML=cardsHTML(p,shuffle(p.order));return}
+  if(a==="flipall"){document.querySelectorAll(".fc.flip").forEach(c=>c.classList.remove("flip"));return}
+  if(a==="again"){newQuiz();render();return}
+  if(a==="next"){const q=s.quiz;q.i++;q.ans=null;render();if(q.i>=10&&q.res.filter(Boolean).length>=8)confetti();return}
+  const fc=e.target.closest(".fc");if(fc){fc.classList.toggle("flip");return}
+  const op=e.target.closest(".opt");if(op&&!op.disabled){const q=s.quiz,cq=q.qs[q.i];q.ans=op.dataset.o;q.res[q.i]=q.ans===cq.k;render();return}
+  const t=e.target.closest("#txt .t"),w=e.target.closest("#txt .w");
+  if(mode==="hunt"){
+    if(t){const k=t.dataset.k;if(!s.found.has(k)){s.found.add(k);t.classList.remove("missed");t.classList.add("found","pop");showSheet(k);hunt()}else showSheet(k)}
+    else if(w){s.wrong++;w.classList.remove("shake");void w.offsetWidth;w.classList.add("shake");hunt()}
+  } else if(mode==="mark"&&t){showSheet(t.dataset.k)}
+});
+document.addEventListener("keydown",e=>{if(e.key==="Escape")hideSheet()});
+
+function confetti(){
+  if(matchMedia("(prefers-reduced-motion: reduce)").matches)return;
+  const c=$("#fx"),x=c.getContext("2d");c.width=innerWidth;c.height=innerHeight;
+  const cs=getComputedStyle(document.documentElement),cols=["--c0","--c1","--c2","--sun","--good"].map(v=>cs.getPropertyValue(v).trim());
+  const ps=Array.from({length:140},()=>({x:innerWidth/2,y:innerHeight/3,vx:(Math.random()-.5)*14,vy:Math.random()*-12-3,r:Math.random()*6+4,c:cols[Math.random()*cols.length|0],a:Math.random()*6}));
+  let f=0;(function loop(){x.clearRect(0,0,c.width,c.height);ps.forEach(p=>{p.vy+=.35;p.x+=p.vx;p.y+=p.vy;p.a+=.2;x.save();x.translate(p.x,p.y);x.rotate(p.a);x.fillStyle=p.c;x.fillRect(-p.r/2,-p.r/4,p.r,p.r/2);x.restore()});if(++f<130)requestAnimationFrame(loop);else x.clearRect(0,0,c.width,c.height)})();
+}
+render();
+</script>
+
+</body></html>
