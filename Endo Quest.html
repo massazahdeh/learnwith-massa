@@ -1,0 +1,1012 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Endo Quest</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito+Sans:opsz,wght@6..12,400;6..12,600;6..12,700&family=Tajawal:wght@400;500;700&display=swap">
+<style>
+/* Layout: a bright cartoon clinic. Map of 5 rooms → per challenge: big illustration left, task + teacher controls right. Single light look for classroom projection. */
+:root {
+  color-scheme: light;
+  --bg: #EEF6FB; --paper: #FFFFFF; --ink: #1E2A3A; --muted: #586379; --line: #D3DFEA;
+  --turq: #14A99D; --turq-soft: #D3F2EE; --blue: #3B7DDD; --blue-soft: #DDE9FC;
+  --coral: #FF6F61; --coral-soft: #FFE3DF; --lav: #8A78E3; --lav-soft: #ECE8FC;
+  --yellow: #FFC23D; --yellow-soft: #FFF1C9;
+  --ok: #1E9A68; --ok-soft: #DCF4E8; --bad: #DD4A4A; --bad-soft: #FCE2E2;
+  --f-display: "Fredoka", "Trebuchet MS", system-ui, sans-serif;
+  --f-body: "Nunito Sans", "Segoe UI", system-ui, sans-serif;
+  --f-ar: "Tajawal", "Segoe UI", Tahoma, sans-serif;
+}
+* { box-sizing: border-box; }
+html, body { background: var(--bg); }
+body { color: var(--ink); font-family: var(--f-body); font-size: 17px; line-height: 1.45; }
+button { font: inherit; color: inherit; }
+:focus-visible { outline: 3px solid var(--blue); outline-offset: 2px; }
+.ar { font-family: var(--f-ar); direction: rtl; unicode-bidi: isolate; text-align: right; }
+.wrap { max-width: 1320px; margin: 0 auto; padding-inline: 18px; padding-block: 14px 40px; display: flex; flex-direction: column; gap: 14px; }
+
+/* top bar */
+.top { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 16px; }
+.brand { display: flex; align-items: center; gap: 10px; }
+.brand h1 { font-family: var(--f-display); font-weight: 700; font-size: 30px; margin: 0; letter-spacing: .01em; }
+.brand h1 span { color: var(--turq); }
+.brand small { display: block; font-size: 12px; color: var(--muted); letter-spacing: .08em; text-transform: uppercase; font-weight: 700; }
+.keys { display: flex; align-items: center; gap: 6px; background: var(--paper); border: 2px solid var(--line); border-radius: 999px; padding: 4px 12px 4px 8px; }
+.keys .lab { font-size: 13px; font-weight: 700; color: var(--muted); margin-inline-start: 4px; }
+.key { width: 30px; height: 30px; }
+.key path, .key circle { fill: #D7DEE7; }
+.key.on path, .key.on circle { fill: var(--yellow); stroke: #C48A00; stroke-width: 1.5; }
+.key.pop { animation: pop .8s ease; }
+@keyframes pop { 0% { transform: scale(.4) rotate(-30deg); } 60% { transform: scale(1.4) rotate(10deg); } 100% { transform: scale(1); } }
+.teams { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.team { border: 2px solid var(--line); background: var(--paper); border-radius: 12px; padding: 5px 12px; display: flex; gap: 10px; align-items: center; cursor: pointer; font-weight: 700; }
+.team .pts { font-family: var(--f-display); font-size: 20px; color: var(--tc); min-width: 2.5ch; text-align: end; font-variant-numeric: tabular-nums; }
+.team .dot { width: 12px; height: 12px; border-radius: 50%; background: var(--tc); }
+.team.active { border-color: var(--tc); box-shadow: 0 0 0 3px color-mix(in srgb, var(--tc) 25%, transparent); }
+.team.solo { cursor: default; }
+.teams .hint { font-size: 12px; color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: .06em; }
+.btn { border: 2px solid var(--line); background: var(--paper); border-radius: 12px; padding: 8px 14px; cursor: pointer; font-weight: 700; display: inline-flex; align-items: center; gap: 6px; }
+.btn:hover:not([disabled]) { border-color: var(--blue); }
+.btn[disabled] { opacity: .4; cursor: not-allowed; }
+.btn-go { background: var(--turq); border-color: var(--turq); color: #fff; }
+.btn-go:hover:not([disabled]) { border-color: #0E8A80; background: #0E978C; }
+.btn-coral { background: var(--coral); border-color: var(--coral); color: #fff; }
+.btn-yellow { background: var(--yellow); border-color: var(--yellow); }
+.btn-ar { font-family: var(--f-ar); }
+.btn-ar.on { background: var(--lav-soft); border-color: var(--lav); }
+.btn-sm { padding: 5px 10px; font-size: 14px; }
+
+/* panels */
+.panel { background: var(--paper); border: 2px solid var(--line); border-radius: 20px; padding: 18px; display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.stage { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 16px; align-items: start; }
+@media (max-width: 900px) { .stage { grid-template-columns: minmax(0, 1fr); } }
+.roomtag { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
+.roomtag .pill { font-family: var(--f-display); font-weight: 600; font-size: 15px; padding: 4px 12px; border-radius: 999px; background: var(--rc-soft); color: var(--rc-ink); }
+.roomtag .count { font-size: 14px; font-weight: 700; color: var(--muted); }
+.progress { display: flex; gap: 6px; }
+.progress i { width: 26px; height: 8px; border-radius: 4px; background: var(--line); display: block; }
+.progress i.cur { background: var(--rc); }
+.progress i.ok { background: var(--ok); }
+.progress i.miss { background: var(--bad); }
+.instr { font-family: var(--f-display); font-weight: 600; font-size: 25px; line-height: 1.2; margin: 0; text-wrap: balance; }
+.sub { margin: 0; color: var(--muted); font-size: 15px; }
+.badge2 { align-self: flex-start; background: var(--yellow-soft); border: 2px solid var(--yellow); color: #7A5600; font-weight: 800; font-size: 14px; padding: 4px 10px; border-radius: 10px; }
+.notecard { background: var(--blue-soft); border-radius: 14px; padding: 10px 14px; font-size: 15px; border-inline-start: 6px solid var(--blue); }
+.vis { background: #F7FBFF; border-radius: 16px; border: 2px solid var(--line); padding: 8px; display: flex; flex-direction: column; gap: 8px; align-items: stretch; }
+.vis > svg { width: 100%; height: auto; max-height: 64vh; display: block; }
+.duo { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px; align-items: center; }
+.duo svg { width: 100%; height: auto; display: block; max-height: 58vh; }
+.inset-cap { font-size: 13px; color: var(--muted); font-weight: 700; text-align: center; }
+
+/* cards (picture targets) */
+.cards { display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); }
+.card { background: var(--paper); border: 3px solid var(--line); border-radius: 16px; padding: 8px; display: flex; flex-direction: column; gap: 6px; cursor: pointer; text-align: center; position: relative; }
+.card:hover { border-color: var(--blue); }
+.card svg { width: 100%; height: auto; max-height: 36vh; display: block; }
+.card .letter { position: absolute; top: 8px; inset-inline-start: 8px; width: 30px; height: 30px; border-radius: 50%; background: var(--ink); color: #fff; font-family: var(--f-display); font-weight: 600; display: grid; place-items: center; }
+.card .ctext { font-size: 15px; font-weight: 700; }
+.card .ctext.big { font-size: 18px; min-height: 120px; display: grid; place-items: center; padding: 34px 8px 8px; line-height: 1.3; }
+.card .cname { font-family: var(--f-display); font-weight: 600; font-size: 18px; }
+.drop { border: 2px dashed var(--line); border-radius: 10px; padding: 6px; font-size: 15px; font-weight: 700; color: var(--muted); min-height: 40px; display: grid; place-items: center; }
+.drop.filled { border-style: solid; border-color: var(--blue); background: var(--blue-soft); color: var(--ink); }
+.drop.ok, .slot.ok { border-style: solid; border-color: var(--ok); background: var(--ok-soft); color: var(--ink); }
+.drop.bad, .slot.bad { border-style: solid; border-color: var(--bad); background: var(--bad-soft); color: var(--ink); }
+.card.armed { border-color: var(--blue); box-shadow: 0 0 0 4px var(--blue-soft); }
+
+/* chips + slots */
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { border: 2px solid var(--line); background: var(--paper); border-radius: 999px; padding: 8px 14px; cursor: pointer; font-weight: 700; font-size: 16px; }
+.chip:hover:not([disabled]) { border-color: var(--blue); }
+.chip.sel { background: var(--blue); color: #fff; border-color: var(--blue); }
+.chip.used { opacity: .45; }
+.chip[disabled] { cursor: default; }
+.chip.ok { background: var(--ok-soft); border-color: var(--ok); }
+.chip.bad { background: var(--bad-soft); border-color: var(--bad); }
+.slots { display: grid; gap: 8px; }
+.slot { display: grid; grid-template-columns: 36px minmax(0, 1fr); gap: 10px; align-items: center; border: 2px dashed var(--line); border-radius: 12px; padding: 6px 10px; cursor: pointer; min-height: 48px; background: var(--paper); text-align: start; }
+.slot .l { width: 32px; height: 32px; border-radius: 50%; background: var(--ink); color: #fff; font-family: var(--f-display); font-weight: 600; display: grid; place-items: center; }
+.slot.filled { border-style: solid; border-color: var(--blue); background: var(--blue-soft); }
+.slot .ph { color: var(--muted); font-size: 14px; }
+.howto { font-size: 13px; color: var(--muted); font-weight: 700; }
+.opts { display: grid; gap: 8px; }
+.opt { text-align: start; border: 2.5px solid var(--line); background: var(--paper); border-radius: 14px; padding: 12px 14px; cursor: pointer; font-weight: 700; font-size: 18px; display: flex; gap: 12px; align-items: center; }
+.opt:hover:not([disabled]) { border-color: var(--blue); }
+.opt .box { width: 22px; height: 22px; border-radius: 6px; border: 2.5px solid var(--muted); flex: none; display: grid; place-items: center; }
+.opt.radio .box { border-radius: 50%; }
+.opt.sel { border-color: var(--blue); background: var(--blue-soft); }
+.opt.sel .box { background: var(--blue); border-color: var(--blue); }
+.opt.ok { border-color: var(--ok); background: var(--ok-soft); }
+.opt.bad { border-color: var(--bad); background: var(--bad-soft); }
+.opt[disabled] { cursor: default; }
+.seq { display: grid; gap: 6px; counter-reset: s; }
+.seq .step { display: flex; gap: 10px; align-items: center; border: 2px dashed var(--line); border-radius: 12px; padding: 8px 12px; min-height: 46px; font-weight: 700; cursor: pointer; background: var(--paper); text-align: start; }
+.seq .step::before { counter-increment: s; content: counter(s); width: 28px; height: 28px; border-radius: 50%; background: var(--lav); color: #fff; display: grid; place-items: center; font-family: var(--f-display); flex: none; }
+.seq .step.filled { border-style: solid; border-color: var(--lav); background: var(--lav-soft); }
+.seq .step.ok { border-style: solid; border-color: var(--ok); background: var(--ok-soft); }
+.seq .step.bad { border-style: solid; border-color: var(--bad); background: var(--bad-soft); }
+
+/* feedback + controls */
+.fb { border-radius: 16px; padding: 12px 14px; display: grid; gap: 6px; font-size: 16px; }
+.fb.ok { background: var(--ok-soft); }
+.fb.bad { background: var(--bad-soft); }
+.fb.rev { background: var(--yellow-soft); }
+.fb b.v { font-family: var(--f-display); font-weight: 600; font-size: 21px; }
+.fb .ans { font-weight: 700; }
+.fb .arx { background: var(--paper); border-radius: 10px; padding: 8px 10px; font-size: 17px; line-height: 1.6; }
+.fb .warn { background: var(--paper); border-inline-start: 5px solid var(--yellow); border-radius: 8px; padding: 6px 10px; font-size: 15px; }
+.controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: space-between; border-top: 2px dashed var(--line); padding-top: 12px; }
+.controls .grp { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.timer { font-family: var(--f-display); font-weight: 600; font-size: 20px; padding: 4px 12px; border-radius: 10px; background: var(--yellow-soft); min-width: 4ch; text-align: center; font-variant-numeric: tabular-nums; }
+.timer.low { background: var(--coral-soft); color: var(--bad); }
+.plus { position: fixed; z-index: 50; font-family: var(--f-display); font-weight: 700; font-size: 40px; color: var(--ok); pointer-events: none; animation: rise 1.2s ease-out forwards; }
+@keyframes rise { from { opacity: 1; transform: translateY(0) scale(.8); } to { opacity: 0; transform: translateY(-80px) scale(1.2); } }
+
+/* map */
+.mapwrap { display: grid; grid-template-columns: 250px minmax(0, 1fr); gap: 16px; align-items: start; }
+@media (max-width: 900px) { .mapwrap { grid-template-columns: minmax(0, 1fr); } }
+.guide { display: flex; flex-direction: column; gap: 10px; align-items: center; }
+.bubble { background: var(--paper); border: 2px solid var(--line); border-radius: 18px; padding: 12px 14px; font-size: 16px; position: relative; }
+.bubble::after { content: ""; position: absolute; bottom: -12px; left: 50%; border: 10px solid transparent; border-top-color: var(--paper); transform: translateX(-50%); }
+.mascot { width: 150px; height: auto; animation: bob 2.6s ease-in-out infinite; }
+@keyframes bob { 50% { transform: translateY(-8px); } }
+.map > svg { width: 100%; height: auto; display: block; }
+.room-g { cursor: pointer; }
+.room-g.locked { cursor: not-allowed; }
+.room-g:hover:not(.locked) .room-box { stroke-width: 6; }
+.room-g:focus-visible { outline: none; }
+.room-g:focus-visible .room-box { stroke: var(--ink); stroke-width: 6; }
+.lockg.unlocking { animation: unlock 1.4s ease forwards; transform-box: fill-box; transform-origin: center; }
+@keyframes unlock { 0% { transform: rotate(0); } 20% { transform: rotate(-14deg); } 40% { transform: rotate(12deg); } 60% { transform: rotate(-6deg) scale(1.1); opacity: 1; } 100% { transform: scale(1.5); opacity: 0; } }
+
+/* setup */
+.setup { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px; }
+@media (max-width: 900px) { .setup { grid-template-columns: minmax(0, 1fr); } }
+.hero { display: flex; gap: 18px; align-items: center; flex-wrap: wrap; }
+.hero h2 { font-family: var(--f-display); font-size: 40px; margin: 0; line-height: 1.05; }
+.hero p { margin: 6px 0 0; max-width: 52ch; }
+.field { display: grid; gap: 6px; }
+.field > span { font-weight: 800; font-size: 14px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+.seg { display: flex; flex-wrap: wrap; gap: 6px; }
+.seg button { border: 2px solid var(--line); background: var(--paper); border-radius: 10px; padding: 8px 12px; cursor: pointer; font-weight: 700; }
+.seg button.on { background: var(--ink); color: #fff; border-color: var(--ink); }
+.tname { display: flex; gap: 8px; align-items: center; }
+.tname input { flex: 1; min-width: 0; font: inherit; font-weight: 700; border: 2px solid var(--line); border-radius: 10px; padding: 8px 10px; background: var(--paper); color: var(--ink); }
+.tname i { width: 16px; height: 16px; border-radius: 50%; flex: none; }
+.check { display: flex; gap: 8px; align-items: center; font-weight: 600; font-size: 15px; }
+.check input { width: 20px; height: 20px; }
+
+/* overlays */
+.overlay { position: fixed; inset: 0; background: rgba(30, 42, 58, .55); display: grid; place-items: center; z-index: 40; padding: 16px; }
+.modal { background: var(--paper); border-radius: 22px; padding: 26px; max-width: 560px; width: 100%; display: grid; gap: 14px; text-align: center; justify-items: center; }
+.modal h2 { font-family: var(--f-display); font-size: 32px; margin: 0; }
+.confetti { position: fixed; inset: 0; pointer-events: none; overflow: hidden; z-index: 60; }
+.confetti i { position: absolute; top: -20px; width: 10px; height: 16px; border-radius: 3px; animation: fall linear forwards; }
+@keyframes fall { to { transform: translateY(110vh) rotate(720deg); } }
+.done-key { width: 120px; animation: pop 1s ease; }
+.review { display: grid; gap: 10px; }
+.review .item { border: 2px solid var(--line); border-radius: 14px; padding: 10px 12px; display: grid; gap: 4px; }
+.review .item b { font-family: var(--f-display); font-weight: 600; }
+.review .item .room { font-size: 13px; color: var(--muted); font-weight: 800; text-transform: uppercase; letter-spacing: .05em; }
+.rank { display: grid; gap: 8px; }
+.rank div { display: flex; justify-content: space-between; gap: 10px; padding: 10px 14px; border-radius: 12px; background: var(--bg); font-weight: 800; font-size: 20px; }
+.rank div:first-child { background: var(--yellow-soft); border: 2px solid var(--yellow); }
+
+/* cloze */
+.note-sheet { background: #FFFDF5; border: 2px solid #EADFB8; border-radius: 16px; padding: 20px 22px; font-size: 21px; line-height: 2.1; box-shadow: inset 0 -40px 0 -38px #EADFB8; }
+.note-sheet .head { font-family: var(--f-display); font-weight: 600; font-size: 16px; color: var(--muted); text-transform: uppercase; letter-spacing: .07em; line-height: 1.4; display: block; margin-bottom: 6px; }
+.blank { border: none; border-bottom: 3px solid var(--blue); background: var(--blue-soft); border-radius: 8px 8px 0 0; padding: 0 10px; min-width: 7ch; font-weight: 800; cursor: pointer; font-size: 19px; line-height: 1.5; }
+.blank.sel { background: var(--yellow-soft); border-bottom-color: var(--yellow); }
+.blank.ok { background: var(--ok-soft); border-bottom-color: var(--ok); }
+.blank.bad { background: var(--bad-soft); border-bottom-color: var(--bad); }
+.blank .n { font-size: 12px; color: var(--muted); margin-inline-end: 4px; }
+
+/* svg anatomy */
+.hot { cursor: pointer; fill: transparent; stroke: transparent; }
+.hot:hover { stroke: var(--blue); stroke-width: 3; stroke-dasharray: 5 3; }
+.hot.sel { stroke: var(--blue); stroke-width: 4; fill: rgba(59, 125, 221, .18); }
+.hot.ok { stroke: var(--ok); stroke-width: 5; fill: rgba(30, 154, 104, .2); }
+.hot.bad { stroke: var(--bad); stroke-width: 5; fill: rgba(221, 74, 74, .18); }
+.hot.line.sel, .hot.line.ok, .hot.line.bad { fill: none; stroke-opacity: .45; stroke-width: 18; stroke-dasharray: none; }
+.mk { cursor: pointer; }
+.mk circle.c { fill: #fff; stroke: var(--ink); stroke-width: 3; }
+.mk text { font-family: var(--f-display); font-weight: 600; font-size: 20px; fill: var(--ink); text-anchor: middle; dominant-baseline: central; pointer-events: none; }
+.mk.filled circle.c { fill: var(--blue); stroke: var(--blue); }
+.mk.filled text { fill: #fff; }
+.mk.ok circle.c { fill: var(--ok); stroke: var(--ok); }
+.mk.bad circle.c { fill: var(--bad); stroke: var(--bad); }
+.mk.ok text, .mk.bad text { fill: #fff; }
+.mk.armed circle.c { stroke: var(--blue); stroke-width: 5; }
+.mk:hover circle.c { stroke: var(--blue); }
+.mk-line { stroke: var(--ink); stroke-width: 2.5; }
+.mk-dot { fill: var(--ink); }
+.mk-tag { font-family: var(--f-body); font-weight: 800; font-size: 15px; paint-order: stroke; stroke: #fff; stroke-width: 5px; fill: var(--ink); }
+.anim-tap { animation: tap 1.1s ease-in-out infinite; transform-box: fill-box; transform-origin: 100% 0; }
+@keyframes tap { 0%, 100% { transform: rotate(0); } 40% { transform: rotate(-7deg); } 55% { transform: rotate(2deg); } }
+.anim-press { animation: press 1.4s ease-in-out infinite; }
+@keyframes press { 50% { transform: translate(-4px, 6px); } }
+.anim-drip { animation: drip 1.6s ease-in infinite; }
+@keyframes drip { 0% { transform: translateY(0); opacity: 0; } 20% { opacity: 1; } 100% { transform: translateY(26px); opacity: 0; } }
+.anim-pulse { animation: glow 1.6s ease-in-out infinite; }
+@keyframes glow { 50% { opacity: .55; } }
+.anim-shiver { animation: shiver .5s linear infinite; }
+@keyframes shiver { 25% { transform: translateX(-1.5px); } 75% { transform: translateX(1.5px); } }
+@media (prefers-reduced-motion: reduce) {
+  .mascot, .anim-tap, .anim-press, .anim-drip, .anim-pulse, .anim-shiver, .key.pop, .done-key { animation: none !important; }
+  .confetti { display: none; }
+  .lockg.unlocking { animation: none; opacity: 0; }
+}
+</style>
+
+<div class="wrap" id="root"></div>
+
+<script>
+// ═════════════ helpers ═════════════
+const L = (en, ar) => ({ en, ar });
+const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+let UID = 0;
+const TEAM_COLOURS = ['#14A99D', '#FF6F61', '#8A78E3', '#3B7DDD'];
+
+// colours used inside drawings (fixed light look)
+const C = { enamel: '#FFFFFF', line: '#5E6B80', dentin: '#F7E6C4', pulp: '#F27D8E', inflamed: '#E2304B', necrotic: '#7E746B', gp: '#FF8F4D', material: '#B4A2F4', empty: '#FFFFFF',
+  restoration: '#C6D1DD', bone: '#EFE4D2', gum: '#F6B2B4', pus: '#E2CC3A', bg: '#F7FBFF', metal: '#8A97A8', metalDark: '#5E6B80' };
+
+// ═════════════ the tooth (molar, 2 roots), viewBox 0 0 400 520 ═════════════
+const T = {
+  outline: 'M92,232 C82,170 84,110 100,80 Q130,40 165,72 Q200,98 235,72 Q270,40 300,80 C316,110 318,170 308,232 C304,300 296,400 282,468 Q270,494 256,470 C248,400 238,330 214,300 Q200,288 186,300 C162,330 152,400 146,468 Q132,494 120,470 C108,400 100,300 92,232 Z',
+  crown: 'M92,232 C82,170 84,110 100,80 Q130,40 165,72 Q200,98 235,72 Q270,40 300,80 C316,110 318,170 308,232',
+  chamber: 'M124,252 C118,214 120,180 132,160 L140,118 L156,156 Q200,172 244,156 L260,118 L268,160 C280,180 282,214 276,252 Q200,266 124,252 Z',
+  canalM: 'M128,254 C126,330 127,400 131,481 L135,481 C138,400 142,330 152,256 Z',
+  canalD: 'M250,256 C258,330 264,400 267,481 L271,481 C272,400 274,330 272,254 Z',
+  canalCurved: 'M252,256 C258,320 250,380 264,440 Q271,462 269,481 L273,481 Q275,460 269,438 C258,380 268,320 272,254 Z',
+  horn: 'M131,168 L140,118 L157,160 Q146,170 131,168 Z',
+  access: 'M178,84 L222,84 L232,162 L168,162 Z',
+};
+function pulpFill(kind) { return { pulp: C.pulp, inflamed: C.inflamed, necrotic: C.necrotic, gp: C.gp, material: C.material, empty: C.empty }[kind] || C.pulp; }
+function pulpPath(d, kind) {
+  const dash = kind === 'empty' ? ' stroke-dasharray="5 4"' : '';
+  return `<path d="${d}" fill="${pulpFill(kind)}" stroke="${kind === 'empty' ? C.line : 'rgba(0,0,0,.18)'}" stroke-width="${kind === 'empty' ? 2 : 1}"${dash}/>`;
+}
+function tooth(o = {}) {
+  const id = 'tc' + (++UID), bg = o.bg || C.bg;
+  let s = `<defs><clipPath id="${id}"><path d="${T.outline}"/></clipPath>`;
+  if (o.haloRoot) s += `<clipPath id="${id}r"><rect x="0" y="240" width="400" height="280"/></clipPath>`;
+  if (o.cut) s += `<clipPath id="${id}k"><path d="M0,0 H400 V520 H190 V438 H80 V520 H0 Z"/></clipPath><clipPath id="${id}t"><rect x="80" y="438" width="110" height="82"/></clipPath>`;
+  s += `</defs><rect width="400" height="520" fill="${bg}"/>`;
+  if (o.bone) {
+    s += `<rect x="0" y="246" width="400" height="274" fill="${C.bone}"/>`;
+    s += `<path d="M0,214 Q40,206 84,226 L84,262 L0,262 Z M400,214 Q360,206 316,226 L316,262 L400,262 Z" fill="${C.gum}"/>`;
+  }
+  if (o.haloRoot) s += `<path d="${T.outline}" fill="#FFD3CC" stroke="#FFD3CC" stroke-width="56" stroke-linejoin="round" clip-path="url(#${id}r)"/><path d="${T.outline}" fill="none" stroke="#FF6F61" stroke-width="58" stroke-opacity=".18" stroke-linejoin="round" clip-path="url(#${id}r)" class="anim-pulse"/>`;
+  if (o.halo) s += `<ellipse cx="133" cy="488" rx="40" ry="30" fill="#FFD3CC" stroke="${'#FF6F61'}" stroke-width="2.5" stroke-dasharray="6 4" class="anim-pulse"/>`;
+  if (o.lesion === 'abscess') s += `<path d="M96,470 Q90,440 120,438 Q150,430 168,452 Q182,486 160,510 Q130,524 104,506 Q88,492 96,470 Z" fill="${C.pus}" stroke="#B59A12" stroke-width="2.5"/><g fill="#C9B020">${[[112,470],[140,462],[150,494],[122,500],[160,476]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="4"/>`).join('')}</g>`;
+  if (o.lesion === 'sinus') s += `<ellipse cx="133" cy="490" rx="22" ry="16" fill="${C.pus}" stroke="#B59A12" stroke-width="2"/>
+      <path d="M118,482 C84,452 62,370 50,250" fill="none" stroke="#B59A12" stroke-width="13" stroke-linecap="round"/>
+      <path d="M118,482 C84,452 62,370 50,250" fill="none" stroke="${C.pus}" stroke-width="8" stroke-linecap="round"/>
+      <circle cx="50" cy="240" r="9" fill="${C.pus}" stroke="#B59A12" stroke-width="2.5"/>
+      <g class="anim-drip"><path d="M50,224 q-6,10 0,14 q6,-4 0,-14 Z" fill="${C.pus}" stroke="#B59A12" stroke-width="1.5"/></g>`;
+  const toothBody = () => {
+    let b = `<path d="${T.outline}" fill="${C.dentin}"/>`;
+    b += `<path d="${T.crown}" fill="none" stroke="${C.enamel}" stroke-width="34" clip-path="url(#${id})"/>`;
+    b += `<path d="${T.crown}" fill="none" stroke="#E7EDF3" stroke-width="2" stroke-dasharray="1 0" clip-path="url(#${id})" transform="translate(0,16)" opacity=".0"/>`;
+    b += `<path d="M98,232 Q200,244 302,232" fill="none" stroke="#D9C49C" stroke-width="2"/>`;
+    const ch = o.chamber || 'pulp', cn = o.canals || ch;
+    b += pulpPath(T.canalM, cn) + pulpPath(o.curved ? T.canalCurved : T.canalD, cn) + pulpPath(T.chamber, ch);
+    if (o.vessels) b += `<g fill="none" stroke="#7A0014" stroke-width="5.5" stroke-linecap="round"><path d="M133,482 C131,400 133,330 140,258 Q160,214 196,214"/><path d="M269,482 C268,400 266,330 262,258 Q240,220 204,224"/><path d="M196,214 Q200,190 222,186"/></g>`;
+    if (o.nerves) b += `<g fill="none" stroke-linejoin="round" stroke-linecap="round"><g stroke="#6B4E00" stroke-width="8"><path d="M133,482 L130,440 L136,400 L130,360 L137,320 L132,280 L142,250 L160,226 L180,214"/><path d="M269,482 L266,440 L272,400 L265,360 L271,320 L264,280 L258,250 L240,226 L220,214"/></g><g stroke="#FFD43B" stroke-width="4.5"><path d="M133,482 L130,440 L136,400 L130,360 L137,320 L132,280 L142,250 L160,226 L180,214"/><path d="M269,482 L266,440 L272,400 L265,360 L271,320 L264,280 L258,250 L240,226 L220,214"/></g></g><g class="anim-pulse" stroke="#B58900" stroke-width="4" stroke-linecap="round"><path d="M140,112 l-10,-12 M150,108 l2,-16 M160,114 l10,-10"/><path d="M260,112 l-10,-12 M270,108 l2,-16 M280,114 l10,-10"/></g>`;
+    if (o.hl) {
+      if (o.hl.chamber) b += `<path d="${T.chamber}" fill="${o.hl.chamber}" stroke="#4B3BB0" stroke-width="2.5"/>`;
+      if (o.hl.canals) b += `<path d="${T.canalM}" fill="${o.hl.canals}" stroke="#0B776E" stroke-width="2.5"/><path d="${T.canalD}" fill="${o.hl.canals}" stroke="#0B776E" stroke-width="2.5"/>`;
+      if (o.hl.horn) b += `<path d="${T.horn}" fill="${o.hl.horn}" stroke="#B07A00" stroke-width="2.5"/>`;
+    }
+    if (ch === 'inflamed') b += `<g class="anim-pulse" fill="none" stroke="#FFE1E6" stroke-width="3" stroke-linecap="round"><path d="M170,200 q8,-10 0,-20 q-8,-10 0,-20"/><path d="M200,214 q8,-10 0,-20 q-8,-10 0,-20"/><path d="M230,200 q8,-10 0,-20 q-8,-10 0,-20"/></g>`;
+    if (ch === 'necrotic') b += `<g fill="#4A423B">${[[160,210],[190,226],[222,206],[246,232],[150,236],[136,330],[262,360],[205,190]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="3.5"/>`).join('')}</g>`;
+    if (o.resorption === 'internal') b += `<ellipse cx="134" cy="368" rx="19" ry="30" fill="${C.pulp}" stroke="rgba(0,0,0,.25)" stroke-width="1.5"/>`;
+    if (o.accessory) b += `<path d="M268,404 Q282,398 296,388" fill="none" stroke="${pulpFill(cn)}" stroke-width="6" stroke-linecap="round"/>`;
+    if (o.access === 'open') b += `<path d="${T.access}" fill="${C.empty}" stroke="${C.line}" stroke-width="2" stroke-dasharray="5 4"/>`;
+    if (o.access === 'restored') b += `<path d="${T.access}" fill="${C.restoration}" stroke="${C.line}" stroke-width="2"/>`;
+    if (o.restoration) b += `<path d="M150,72 Q200,100 250,72 L254,154 Q200,166 146,154 Z" fill="${C.restoration}" stroke="${C.line}" stroke-width="2"/>`;
+    if (o.cavity === 'exposure') b += `<path d="M150,64 L186,82 L159,120 L135,115 Z" fill="${C.material}" stroke="#5B47C9" stroke-width="2.5"/><circle cx="141" cy="119" r="5" fill="${C.inflamed}"/>`;
+    if (o.cavity === 'deep') b += `<path d="M150,64 L186,82 L166,98 L141,93 Z" fill="${C.material}" stroke="#5B47C9" stroke-width="2.5"/>`;
+    b += `<path d="${T.outline}" fill="none" stroke="${C.line}" stroke-width="3"/>`;
+    if (o.resorption === 'external') b += `<path d="M304,318 Q276,330 279,354 Q282,378 297,390 L330,392 L330,316 Z" fill="${bg}"/><path d="M304,318 Q276,330 279,354 Q282,378 297,390" fill="none" stroke="${C.line}" stroke-width="3"/>`;
+    return b;
+  };
+  if (o.cut) {
+    s += `<g clip-path="url(#${id}k)">${toothBody()}</g>`;
+    s += `<g clip-path="url(#${id}t)" transform="translate(-6,22)" opacity=".38">${toothBody()}</g>`;
+    s += `<path d="M84,438 L190,438" stroke="#FF6F61" stroke-width="3" stroke-dasharray="7 5"/>`;
+  } else s += toothBody();
+  if (o.file) s += `<g><rect x="118" y="2" width="44" height="34" rx="8" fill="#FFC23D" stroke="#B07A00" stroke-width="2"/><path d="M140,36 ${Array.from({ length: o.fileLen || 18 }, (_, k) => `L${140 + (k % 2 ? 4 : -4) - k * .35},${44 + k * 15}`).join(' ')}" fill="none" stroke="${C.metalDark}" stroke-width="3.5"/></g>`;
+  return s;
+}
+const toothSVG = (o, extra = '', aria = 'Tooth cross-section') => `<svg viewBox="0 0 400 520" role="img" aria-label="${aria}">${tooth(o)}${extra}</svg>`;
+
+// markers (A, B, C) with leader lines
+function marker(slot, mx, my, px, py, st) {
+  return `<line class="mk-line" x1="${mx}" y1="${my}" x2="${px}" y2="${py}"/><circle class="mk-dot" cx="${px}" cy="${py}" r="5"/>
+    <g class="mk ${st.cls}" data-act="slot" data-slot="${slot}" role="button" tabindex="0" aria-label="Target ${slot}"><circle class="c" cx="${mx}" cy="${my}" r="20"/><text x="${mx}" y="${my + 1}">${slot}</text></g>
+    ${st.tag ? `<text class="mk-tag" x="${mx + (mx > 300 ? -26 : 26)}" y="${my + 5}" text-anchor="${mx > 300 ? 'end' : 'start'}">${st.tag}</text>` : ''}`;
+}
+
+// ═════════════ instruments (local coords ~ 0..200 x 0..130) ═════════════
+const INST = {
+  dam: () => `<rect x="22" y="12" width="156" height="112" rx="6" fill="#4CC4B9" stroke="#0D8D82" stroke-width="2"/><path d="M14,18 L14,130 L186,130 L186,18" fill="none" stroke="#2C4A7A" stroke-width="6" stroke-linejoin="round"/><g fill="#2C4A7A">${[30, 70, 110, 150].map(x => `<rect x="${x}" y="126" width="8" height="10" rx="2"/>`).join('')}</g><circle cx="100" cy="62" r="6" fill="${C.bg}" stroke="#0D8D82" stroke-width="2"/><circle cx="76" cy="62" r="4" fill="${C.bg}" stroke="#0D8D82" stroke-width="1.5"/>`,
+  clamp: () => `<path d="M42,64 Q100,0 158,64" fill="none" stroke="${C.metal}" stroke-width="9" stroke-linecap="round"/><path d="M30,60 Q36,96 74,96 L84,82 Q60,80 54,58 Z" fill="${C.metal}" stroke="${C.metalDark}" stroke-width="2"/><path d="M170,60 Q164,96 126,96 L116,82 Q140,80 146,58 Z" fill="${C.metal}" stroke="${C.metalDark}" stroke-width="2"/><circle cx="44" cy="68" r="6" fill="${C.bg}" stroke="${C.metalDark}" stroke-width="2"/><circle cx="156" cy="68" r="6" fill="${C.bg}" stroke="${C.metalDark}" stroke-width="2"/><path d="M74,96 Q100,104 126,96" fill="none" stroke="${C.metalDark}" stroke-width="2" stroke-dasharray="3 3"/>`,
+  locator: () => `<rect x="8" y="10" width="124" height="96" rx="16" fill="#3B7DDD" stroke="#21569F" stroke-width="2"/><rect x="22" y="22" width="96" height="44" rx="6" fill="#DDE9FC"/><g fill="#14A99D">${[0, 1, 2, 3, 4, 5].map(k => `<rect x="${30 + k * 14}" y="${56 - k * 5}" width="9" height="${6 + k * 5}"/>`).join('')}</g><rect x="96" y="30" width="16" height="30" rx="3" fill="#FF6F61"/><circle cx="40" cy="86" r="8" fill="#FFC23D"/><circle cx="66" cy="86" r="8" fill="#fff"/><path d="M132,70 C160,70 160,110 186,110" fill="none" stroke="#1E2A3A" stroke-width="3"/><path d="M186,110 q10,0 10,-14 q0,-10 -8,-10" fill="none" stroke="${C.metalDark}" stroke-width="4" stroke-linecap="round"/><path d="M132,84 C150,98 150,124 170,124 L196,124" fill="none" stroke="#1E2A3A" stroke-width="3"/><rect x="190" y="118" width="10" height="12" rx="2" fill="${C.metal}"/>`,
+  hand: () => `<rect x="8" y="46" width="52" height="30" rx="8" fill="#FF6F61" stroke="#C9473B" stroke-width="2"/><g stroke="#C9473B" stroke-width="2">${[18, 28, 38, 48].map(x => `<line x1="${x}" y1="50" x2="${x}" y2="72"/>`).join('')}</g><rect x="60" y="56" width="8" height="10" fill="${C.metal}"/><circle cx="84" cy="61" r="5" fill="#FFC23D"/><path d="M68,61 ${Array.from({ length: 22 }, (_, k) => `L${74 + k * 5.6},${61 + (k % 2 ? 4 : -4) * (1 - k / 26)}`).join(' ')}" fill="none" stroke="${C.metalDark}" stroke-width="3.5" stroke-linejoin="round"/>`,
+  rotary: () => `<rect x="8" y="52" width="40" height="18" rx="3" fill="#D4A72C" stroke="#9C7614" stroke-width="2"/><rect x="14" y="52" width="10" height="7" fill="${C.bg}"/><rect x="48" y="56" width="22" height="10" fill="${C.metal}"/><circle cx="76" cy="61" r="6" fill="#14A99D"/><path d="M82,61 ${Array.from({ length: 18 }, (_, k) => `L${86 + k * 6},${61 + (k % 2 ? 5 : -5) * (1 - k / 22)}`).join(' ')}" fill="none" stroke="${C.metalDark}" stroke-width="3.5" stroke-linejoin="round"/><g fill="none" stroke="#3B7DDD" stroke-width="2.5" stroke-linecap="round"><path d="M110,30 a26,26 0 0 1 36,6"/><path d="M146,36 l2,-10 m-2,10 l-10,-2"/></g>`,
+  paper: () => [30, 60, 90].map(y => `<path d="M14,${y - 5} L190,${y} L14,${y + 5} Z" fill="#FFFFFF" stroke="#8F9BAD" stroke-width="1.8"/>`).join('') + `<g stroke="#8F9BAD" stroke-width="1.5">${[40, 70, 100].map(x => `<line x1="${x}" y1="22" x2="${x}" y2="98" stroke-dasharray="2 5" opacity=".0"/>`).join('')}</g>`,
+  gp: () => [30, 60, 90].map(y => `<path d="M14,${y - 7} L190,${y} L14,${y + 7} Z" fill="${C.gp}" stroke="#C75F22" stroke-width="1.8"/>`).join(''),
+  sealer: () => `<rect x="10" y="40" width="110" height="40" rx="12" fill="#FFF1C9" stroke="#B07A00" stroke-width="2.5"/><rect x="120" y="48" width="22" height="24" rx="4" fill="#FFC23D" stroke="#B07A00" stroke-width="2"/><path d="M142,56 L162,58 L162,62 L142,64 Z" fill="${C.metal}"/><rect x="24" y="50" width="62" height="20" rx="4" fill="#fff" opacity=".7"/><rect x="110" y="96" width="84" height="30" rx="4" fill="#fff" stroke="#8F9BAD" stroke-width="1.5"/><path d="M124,112 q14,-14 30,-4 q14,10 24,2 q-6,14 -26,10 q-20,4 -28,-8 Z" fill="#FFE29A" stroke="#C69A1A" stroke-width="1.5"/>`,
+  syringe: () => `<rect x="20" y="50" width="100" height="24" rx="5" fill="#E8F2FC" stroke="#8F9BAD" stroke-width="2"/><rect x="26" y="54" width="60" height="16" fill="#BFE6FF"/><rect x="0" y="56" width="20" height="12" fill="#8F9BAD"/><rect x="120" y="58" width="16" height="8" fill="${C.metal}"/><path d="M136,62 L196,62" stroke="${C.metalDark}" stroke-width="2.5"/>`,
+};
+const instSVG = (k, aria) => `<svg viewBox="0 0 204 140" role="img" aria-label="${aria}">${INST[k]()}</svg>`;
+function traySVG(extra = '') {
+  return `<svg viewBox="0 0 660 400" role="img" aria-label="Instrument tray">
+    <rect x="6" y="6" width="648" height="388" rx="30" fill="#DCEAF6" stroke="#9DB6CC" stroke-width="3"/><rect x="22" y="22" width="616" height="356" rx="22" fill="#EAF3FB"/>
+    <g transform="translate(30,30)">${INST.dam()}</g>
+    <g transform="translate(250,40) rotate(-8 100 60)">${INST.clamp()}</g>
+    <g transform="translate(446,30)">${INST.locator()}</g>
+    <g transform="translate(30,200)">${INST.hand()}</g>
+    <g transform="translate(30,260)">${INST.rotary()}</g>
+    <g transform="translate(250,186) scale(.9)">${INST.paper()}</g>
+    <g transform="translate(250,270) scale(.9)">${INST.gp()}</g>
+    <g transform="translate(450,180) scale(.95)">${INST.sealer()}</g>
+    <g transform="translate(450,300) scale(.95)">${INST.syringe()}</g>${extra}</svg>`;
+}
+
+// ═════════════ exam scenes, radiograph, root tip inset, patients ═════════════
+function mouthBase() {
+  return `<rect width="300" height="230" fill="${C.bg}"/><path d="M0,140 Q50,124 100,142 Q150,124 200,142 Q250,124 300,140 L300,230 L0,230 Z" fill="${C.gum}"/>
+    ${[55, 150, 245].map(x => `<path d="M${x - 38},150 C${x - 42},110 ${x - 40},70 ${x - 30},52 Q${x - 16},38 ${x},50 Q${x + 16},38 ${x + 30},52 C${x + 40},70 ${x + 42},110 ${x + 38},150 Z" fill="#fff" stroke="${C.line}" stroke-width="2.5"/>`).join('')}`;
+}
+const SCENES = {
+  percussion: () => `<svg viewBox="0 0 300 230" role="img" aria-label="Instrument handle tapping a tooth">${mouthBase()}
+    <g class="anim-tap"><rect x="150" y="-6" width="16" height="70" rx="6" transform="rotate(40 158 30)" fill="${C.metal}" stroke="${C.metalDark}" stroke-width="2"/><rect x="186" y="-60" width="22" height="90" rx="8" transform="rotate(40 197 -15)" fill="#3B7DDD"/></g>
+    <g fill="none" stroke="#FF6F61" stroke-width="3" stroke-linecap="round"><path d="M128,40 q-10,-6 -12,-18"/><path d="M118,48 q-16,-6 -20,-24"/><path d="M174,42 q8,-6 10,-16"/></g></svg>`,
+  palpation: () => `<svg viewBox="0 0 300 230" role="img" aria-label="Fingertip pressing on the gum">${mouthBase()}
+    <g class="anim-press"><path d="M300,250 L300,196 Q260,170 214,178 Q176,184 172,200 Q170,218 196,222 L300,240 Z" fill="#F2C29C" stroke="#B9835A" stroke-width="2.5"/><path d="M180,198 Q184,186 200,186 Q212,188 210,200 Q206,210 190,210 Q180,208 180,198 Z" fill="#FBE3D2" stroke="#B9835A" stroke-width="1.5"/></g>
+    <g fill="none" stroke="#FF6F61" stroke-width="3" stroke-linecap="round"><path d="M160,214 l-14,6"/><path d="M162,198 l-16,-2"/><path d="M168,184 l-12,-10"/></g></svg>`,
+  cold: () => `<svg viewBox="0 0 300 230" role="img" aria-label="Cold cotton pellet held against a tooth">${mouthBase()}
+    <path d="M300,40 L196,96" stroke="${C.metalDark}" stroke-width="5" stroke-linecap="round"/><path d="M300,58 L200,104" stroke="${C.metalDark}" stroke-width="5" stroke-linecap="round"/>
+    <g class="anim-shiver"><g fill="#fff" stroke="#9DB6CC" stroke-width="2"><circle cx="186" cy="100" r="14"/><circle cx="174" cy="92" r="11"/><circle cx="178" cy="110" r="11"/></g>
+    <g stroke="#3B7DDD" stroke-width="2.5" stroke-linecap="round">${[[214, 70], [148, 72], [210, 132]].map(([x, y]) => `<g transform="translate(${x},${y})"><line x1="-9" y1="0" x2="9" y2="0"/><line x1="-5" y1="-8" x2="5" y2="8"/><line x1="-5" y1="8" x2="5" y2="-8"/></g>`).join('')}</g></g></svg>`,
+};
+function radiograph(extra = '') {
+  const id = 'rx' + (++UID);
+  return `<svg viewBox="0 0 400 520" role="img" aria-label="Schematic periapical radiograph">
+    <defs><clipPath id="${id}"><path d="${T.outline}"/></clipPath></defs>
+    <rect width="400" height="520" rx="22" fill="#151C26"/>
+    <rect x="10" y="236" width="380" height="274" rx="10" fill="#4E5967"/>
+    <g fill="#434D5A">${[[40, 300], [70, 380], [330, 300], [360, 420], [200, 420], [60, 470], [320, 480], [230, 360]].map(([x, y]) => `<ellipse cx="${x}" cy="${y}" rx="16" ry="10"/>`).join('')}</g>
+    <ellipse cx="133" cy="490" rx="40" ry="30" fill="#1C232E"/>
+    <path d="${T.outline}" fill="#A7B1BD"/>
+    <path d="${T.crown}" fill="none" stroke="#E2E8EF" stroke-width="34" clip-path="url(#${id})"/>
+    <path d="${T.canalM}" fill="#5D6977"/><path d="${T.canalD}" fill="#5D6977"/><path d="${T.chamber}" fill="#5D6977"/>
+    <path d="M146,62 Q200,96 254,62 L258,150 Q200,166 142,150 Z" fill="#FBFDFF"/>
+    <circle cx="372" cy="30" r="7" fill="#A7B1BD"/>${extra}</svg>`;
+}
+function rootTip(extra = '') {
+  return `<svg viewBox="0 0 400 460" role="img" aria-label="Magnified root tip">
+    <rect width="400" height="460" rx="20" fill="#FFFFFF" stroke="#8A78E3" stroke-width="4" stroke-dasharray="10 6"/>
+    <path d="M110,20 C112,180 130,330 176,412 Q198,446 222,412 C266,330 288,180 290,20 Z" fill="${C.dentin}" stroke="${C.line}" stroke-width="3.5"/>
+    <path d="M168,20 C170,140 184,260 194,330 L196,346 L204,346 L206,330 C216,260 230,140 232,20 Z" fill="${C.pulp}"/>
+    <path d="M196,346 C192,368 198,394 206,418 L218,416 C212,392 210,368 204,346 Z" fill="${C.pulp}"/>
+    <path d="M186,330 L214,330" stroke="#8A78E3" stroke-width="2" stroke-dasharray="4 3"/>
+    ${extra}</svg>`;
+}
+function patient(kind) {
+  const skin = { spont: '#F3C7A5', linger: '#C98E66', cold: '#E8B48E', bite: '#E0A27C', ear: '#F3C7A5', point: '#B87A55', swollen: '#EBC0A0' }[kind];
+  const hair = { spont: '#3B2A20', linger: '#1E2A3A', cold: '#7A4A26', bite: '#5A3A22', ear: '#B5651D', point: '#1E2A3A', swollen: '#3B2A20' }[kind];
+  const shirt = { spont: '#8A78E3', linger: '#14A99D', cold: '#FF6F61', bite: '#FFC23D', ear: '#3B7DDD', point: '#8A78E3', swollen: '#14A99D' }[kind];
+  let s = `<svg viewBox="0 0 240 250" role="img" aria-label="Cartoon patient"><rect width="240" height="250" fill="#F7FBFF"/>
+    <path d="M30,250 Q36,186 120,180 Q204,186 210,250 Z" fill="${shirt}"/><rect x="104" y="160" width="32" height="26" fill="${skin}"/>
+    <circle cx="120" cy="108" r="60" fill="${skin}"/>`;
+  s += (kind === 'linger' || kind === 'point') ? `<path d="M60,100 Q62,40 120,42 Q178,40 180,100 Q170,70 120,70 Q70,70 60,100 Z" fill="${hair}"/>`
+    : (kind === 'cold' || kind === 'ear') ? `<path d="M58,110 Q54,38 120,40 Q188,40 182,112 Q176,64 150,62 Q120,82 80,66 Q64,80 58,110 Z" fill="${hair}"/><path d="M58,110 Q50,160 66,176 L74,120 Z M182,112 Q190,160 174,176 L166,120 Z" fill="${hair}"/>`
+    : `<path d="M62,96 Q64,44 120,44 Q176,44 178,96 Q160,58 120,60 Q84,60 62,96 Z" fill="${hair}"/><circle cx="120" cy="40" r="16" fill="${hair}"/>`;
+  s += `<path d="M90,104 q10,-8 20,0" fill="none" stroke="#1E2A3A" stroke-width="4" stroke-linecap="round"/><path d="M130,104 q10,-8 20,0" fill="none" stroke="#1E2A3A" stroke-width="4" stroke-linecap="round"/>
+    <path d="M88,88 l20,6 M152,88 l-20,6" stroke="#1E2A3A" stroke-width="4" stroke-linecap="round"/>
+    <path d="M100,140 q7,-8 14,0 t14,0" fill="none" stroke="#1E2A3A" stroke-width="4" stroke-linecap="round"/>
+    <circle cx="92" cy="124" r="8" fill="#FF9C8F" opacity=".5"/><circle cx="148" cy="124" r="8" fill="#FF9C8F" opacity=".5"/>`;
+  if (kind === 'bite') s += `<rect x="96" y="132" width="48" height="16" rx="5" fill="#fff" stroke="#1E2A3A" stroke-width="3"/><line x1="96" y1="140" x2="144" y2="140" stroke="#1E2A3A" stroke-width="2"/>${[106, 116, 126, 136].map(x => `<line x1="${x}" y1="132" x2="${x}" y2="148" stroke="#1E2A3A" stroke-width="1.5"/>`).join('')}
+      <g fill="none" stroke="#FF6F61" stroke-width="3" stroke-linecap="round" class="anim-pulse"><path d="M186,140 l14,4"/><path d="M182,156 l12,10"/><path d="M54,140 l-14,4"/><path d="M58,156 l-12,10"/></g>`;
+  if (kind === 'ear') s += `<ellipse cx="60" cy="112" rx="10" ry="16" fill="${skin}" stroke="rgba(0,0,0,.2)" stroke-width="2"/><ellipse cx="50" cy="118" rx="18" ry="24" fill="${skin}" stroke="rgba(0,0,0,.25)" stroke-width="2"/><path d="M40,138 Q30,190 34,250 L62,250 Q60,190 56,140 Z" fill="${skin}"/>
+      <g fill="none" stroke="#FF6F61" stroke-width="3" stroke-linecap="round" class="anim-pulse"><path d="M24,92 l-12,-8"/><path d="M20,112 l-14,0"/><path d="M24,132 l-12,8"/></g><path d="M150,150 q10,10 20,0" fill="none" stroke="#3B7DDD" stroke-width="3" stroke-dasharray="3 4"/>`;
+  if (kind === 'point') s += `<path d="M210,250 Q200,190 168,140" fill="none" stroke="${skin}" stroke-width="22" stroke-linecap="round"/><path d="M168,140 L156,128" stroke="${skin}" stroke-width="9" stroke-linecap="round"/><circle cx="154" cy="126" r="5" fill="#FF6F61"/>`;
+  if (kind === 'swollen') s += `<ellipse cx="164" cy="130" rx="28" ry="32" fill="${skin}" stroke="rgba(0,0,0,.18)" stroke-width="2"/><ellipse cx="166" cy="132" rx="16" ry="18" fill="#FF8C7A" opacity=".45" class="anim-pulse"/>`;
+  if (kind === 'spont') s += `<ellipse cx="176" cy="128" rx="20" ry="26" fill="${skin}" stroke="rgba(0,0,0,.2)" stroke-width="2"/><path d="M186,150 Q196,190 200,250 L170,250 Q168,196 168,150 Z" fill="${skin}"/>
+      <g fill="none" stroke="#FF6F61" stroke-width="3" stroke-linecap="round" class="anim-pulse"><path d="M204,104 l12,-8"/><path d="M208,122 l14,0"/><path d="M204,140 l12,8"/></g>`;
+  if (kind === 'linger') s += `<g transform="translate(160,170)"><path d="M0,0 L44,0 L38,64 L6,64 Z" fill="#E8F4FF" stroke="#7A8BA3" stroke-width="3"/><path d="M30,-20 L22,40" stroke="#FF6F61" stroke-width="4"/></g>
+      <path d="M170,250 Q166,218 170,200" fill="none" stroke="${skin}" stroke-width="16" stroke-linecap="round"/>
+      <g fill="none" stroke="#FF6F61" stroke-width="3" stroke-linecap="round"><path d="M60,140 q-10,6 -16,0 q-6,-6 -16,0"/><path d="M58,158 q-10,6 -16,0 q-6,-6 -16,0"/></g>`;
+  if (kind === 'cold') s += `<g transform="translate(150,150)"><path d="M0,0 L54,0 L48,90 L6,90 Z" fill="#E8F4FF" stroke="#7A8BA3" stroke-width="3"/><path d="M4,26 L50,26 L46,88 L8,88 Z" fill="#9FD3F5"/><rect x="12" y="34" width="14" height="14" rx="3" fill="#fff" opacity=".9" transform="rotate(12 19 41)"/><rect x="28" y="50" width="14" height="14" rx="3" fill="#fff" opacity=".9" transform="rotate(-10 35 57)"/></g>
+      <g class="anim-shiver" fill="none" stroke="#3B7DDD" stroke-width="3" stroke-linecap="round"><path d="M44,96 l-12,-4"/><path d="M44,116 l-14,0"/><path d="M44,136 l-12,4"/></g>`;
+  return s + '</svg>';
+}
+function mascot(mood = 'happy') {
+  return `<svg class="mascot" viewBox="0 0 160 190" role="img" aria-label="Tooth guide">
+    <ellipse cx="80" cy="182" rx="40" ry="6" fill="rgba(0,0,0,.12)"/>
+    <path d="M30,60 Q22,18 56,14 Q70,12 80,22 Q90,12 104,14 Q138,18 130,60 Q128,96 122,120 Q116,170 104,172 Q94,172 90,140 Q86,120 80,120 Q74,120 70,140 Q66,172 56,172 Q44,170 38,120 Q32,96 30,60 Z" fill="#fff" stroke="#3B7DDD" stroke-width="4"/>
+    <circle cx="62" cy="62" r="8" fill="#1E2A3A"/><circle cx="98" cy="62" r="8" fill="#1E2A3A"/><circle cx="65" cy="59" r="2.5" fill="#fff"/><circle cx="101" cy="59" r="2.5" fill="#fff"/>
+    <circle cx="50" cy="80" r="8" fill="#FF9C8F" opacity=".6"/><circle cx="110" cy="80" r="8" fill="#FF9C8F" opacity=".6"/>
+    ${mood === 'cheer' ? '<path d="M64,82 Q80,104 96,82 Z" fill="#FF6F61" stroke="#1E2A3A" stroke-width="3"/>' : '<path d="M66,84 Q80,98 94,84" fill="none" stroke="#1E2A3A" stroke-width="4" stroke-linecap="round"/>'}
+    <path d="M30,74 Q10,70 8,${mood === 'cheer' ? 40 : 90}" fill="none" stroke="#3B7DDD" stroke-width="5" stroke-linecap="round"/><path d="M130,74 Q150,70 152,${mood === 'cheer' ? 40 : 90}" fill="none" stroke="#3B7DDD" stroke-width="5" stroke-linecap="round"/>
+    <circle cx="8" cy="${mood === 'cheer' ? 36 : 94}" r="7" fill="#fff" stroke="#3B7DDD" stroke-width="3"/><circle cx="152" cy="${mood === 'cheer' ? 36 : 94}" r="7" fill="#fff" stroke="#3B7DDD" stroke-width="3"/></svg>`;
+}
+const keyIcon = (on, pop) => `<svg class="key ${on ? 'on' : ''} ${pop ? 'pop' : ''}" viewBox="0 0 40 40" aria-hidden="true"><circle cx="12" cy="20" r="9"/><path d="M19,17 H36 V23 H33 V28 H28 V23 H19 Z"/><circle cx="12" cy="20" r="3.5" style="fill:#fff"/></svg>`;
+
+// ═════════════ content ═════════════
+const ROOMS = [
+  { n: 1, name: L('Inside the Tooth', 'داخل السن'), col: '#14A99D', soft: '#D3F2EE', ink: '#0B6E66',
+    intro: L('Let’s look inside a tooth. Every space has its own name.', 'لننظر داخل السن. لكل حيّز اسمه الخاص.'),
+    ch: [
+      { id: 'r1c1', type: 'match', layout: 'diagram', instr: 'Match each term to its letter on the tooth.', sub: 'Tap a term, then tap a letter (on the tooth or in the list).',
+        terms: ['Pulp chamber', 'Root canal', 'Canal orifice'], slots: [{ s: 'A', ans: 'Pulp chamber', m: [330, 140, 230, 210] }, { s: 'B', ans: 'Root canal', m: [52, 372, 132, 372] }],
+        vis: ctx => toothSVG({}, ctx.markers()),
+        ex: L('Pulp chamber = pulp space within the crown. Root canal = pulp space within the root.', 'حجرة اللب = حيّز اللب داخل التاج. قناة الجذر = حيّز اللب داخل الجذر.') },
+      { id: 'r1c2', type: 'match', layout: 'diagram-inset', instr: 'Zoom in on the root tip. Match the three terms to A, B and C.', sub: 'The purple box is a magnified view of the root tip.',
+        terms: ['Apex', 'Apical foramen', 'Apical constriction'], slots: [{ s: 'A', ans: 'Apex', m: [86, 430, 196, 440] }, { s: 'B', ans: 'Apical foramen', m: [330, 400, 214, 414] }, { s: 'C', ans: 'Apical constriction', m: [330, 300, 210, 336] }],
+        vis: ctx => `<div class="duo"><div>${toothSVG({}, `<rect x="104" y="436" width="62" height="58" rx="6" fill="none" stroke="#8A78E3" stroke-width="4" stroke-dasharray="8 5"/>`)}<div class="inset-cap">Whole tooth</div></div><div>${rootTip(ctx.markers())}<div class="inset-cap">Root tip, magnified</div></div></div>`,
+        ex: L('Apex = the tip of the root. Apical foramen = an opening near the root tip; blood vessels and nerves pass through it. Apical constriction = a narrow region of the canal near its apical end. The apical constriction and the apical foramen are different anatomical features.',
+              'ذروة الجذر = قمة الجذر. الثقبة الذروية = فتحة قرب قمة الجذر تمر عبرها الأوعية الدموية والأعصاب. التضيّق الذروي = منطقة ضيقة من القناة قرب نهايتها الذروية. التضيّق الذروي والثقبة الذروية تركيبان تشريحيان مختلفان.') },
+      { id: 'r1c3', type: 'match', layout: 'diagram', instr: 'Three parts of the pulp are coloured. Match each term to A, B and C.', sub: 'One term is not used.',
+        terms: ['Coronal pulp', 'Radicular pulp', 'Pulp horn', 'Pulp exposure'], slots: [{ s: 'A', ans: 'Coronal pulp', m: [340, 200, 236, 212] }, { s: 'B', ans: 'Radicular pulp', m: [340, 380, 268, 380] }, { s: 'C', ans: 'Pulp horn', m: [50, 110, 140, 134] }],
+        vis: ctx => toothSVG({ hl: { chamber: '#C7BCF7', canals: '#7FD8CE', horn: '#FFD66E' } }, ctx.markers()),
+        ex: L('Coronal pulp = pulp located within the crown. Radicular pulp = pulp located within the root. Pulp horn = an extension of the pulp chamber toward a cusp. Word connection: coronal → crown, radicular → root.',
+              'اللب التاجي = اللب الموجود داخل التاج. اللب الجذري = اللب الموجود داخل الجذر. قرن اللب = امتداد لحجرة اللب باتجاه الحدبة. Coronal ← التاج، Radicular ← الجذر.') },
+      { id: 'r1c4', type: 'click', instr: 'Click the accessory canal.', sub: 'Select a part of the tooth, then submit.',
+        ans: 'accessory', names: { accessory: 'Accessory canal', orifice: 'Canal orifice', canal: 'Root canal', chamber: 'Pulp chamber', apex: 'Apex' },
+        vis: ctx => toothSVG({ accessory: true }, `<path class="hot ${ctx.hc('chamber')}" data-act="hot" data-hot="chamber" d="${T.chamber}"/>
+          <path class="hot ${ctx.hc('canal')}" data-act="hot" data-hot="canal" d="${T.canalM}"/><path class="hot ${ctx.hc('canal')}" data-act="hot" data-hot="canal" d="${T.canalD}"/>
+          <ellipse class="hot ${ctx.hc('orifice')}" data-act="hot" data-hot="orifice" cx="140" cy="256" rx="17" ry="10"/><ellipse class="hot ${ctx.hc('orifice')}" data-act="hot" data-hot="orifice" cx="261" cy="256" rx="17" ry="10"/>
+          <circle class="hot ${ctx.hc('apex')}" data-act="hot" data-hot="apex" cx="133" cy="484" r="14"/><circle class="hot ${ctx.hc('apex')}" data-act="hot" data-hot="apex" cx="269" cy="484" r="14"/>
+          <path class="hot line ${ctx.hc('accessory')}" data-act="hot" data-hot="accessory" d="M268,404 Q282,398 296,388" fill="none" stroke-width="22" stroke-linecap="round"/>`),
+        ex: L('Accessory canal = a small branch communicating with the main canal. Canal orifice = the opening from the pulp chamber into a root canal, on the floor of the chamber.',
+              'القناة الإضافية = فرع صغير يتصل بالقناة الرئيسية. فتحة قناة الجذر = الفتحة من حجرة اللب إلى قناة الجذر، في أرضية الحجرة.') },
+    ] },
+  { n: 2, name: L('What Is the Patient Saying?', 'ماذا يقول المريض؟'), col: '#FF6F61', soft: '#FFE3DF', ink: '#B63F33',
+    intro: L('Patients describe pain in their own words. Find the term for each description.', 'يصف المرضى الألم بكلماتهم. جد المصطلح المناسب لكل وصف.'),
+    outro: L('Pain descriptions help with assessment, but they do not establish a diagnosis by themselves. And asymptomatic (without symptoms) does not always mean healthy.', 'وصف الألم يساعد في التقييم، لكنه لا يحدد التشخيص وحده. وغياب الأعراض لا يعني دائماً أن السن سليم.'),
+    ch: [
+      { id: 'r2c1', type: 'mc', patient: 'spont', say: '“The pain starts without anything touching the tooth.”', instr: 'Which term describes this pain?',
+        options: ['Spontaneous pain', 'Lingering pain', 'Provoked pain', 'Referred pain'], ans: ['Spontaneous pain'],
+        ex: L('Spontaneous pain = pain without an apparent stimulus.', 'ألم تلقائي = ألم دون منبّه واضح.') },
+      { id: 'r2c2', type: 'mc', patient: 'linger', say: '“The pain continues after the cold drink is gone.”', instr: 'Which term describes this pain?',
+        options: ['Lingering pain', 'Spontaneous pain', 'Localized pain', 'Tenderness'], ans: ['Lingering pain'],
+        ex: L('Lingering pain = pain continuing after the stimulus ends.', 'ألم يستمر بعد زوال المنبّه.') },
+      { id: 'r2c3', type: 'mc', multi: true, patient: 'cold', say: '“Cold water triggers the pain.”', instr: 'Which terms describe this?', badge: 'Two correct answers · choose 2',
+        options: ['Provoked pain', 'Thermal sensitivity', 'Spontaneous pain', 'Referred pain', 'Lingering pain'], ans: ['Provoked pain', 'Thermal sensitivity'],
+        ex: L('Provoked pain = pain triggered by a stimulus. Thermal sensitivity = sensitivity to hot or cold. Cold water is the stimulus, so both terms apply.', 'ألم مُثار = ألم يثيره منبّه. حساسية للحرارة أو البرودة. الماء البارد هو المنبّه، لذلك ينطبق المصطلحان.') },
+      { id: 'r2c4', type: 'match', layout: 'cards', instr: 'Match each picture and definition to its term.', sub: 'One term is not used.',
+        terms: ['Pulpitis', 'Pulp necrosis', 'Apical periodontitis'],
+        slots: [{ s: 'A', ans: 'Pulpitis', pic: () => toothSVG({ chamber: 'inflamed' }, '', 'Tooth with red, inflamed pulp'), text: 'Inflammation of the dental pulp' },
+                { s: 'B', ans: 'Pulp necrosis', pic: () => toothSVG({ chamber: 'necrotic' }, '', 'Tooth with grey, dead pulp'), text: 'Death of the dental pulp' }],
+        ex: L('Pulpitis (pulp + -itis) = inflammation of the dental pulp. Pulp necrosis = death of the dental pulp. Pulpitis is inflammation; necrosis is tissue death.', 'التهاب اللب (pulp + -itis) = التهاب لب السن. نخر اللب = موت نسيج اللب. الالتهاب ليس موت النسيج.') },
+      { id: 'r2c5', type: 'mc', patient: 'bite', say: '“It only hurts when I bite, or when you press on it.”', instr: 'Which term describes this?',
+        options: ['Tenderness', 'Spontaneous pain', 'Referred pain', 'Lingering pain'], ans: ['Tenderness'],
+        ex: L('Tenderness = pain on touch or pressure.', 'الإيلام = ألم عند اللمس أو الضغط.') },
+      { id: 'r2c6', type: 'mc', patient: 'ear', say: '“The problem is in my tooth, but I feel the pain in my ear.”', instr: 'Which term describes this pain?',
+        options: ['Referred pain', 'Localized pain', 'Spontaneous pain', 'Provoked pain'], ans: ['Referred pain'],
+        ex: L('Referred pain = pain felt somewhere other than its source.', 'ألم مُحال = ألم يُشعر به في مكان غير مصدره.') },
+      { id: 'r2c7', type: 'mc', patient: 'point', say: '“It’s exactly this tooth. I can point to it.”', instr: 'Which term describes this pain?',
+        options: ['Localized pain', 'Referred pain', 'Thermal sensitivity', 'Lingering pain'], ans: ['Localized pain'],
+        ex: L('Localized pain = pain the patient can identify in a specific area. The opposite situation, pain felt away from its source, is referred pain.', 'ألم محدد الموضع = ألم يستطيع المريض تحديده في منطقة معينة. أما الألم المُحال فيُشعر به بعيداً عن مصدره.') },
+      { id: 'r2c8', type: 'match', layout: 'cards', instr: 'Match each definition to its term.', sub: 'One term is not used.',
+        terms: ['Reversible pulpitis', 'Irreversible pulpitis', 'Pulp necrosis'],
+        slots: [{ s: 'A', ans: 'Reversible pulpitis', text: 'Inflammation expected to resolve after removing the cause' }, { s: 'B', ans: 'Irreversible pulpitis', text: 'A traditional diagnosis of inflamed, living pulp judged unable to heal' }],
+        ex: L('Reversible pulpitis = inflammation expected to resolve after removing the cause. Irreversible pulpitis = a traditional diagnosis of inflamed, living pulp judged unable to heal. In both, the pulp is still living; pulp necrosis means the pulp has died.', 'التهاب اللب القابل للعكس = التهاب يُتوقع أن يزول بعد إزالة السبب. التهاب اللب غير القابل للعكس = تشخيص تقليدي للب ملتهب حي يُعتقد أنه غير قادر على الشفاء. في الحالتين اللب حي؛ أما نخر اللب فيعني موت اللب.') },
+    ] },
+  { n: 3, name: L('Dental Detective', 'المحقق السنّي'), col: '#3B7DDD', soft: '#DDE9FC', ink: '#21569F',
+    intro: L('Time to examine. Read the tests and the radiograph like a detective.', 'حان وقت الفحص. اقرأ الاختبارات والصورة الشعاعية كالمحقق.'),
+    ch: [
+      { id: 'r3c1', type: 'match', layout: 'cards', instr: 'Match each examination to its name.', sub: 'One term is not used.',
+        terms: ['Percussion', 'Palpation', 'Cold pulp test'],
+        slots: [{ s: 'A', ans: 'Percussion', pic: () => SCENES.percussion(), text: 'Tapping the tooth' }, { s: 'B', ans: 'Palpation', pic: () => SCENES.palpation(), text: 'Examining the tissues by touch' }],
+        ex: L('Percussion = gently tapping the tooth to check for tenderness. Palpation = examining the tissues by touch for tenderness or swelling.', 'القرع = النقر على السن لفحص الإيلام. الجس = فحص الأنسجة باللمس للإيلام أو التورم.') },
+      { id: 'r3c2', type: 'mc', scene: 'cold', instr: 'Cold or electric pulp testing mainly assesses…',
+        options: ['Sensibility', 'Blood flow'], ans: ['Sensibility'], keep: true,
+        ex: L('Cold and electric pulp tests check the sensory response of the pulpal nerves: pulp sensibility. Pulp vitality is the living state of the pulp, supported by its blood supply. Sensibility is not the same as vitality.', 'اختبارا البرودة والكهرباء يفحصان الاستجابة الحسية لأعصاب اللب. حيوية اللب = بقاء اللب حياً مع وجود تروية دموية. الاستجابة الحسية ليست هي الحيوية.') },
+      { id: 'r3c3', type: 'match', layout: 'diagram', instr: 'On this radiograph, match each term to A and B.', sub: 'Look at how dark or light each area appears.',
+        terms: ['Radiolucent', 'Radiopaque'], slots: [{ s: 'A', ans: 'Radiolucent', m: [52, 380, 112, 486] }, { s: 'B', ans: 'Radiopaque', m: [340, 90, 236, 110] }],
+        vis: ctx => radiograph(ctx.markers()),
+        warn: 'A periapical radiolucency is an imaging finding. It does not automatically mean an abscess.',
+        ex: L('Radiolucent = appearing relatively dark on a radiograph. Radiopaque = appearing relatively light. The dark area around the root apex is a periapical radiolucency.', 'شفيف شعاعياً = يظهر داكناً نسبياً. ظليل شعاعياً = يظهر فاتحاً نسبياً. المنطقة الداكنة حول الذروة هي شفافية شعاعية حول الذروة، وهي علامة في الصورة ولا تعني تلقائياً وجود خراج.') },
+      { id: 'r3c4', type: 'match', layout: 'cards', instr: 'Match each picture to its term.', sub: 'One term is not used.',
+        terms: ['Apical abscess', 'Sinus tract', 'Periapical radiolucency'],
+        slots: [{ s: 'A', ans: 'Apical abscess', pic: () => toothSVG({ bone: true, lesion: 'abscess' }, '', 'Pus collected around the root tip'), text: 'A collection of pus' }, { s: 'B', ans: 'Sinus tract', pic: () => toothSVG({ bone: true, lesion: 'sinus' }, '', 'A pathway draining to the gum surface'), text: 'A drainage pathway to a surface' }],
+        warn: 'A periapical radiolucency is an imaging finding. It does not automatically mean an abscess.',
+        ex: L('Apical abscess = a localized collection of pus associated with infection of pulpal origin. Sinus tract = a pathway allowing drainage from an infected area to a surface. Acute/chronic describe the course of a condition; symptomatic/asymptomatic describe whether symptoms are present.', 'الخراج الذروي = تجمّع موضعي للقيح مرتبط بعدوى ذات منشأ لُبّي. المسار الناسوري = قناة تسمح بتصريف محتويات منطقة مصابة إلى السطح. حاد/مزمن يصفان سير الحالة؛ مصحوب بأعراض/دون أعراض يصفان وجود الأعراض.') },
+      { id: 'r3c5', type: 'mc', vis: () => radiograph(), instr: 'This image shows the whole tooth and the tissues around the apex. What type of image is it?',
+        options: ['Periapical radiograph', 'Periapical radiolucency', 'Radiopaque area', 'Sinus tract'], ans: ['Periapical radiograph'],
+        ex: L('Periapical radiograph = an image showing the whole tooth and surrounding apical tissues. A periapical radiolucency is one dark finding that may appear on it.', 'الصورة الشعاعية حول الذروية = صورة تُظهر السن كاملاً والأنسجة المحيطة بالذروة. الشفافية الشعاعية حول الذروة علامة داكنة قد تظهر عليها.') },
+      { id: 'r3c6', type: 'mc', vis: () => toothSVG({ bone: true, halo: true }, '', 'Inflamed tissue around the root tip'), instr: 'The tissues around the root apex are inflamed, usually because of disease of pulpal origin. What is this called?',
+        options: ['Apical periodontitis', 'Pulpitis', 'External resorption', 'Pulp exposure'], ans: ['Apical periodontitis'],
+        ex: L('Apical periodontitis = inflammation of the supporting tissues around the root apex, usually associated with disease of pulpal origin. Pulpitis is inflammation inside the pulp itself.', 'التهاب دواعم السن الذروي = التهاب الأنسجة الداعمة حول ذروة الجذر، ويرتبط عادةً بمرض ذي منشأ لُبّي. أما التهاب اللب فهو داخل اللب نفسه.') },
+      { id: 'r3c7', type: 'match', layout: 'cards', instr: 'Match each description to the type of apical periodontitis.', sub: 'One term is not used.',
+        terms: ['Symptomatic apical periodontitis', 'Asymptomatic apical periodontitis', 'Acute apical abscess'],
+        slots: [{ s: 'A', ans: 'Symptomatic apical periodontitis', text: 'May cause pain on biting or percussion' }, { s: 'B', ans: 'Asymptomatic apical periodontitis', text: 'Apical inflammation and tissue destruction without clinical symptoms' }],
+        warn: 'Asymptomatic does not necessarily mean healthy. Tissue destruction can be present without symptoms.',
+        ex: L('Symptomatic apical periodontitis may cause pain on biting or percussion. Asymptomatic apical periodontitis = apical inflammation and tissue destruction without clinical symptoms.', 'التهاب دواعم ذروي مصحوب بأعراض: قد يسبب ألماً عند العض أو القرع. دون أعراض: التهاب وتخرّب في الأنسجة الذروية دون أعراض سريرية. غياب الأعراض لا يعني أن السن سليم.') },
+      { id: 'r3c8', type: 'match', layout: 'cards', instr: 'Match each picture and description to its term.', sub: 'One term is not used.',
+        terms: ['Acute apical abscess', 'Chronic apical abscess', 'Pulp necrosis'],
+        slots: [{ s: 'A', ans: 'Acute apical abscess', pic: () => patient('swollen'), text: 'Rapid onset, pus, typically pain and swelling' }, { s: 'B', ans: 'Chronic apical abscess', pic: () => toothSVG({ bone: true, lesion: 'sinus' }, '', 'Drainage through a sinus tract'), text: 'Gradual onset, little discomfort, drainage through a sinus tract' }],
+        warn: 'Acute / chronic describe the course of a condition. Symptomatic / asymptomatic describe whether symptoms are present.',
+        ex: L('Acute apical abscess = an infection of pulpal origin with rapid onset, pus formation, and typically pain and swelling. Chronic apical abscess = gradual onset, often little discomfort, and intermittent drainage through a sinus tract. Purulent = containing or producing pus.', 'الخراج الذروي الحاد = عدوى ذات منشأ لُبّي سريعة البدء مع تكوّن قيح، وعادةً ألم وتورّم. المزمن = بدء تدريجي، انزعاج قليل غالباً، وتصريف متقطع عبر مسار ناسوري. قيحي = يحتوي القيح أو ينتجه.') },
+    ] },
+  { n: 4, name: L('The Instrument Workshop', 'ورشة الأدوات'), col: '#8A78E3', soft: '#ECE8FC', ink: '#5B47C9',
+    intro: L('Here is the endodontic tray. Name each tool by what it does.', 'هذه صينية أدوات علاج الجذور. سمِّ كل أداة بحسب وظيفتها.'),
+    ch: [
+      { id: 'r4c1', type: 'match', layout: 'diagram', instr: 'Find the dental dam (A) and the clamp (B) on the tray. Match each to its job.', sub: 'One option is not used.',
+        terms: ['Rubber dam · isolates the tooth', 'Clamp · holds the dam around the tooth', 'Paper point · dries the canal'],
+        slots: [{ s: 'A', ans: 'Rubber dam · isolates the tooth', m: [228, 176, 170, 140], big: true }, { s: 'B', ans: 'Clamp · holds the dam around the tooth', m: [420, 160, 352, 92], big: true }],
+        vis: ctx => traySVG(ctx.markers()),
+        ex: L('Dental dam / rubber dam = a sheet used to isolate the tooth during treatment. Clamp = a device that holds the dam around the tooth. Isolation helps prevent salivary contamination and helps protect the patient from instruments and irrigants.', 'الحاجز المطاطي = غطاء يُستخدم لعزل السن أثناء العلاج. المشبك = أداة تثبّت الحاجز حول السن. العزل يساعد على منع التلوث باللعاب وحماية المريض من الأدوات ومحاليل الإرواء.') },
+      { id: 'r4c2', type: 'match', layout: 'cards', instr: 'Match each instrument to what it does.', sub: 'Tap a job, then tap an instrument.',
+        terms: ['Helps determine working length', 'Manually prepares the canal', 'Engine-driven canal preparation'],
+        slots: [{ s: 'A', ans: 'Helps determine working length', pic: () => instSVG('locator', 'Apex locator'), name: 'Apex locator' }, { s: 'B', ans: 'Manually prepares the canal', pic: () => instSVG('hand', 'Hand file'), name: 'Hand file' }, { s: 'C', ans: 'Engine-driven canal preparation', pic: () => instSVG('rotary', 'Rotary file'), name: 'Rotary file' }],
+        ex: L('Apex locator = an electronic device that helps determine working length. Hand file = a manually operated instrument used to prepare a canal. Rotary file = an engine-driven rotating instrument used to prepare a canal.', 'جهاز تحديد الذروة = جهاز إلكتروني يساعد في تحديد طول العمل. المبرد اليدوي = أداة تُشغَّل يدوياً لتحضير القناة. المبرد الدوّار = أداة دوّارة تعمل بمحرّك لتحضير القناة.') },
+      { id: 'r4c3', type: 'match', layout: 'cards', instr: 'Match each material to what it does.', sub: 'Tap a job, then tap a material.',
+        terms: ['Dries the canal', 'Core filling material', 'Helps seal spaces around the core filling'],
+        slots: [{ s: 'A', ans: 'Dries the canal', pic: () => instSVG('paper', 'Paper points'), name: 'Paper point' }, { s: 'B', ans: 'Core filling material', pic: () => instSVG('gp', 'Gutta-percha cones'), name: 'Gutta-percha' }, { s: 'C', ans: 'Helps seal spaces around the core filling', pic: () => instSVG('sealer', 'Sealer'), name: 'Sealer' }],
+        ex: L('Paper point = an absorbent point used to dry a canal. Gutta-percha = a commonly used core material for root canal filling. Sealer = material used with the core filling to help seal spaces.', 'المخروط الورقي = مخروط ماص لتجفيف القناة. الغوتا بيركا = مادة أساسية شائعة لحشو قنوات الجذر. مادة سادّة = تُستخدم مع مادة الحشو الأساسية للمساعدة في سدّ الفراغات.') },
+      { id: 'r4c5', type: 'mc', multi: true, vis: () => traySVG(), instr: 'Why do we isolate the tooth with a dental dam?', badge: 'Two correct answers · choose 2',
+        options: ['To help prevent salivary contamination', 'To help protect the patient from instruments and irrigants', 'To dry the root canal', 'To determine the working length'], ans: ['To help prevent salivary contamination', 'To help protect the patient from instruments and irrigants'],
+        ex: L('Isolation = separating the treatment area from the surrounding oral environment. It helps prevent salivary contamination and helps protect the patient from instruments and irrigants. Contamination = introduction of unwanted microorganisms or substances.', 'العزل = فصل منطقة العلاج عن البيئة الفموية المحيطة. يساعد على منع التلوث باللعاب وحماية المريض من الأدوات ومحاليل الإرواء. التلوّث = دخول كائنات دقيقة أو مواد غير مرغوبة.') },
+      { id: 'r4c6', type: 'click', instr: 'Click the access cavity.', sub: 'Select a part of the tooth, then submit.',
+        ans: 'access', names: { access: 'Access cavity', chamber: 'Pulp chamber', canal: 'Root canal', orifice: 'Canal orifice' }, ansLabel: 'access cavity',
+        vis: ctx => toothSVG({ access: 'open', chamber: 'empty', canals: 'pulp' }, `<path class="hot ${ctx.hc('chamber')}" data-act="hot" data-hot="chamber" d="${T.chamber}"/>
+          <path class="hot ${ctx.hc('canal')}" data-act="hot" data-hot="canal" d="${T.canalM}"/><path class="hot ${ctx.hc('canal')}" data-act="hot" data-hot="canal" d="${T.canalD}"/>
+          <ellipse class="hot ${ctx.hc('orifice')}" data-act="hot" data-hot="orifice" cx="140" cy="256" rx="17" ry="10"/><ellipse class="hot ${ctx.hc('orifice')}" data-act="hot" data-hot="orifice" cx="261" cy="256" rx="17" ry="10"/>
+          <path class="hot ${ctx.hc('access')}" data-act="hot" data-hot="access" d="M174,76 L226,76 L232,162 L168,162 Z"/>`),
+        ex: L('Access cavity = an opening prepared in the tooth to reach the pulp chamber and root canals.', 'فتحة الوصول = فتحة تُحضَّر في السن للوصول إلى حجرة اللب وقنوات الجذر.') },
+      { id: 'r4c7', type: 'match', layout: 'cards', instr: 'Match each step to what it means.', sub: 'Tap a term, then tap a card.',
+        terms: ['Cleaning', 'Shaping', 'Irrigation', 'Disinfection'],
+        slots: [{ s: 'A', ans: 'Cleaning', text: 'Removing tissue remnants and debris' }, { s: 'B', ans: 'Shaping', text: 'Preparing the internal form of the canal' }, { s: 'C', ans: 'Irrigation', text: 'Flushing the canal with fluid to assist cleaning' }, { s: 'D', ans: 'Disinfection', text: 'Reducing or eliminating microorganisms' }],
+        ex: L('Cleaning = removing tissue remnants and debris. Shaping = preparing the internal form of the canal. Irrigation = flushing the canal with fluid (the irrigant) to assist cleaning. Disinfection = reducing or eliminating microorganisms.', 'التنظيف = إزالة بقايا الأنسجة والفتات. التشكيل = تحضير الشكل الداخلي للقناة. الإرواء = غسل القناة بسائل (محلول الإرواء) للمساعدة في التنظيف. التطهير = تقليل الكائنات الدقيقة أو القضاء عليها.') },
+      { id: 'r4c8', type: 'mc', vis: () => toothSVG({ access: 'open', chamber: 'empty', canals: 'pulp', fileLen: 29 }, `<path d="M62,56 V476 M50,56 H74 M50,476 H74" stroke="#3B7DDD" stroke-width="4" fill="none"/><path d="M74,56 H124 M74,476 H128" stroke="#3B7DDD" stroke-width="2" stroke-dasharray="5 4"/><circle cx="62" cy="266" r="16" fill="#fff" stroke="#3B7DDD" stroke-width="3"/><text x="62" y="272" text-anchor="middle" font-family="Fredoka, sans-serif" font-weight="600" font-size="18" fill="#3B7DDD">?</text>`, 'A file in the canal with a measured length'),
+        instr: 'The blue line shows a length the dentist measures. What is working length?',
+        options: ['The distance from a coronal reference point to where canal preparation and filling should end', 'The length of the whole tooth from cusp to apex', 'The depth of the access cavity', 'The length of the hand file handle'], ans: ['The distance from a coronal reference point to where canal preparation and filling should end'],
+        ex: L('Working length = the distance from a coronal reference point to the point where canal preparation and filling should end. An apex locator helps determine it.', 'طول العمل = المسافة من نقطة مرجعية تاجية إلى النقطة التي يجب أن ينتهي عندها تحضير القناة وحشوها. جهاز تحديد الذروة يساعد في تحديده.') },
+      { id: 'r4c4', type: 'order', instr: 'Put the main stages of root canal treatment in order.', note: 'Simplified overview only. Irrigation happens throughout cleaning and shaping, and working-length determination is part of canal preparation. This is not a complete clinical protocol.',
+        items: ['Isolation', 'Access', 'Cleaning and shaping with irrigation', 'Obturation', 'Coronal restoration'],
+        ex: L('Isolation → access → cleaning and shaping with irrigation → obturation → coronal restoration. Obturation fills the canals; the coronal restoration restores the tooth above them.', 'العزل ← الوصول ← التنظيف والتشكيل مع الإرواء ← حشو القنوات ← الترميم التاجي. الحشو يملأ القنوات؛ والترميم التاجي يعيد بناء السن فوقها.') },
+    ] },
+  { n: 5, name: L('Spot the Difference', 'اكتشف الفرق'), col: '#E5A400', soft: '#FFF1C9', ink: '#8A6200',
+    intro: L('Each pair of teeth looks almost the same. Find what is different, then name it.', 'كل سنّين يبدوان متشابهين تقريباً. جد الفرق ثم سمِّه.'),
+    ch: [
+      { id: 'r5c1', type: 'match', layout: 'cards', instr: 'Compare A and B. Match each tooth to its procedure.', sub: 'Look at which parts of the pulp are gone. One term is not used.',
+        terms: ['Pulpotomy', 'Pulpectomy', 'Apicoectomy'],
+        slots: [{ s: 'A', ans: 'Pulpotomy', pic: () => toothSVG({ chamber: 'material', canals: 'pulp', access: 'restored' }, '', 'Tooth A') }, { s: 'B', ans: 'Pulpectomy', pic: () => toothSVG({ chamber: 'empty', canals: 'empty', access: 'open' }, '', 'Tooth B') }],
+        ex: L('Pulpotomy = removal of part of the pulp, usually from the crown; it preserves the remaining pulp tissue (A: pulp still in the roots). Pulpectomy = removal of the entire pulp, including pulp within the root canals (B: all pulp spaces empty).', 'بتر اللب = إزالة جزء من اللب، عادةً من التاج، ويُبقي باقي النسيج (أ: اللب باقٍ في الجذور). استئصال اللب = إزالة اللب بالكامل، بما فيه اللب داخل قنوات الجذر (ب: كل حيّزات اللب فارغة).') },
+      { id: 'r5c2', type: 'match', layout: 'cards', instr: 'Compare A and B. Match each tooth to its treatment.', sub: 'Look where the purple material touches. One term is not used.',
+        terms: ['Direct pulp capping', 'Indirect pulp treatment', 'Pulpotomy'],
+        slots: [{ s: 'A', ans: 'Indirect pulp treatment', pic: () => toothSVG({ cavity: 'deep' }, '', 'Tooth A') }, { s: 'B', ans: 'Direct pulp capping', pic: () => toothSVG({ cavity: 'exposure' }, '', 'Tooth B') }],
+        ex: L('Direct pulp capping: protective material contacts the exposed pulp (B). Indirect pulp treatment: the pulp is not exposed; dentin remains between the material and the pulp (A). Both are vital pulp therapy: treatment intended to preserve living, functioning pulp.', 'التغطية المباشرة: تلامس المادة اللب المكشوف (ب). المعالجة غير المباشرة: دون انكشاف اللب، ويبقى العاج فاصلاً بين المادة واللب (أ). كلاهما من معالجة اللب الحيوي.') },
+      { id: 'r5c3', type: 'match', layout: 'cards', instr: 'Both teeth were root-filled before. Match each to its procedure.', sub: 'Look at the root tip and at the instrument. One term is not used.',
+        terms: ['Apicoectomy', 'Endodontic retreatment', 'Pulpectomy'],
+        slots: [{ s: 'A', ans: 'Apicoectomy', pic: () => toothSVG({ bone: true, chamber: 'gp', canals: 'gp', restoration: true, cut: true }, '', 'Tooth A') }, { s: 'B', ans: 'Endodontic retreatment', pic: () => toothSVG({ bone: true, chamber: 'gp', canals: 'gp', restoration: true, file: true, halo: true }, '', 'Tooth B') }],
+        ex: L('Apicoectomy (apic/o = apex, -ectomy = surgical removal) = surgical removal of the root tip (A). Endodontic retreatment = treatment of a previously root-filled tooth to address persistent or recurrent disease (B: a file re-enters the old filling).', 'استئصال ذروة الجذر جراحياً (أ). إعادة علاج الجذور = معالجة سن سبق حشو قنواته لمعالجة مرض مستمر أو متكرر (ب: المبرد يعود إلى الحشوة القديمة).') },
+      { id: 'r5c4', type: 'match', layout: 'cards', instr: 'Compare the roots. Match each tooth to the type of resorption.', sub: 'Where did the tissue loss begin? One term is not used.',
+        terms: ['Internal resorption', 'External resorption', 'Pulp necrosis'],
+        slots: [{ s: 'A', ans: 'External resorption', pic: () => toothSVG({ resorption: 'external' }, '', 'Tooth A') }, { s: 'B', ans: 'Internal resorption', pic: () => toothSVG({ resorption: 'internal' }, '', 'Tooth B') }],
+        ex: L('Root resorption = loss of root hard tissue through the activity of resorbing cells. Internal resorption begins at the internal surface of the canal space (B: the canal balloons out). External resorption begins at the external root surface (A: a defect on the outside of the root).', 'ارتشاف الجذر = فقدان النسيج الصلب بفعل الخلايا الناقضة. الداخلي يبدأ من السطح الداخلي للقناة (ب). الخارجي يبدأ من سطح الجذر الخارجي (أ).') },
+      { id: 'r5c5', type: 'match', layout: 'cards', instr: 'One picture shows a structure, the other shows a procedure. Match them.', sub: 'One term is not used.',
+        terms: ['Root canal', 'Root canal treatment', 'Pulp chamber'],
+        slots: [{ s: 'A', ans: 'Root canal', pic: () => toothSVG({ hl: { canals: '#7FD8CE' } }, '', 'Tooth A') }, { s: 'B', ans: 'Root canal treatment', pic: () => toothSVG({ chamber: 'gp', canals: 'gp', restoration: true }, '', 'Tooth B') }],
+        ex: L('Root canal = a structure: the pulp space within the root (A). Root canal treatment (RCT) = a procedure involving cleaning, disinfection and filling of the root canal system (B).', 'قناة الجذر = تركيب: حيّز اللب داخل الجذر (أ). علاج قنوات الجذر = إجراء يتضمن تنظيف نظام القنوات وتطهيره وحشوه (ب).') },
+      { id: 'r5c6', type: 'match', layout: 'cards', instr: 'Compare A and B. Which pulp property does each picture show?', sub: 'Red = blood vessels. Yellow = nerves. One term is not used.',
+        terms: ['Pulp vitality', 'Pulp sensibility', 'Pulp necrosis'],
+        slots: [{ s: 'A', ans: 'Pulp sensibility', pic: () => toothSVG({ nerves: true }, '', 'Tooth A') }, { s: 'B', ans: 'Pulp vitality', pic: () => toothSVG({ vessels: true }, '', 'Tooth B') }],
+        warn: 'Pulp vitality is not the same as pulp sensibility. Cold and electric tests check sensibility.',
+        ex: L('Pulp sensibility = the ability of pulpal nerves to respond to a stimulus (A). Pulp vitality = the living state of the pulp, supported by its blood supply (B).', 'الاستجابة الحسية للب = قدرة الأعصاب اللبية على الاستجابة للمنبّه (أ). حيوية اللب = بقاء اللب حياً مع وجود تروية دموية (ب).') },
+      { id: 'r5c7', type: 'match', layout: 'cards', instr: 'Look at where the red zone is. Match each tooth to the location term.', sub: 'peri- = around. One term is not used.',
+        terms: ['Periapical', 'Periradicular', 'Pulpal'],
+        slots: [{ s: 'A', ans: 'Periapical', pic: () => toothSVG({ bone: true, halo: true }, '', 'Tooth A') }, { s: 'B', ans: 'Periradicular', pic: () => toothSVG({ bone: true, haloRoot: true }, '', 'Tooth B') }],
+        ex: L('Periapical (peri- + apical) = around the root apex (A). Periradicular (peri- + radicular) = around the root (B). Pulpal = related to the pulp.', 'حول الذروة (peri- + apical) = حول ذروة الجذر (أ). حول الجذر (peri- + radicular) = حول الجذر كله (ب). لُبّي = متعلق باللب.') },
+      { id: 'r5c8', type: 'match', layout: 'cards', instr: 'Compare the canals in A and B. Match each tooth to the canal feature.', sub: 'Look at the distal (right) root. One term is not used.',
+        terms: ['Canal curvature', 'Accessory canal', 'Apical constriction'],
+        slots: [{ s: 'A', ans: 'Accessory canal', pic: () => toothSVG({ accessory: true }, '', 'Tooth A') }, { s: 'B', ans: 'Canal curvature', pic: () => toothSVG({ curved: true }, '', 'Tooth B') }],
+        ex: L('Accessory canal = a small branch communicating with the main canal (A). Canal curvature = a bend in the root canal (B).', 'القناة الإضافية = فرع صغير يتصل بالقناة الرئيسية (أ). انحناء قناة الجذر = انحناء في القناة (ب).') },
+    ] },
+];
+const FINAL = { id: 'final', type: 'cloze', instr: 'Unlock the clinical note. Fill in all five blanks.',
+  parts: ['The tooth is tender to ', '. A dental ', ' is placed for isolation. After cleaning and shaping with irrigation, a ', ' is used to dry the canal. The prepared canal system is filled during ', '. A ', ' then rebuilds and seals the coronal part.'],
+  ans: ['percussion', 'dam', 'paper point', 'obturation', 'coronal restoration'],
+  bank: ['percussion', 'palpation', 'dam', 'clamp', 'paper point', 'gutta-percha', 'obturation', 'irrigation', 'coronal restoration', 'sealer', 'apex locator'],
+  ex: L('Percussion = tapping the tooth. Dental dam = a sheet that isolates the tooth. Paper point = dries the canal. Obturation = filling the prepared root canal system. Coronal restoration = rebuilds and seals the coronal part of the tooth.',
+        'القرع = النقر على السن. الحاجز المطاطي = يعزل السن. المخروط الورقي = يجفف القناة. حشو القنوات = ملء نظام القنوات بعد تحضيره. الترميم التاجي = يعيد بناء الجزء التاجي ويغلقه.') };
+const ALL = ROOMS.flatMap(r => r.ch.map(c => Object.assign(c, { room: r.n })));
+
+// ═════════════ state ═════════════
+const DEFAULT_TEAMS = ['Team Turquoise', 'Team Coral', 'Team Lavender', 'Team Blue'];
+let S = newState();
+function newState(prev) {
+  return { view: 'setup', mode: prev ? prev.mode : 'teacher', nTeams: prev ? prev.nTeams : 2, teamNames: prev ? prev.teamNames.slice() : DEFAULT_TEAMS.slice(),
+    timer: prev ? prev.timer : 0, free: prev ? prev.free : false, ar: false,
+    scores: [0, 0, 0, 0], active: 0, keys: [false, false, false, false, false], room: null, idx: 0, res: {}, work: {}, shuf: {},
+    justKey: null, justUnlock: null, paused: false, confirm: false, timeLeft: 0, timeUp: false, finalDone: false };
+}
+const teamCount = () => S.mode === 'solo' ? 1 : S.nTeams;
+const teamName = i => S.mode === 'solo' ? 'You' : (S.teamNames[i] || DEFAULT_TEAMS[i]);
+const roomUnlocked = n => S.free || n === 1 || S.keys[n - 2];
+const allKeys = () => S.keys.every(Boolean);
+function chal() { return S.room === 'final' ? FINAL : ROOMS[S.room - 1].ch[S.idx]; }
+function work(c) {
+  if (!S.work[c.id]) {
+    S.work[c.id] = c.type === 'match' ? { sel: null, a: {} } : c.type === 'mc' ? { sel: [] } : c.type === 'order' ? { seq: [] } : c.type === 'click' ? { hot: null } : { fill: Array(c.ans.length).fill(null), sel: 0 };
+    S.shuf[c.id] = c.type === 'match' ? shuffle(c.terms) : c.type === 'mc' ? (c.keep ? c.options.slice() : shuffle(c.options)) : c.type === 'order' ? shuffle(c.items) : c.type === 'cloze' ? shuffle(c.bank) : null;
+  }
+  return S.work[c.id];
+}
+const resOf = c => S.res[c.id];
+const done = c => !!resOf(c);
+
+// ═════════════ evaluation ═════════════
+function complete(c, w) {
+  if (c.type === 'match') return c.slots.every(sl => w.a[sl.s]);
+  if (c.type === 'mc') return c.multi ? w.sel.length === c.ans.length : w.sel.length === 1;
+  if (c.type === 'order') return w.seq.length === c.items.length;
+  if (c.type === 'click') return !!w.hot;
+  if (c.type === 'cloze') return w.fill.every(Boolean);
+}
+function grade(c, w) {
+  if (c.type === 'match') return c.slots.every(sl => w.a[sl.s] === sl.ans);
+  if (c.type === 'mc') return w.sel.length === c.ans.length && w.sel.every(x => c.ans.includes(x));
+  if (c.type === 'order') return w.seq.every((x, k) => x === c.items[k]);
+  if (c.type === 'click') return w.hot === c.ans;
+}
+function answerText(c) {
+  if (c.type === 'match') return c.slots.map(sl => `${sl.s} → ${sl.ans}`).join(' · ');
+  if (c.type === 'mc') return c.ans.join(' + ');
+  if (c.type === 'order') return c.items.join(' → ');
+  if (c.type === 'click') return c.names[c.ans];
+  if (c.type === 'cloze') return c.ans.map((a, k) => `${k + 1}. ${a}`).join(' · ');
+}
+function award(pts) {
+  S.scores[S.active] += pts;
+  const el = document.createElement('div'); el.className = 'plus'; el.textContent = '+' + pts;
+  const anchor = document.querySelector('.team.active') || document.querySelector('.team');
+  const r = anchor ? anchor.getBoundingClientRect() : { left: innerWidth / 2, top: 80 };
+  el.style.left = (r.left + 10) + 'px'; el.style.top = (r.top + 40) + 'px'; document.body.appendChild(el); setTimeout(() => el.remove(), 1300);
+}
+function submit() {
+  const c = chal(), w = work(c); if (done(c) || !complete(c, w)) return;
+  if (c.type === 'cloze') {
+    const marks = w.fill.map((f, k) => f === c.ans[k]); const pts = marks.filter(Boolean).length * 10;
+    S.res[c.id] = { status: marks.every(Boolean) ? 'ok' : 'miss', marks, team: S.active, pts };
+    if (pts) award(pts);
+  } else {
+    const ok = grade(c, w);
+    S.res[c.id] = { status: ok ? 'ok' : 'miss', how: 'answered', team: S.active, pts: ok ? 10 : 0 };
+    if (ok) award(10);
+  }
+  S.timeUp = false; render();
+}
+function reveal() {
+  const c = chal(), w = work(c); if (done(c)) return;
+  if (c.type === 'cloze') { S.res[c.id] = { status: 'miss', how: 'revealed', marks: w.fill.map((f, k) => f === c.ans[k]), pts: 0 }; }
+  else S.res[c.id] = { status: 'miss', how: 'revealed', pts: 0 };
+  render();
+}
+function skip() { const c = chal(); if (!done(c)) S.res[c.id] = { status: 'miss', how: 'skipped', pts: 0, marks: c.type === 'cloze' ? c.ans.map(() => false) : undefined }; goNext(); }
+function goNext() {
+  if (S.room === 'final') { S.finalDone = true; S.view = 'end'; return render(); }
+  const r = ROOMS[S.room - 1];
+  if (S.idx + 1 < r.ch.length) { S.idx++; startTimer(); render(); }
+  else { const n = r.n; if (!S.keys[n - 1]) { S.keys[n - 1] = true; S.justKey = n; if (n < 5 && !S.free) S.justUnlock = n + 1; if (allKeys()) S.justUnlock = 'final'; } S.view = 'roomDone'; render(); }
+}
+function goPrev() { if (S.room !== 'final' && S.idx > 0) { S.idx--; render(); } }
+
+// ═════════════ timer ═════════════
+let tick = null;
+function startTimer() { S.timeUp = false; S.timeLeft = S.timer; }
+setInterval(() => {
+  if (!S.timer || S.paused || !(S.view === 'ch')) return;
+  const c = chal(); if (done(c) || S.timeUp) return;
+  S.timeLeft = Math.max(0, S.timeLeft - 1);
+  const el = document.getElementById('timer');
+  if (el) { el.textContent = fmt(S.timeLeft); el.classList.toggle('low', S.timeLeft <= 10); }
+  if (S.timeLeft === 0) { S.timeUp = true; render(); }
+}, 1000);
+const fmt = s => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
+
+// ═════════════ rendering ═════════════
+const root = document.getElementById('root');
+function topBar() {
+  const teams = Array.from({ length: teamCount() }, (_, i) => `<button class="team ${S.mode === 'solo' ? 'solo' : ''} ${S.active === i && S.mode !== 'solo' ? 'active' : ''}" style="--tc:${TEAM_COLOURS[i]}" data-act="team" data-i="${i}" ${S.mode === 'solo' ? 'tabindex="-1"' : `aria-pressed="${S.active === i}"`}><span class="dot"></span>${teamName(i)}<span class="pts">${S.scores[i]}</span></button>`).join('');
+  return `<header class="top">
+    <div class="brand">${mascot().replace('class="mascot"', 'class="" style="width:44px;height:auto"')}<div><h1>Endo <span>Quest</span></h1><small>Lecture 9 · Endodontic Terminology</small></div></div>
+    ${S.view !== 'setup' ? `<div class="keys" aria-label="Keys collected">${S.keys.map((k, i) => keyIcon(k, S.justKey === i + 1 && S.view === 'map')).join('')}<span class="lab">${S.keys.filter(Boolean).length} / 5 keys</span></div>
+    <div class="teams">${S.mode !== 'solo' ? '<span class="hint">Answering:</span>' : ''}${teams}</div>
+    <div style="display:flex;gap:8px">${S.view !== 'map' ? '<button class="btn btn-sm" data-act="map">Clinic map</button>' : ''}<button class="btn btn-sm" data-act="askreset">Reset</button></div>` : ''}
+  </header>`;
+}
+function render() {
+  let h = topBar();
+  if (S.view === 'setup') h += setupView();
+  else if (S.view === 'map') h += mapView();
+  else if (S.view === 'roomIntro') h += roomIntroView();
+  else if (S.view === 'ch') h += chView();
+  else if (S.view === 'roomDone') h += roomDoneView();
+  else if (S.view === 'end') h += endView();
+  if (S.paused) h += `<div class="overlay"><div class="modal">${mascot()}<h2>Discussion pause</h2><p>Talk it through with your team. The timer is stopped.</p><button class="btn btn-go" data-act="resume">Resume</button></div></div>`;
+  if (S.confirm) h += `<div class="overlay"><div class="modal"><h2>Reset the game?</h2><p>All scores, keys and answers will be cleared. Team names stay.</p><div style="display:flex;gap:10px"><button class="btn" data-act="noreset">Cancel</button><button class="btn btn-coral" data-act="reset">Reset game</button></div></div></div>`;
+  root.innerHTML = h;
+  if (S.view === 'map') { S.justKey = null; S.justUnlock = null; }
+}
+
+function setupView() {
+  const names = Array.from({ length: S.nTeams }, (_, i) => `<label class="tname"><i style="background:${TEAM_COLOURS[i]}"></i><input id="tn${i}" data-act="tname" data-i="${i}" value="${S.teamNames[i].replace(/"/g, '&quot;')}" maxlength="24" aria-label="Team ${i + 1} name"></label>`).join('');
+  return `<section class="panel"><div class="hero">${mascot('cheer')}<div><h2>Endo Quest:<br>Unlock the Dental Clinic</h2>
+      <p>Five locked rooms and 36 challenges. Every finished room gives a key. Collect all five keys to open the final clinical note.</p>
+      <p class="sub">About 35–45 minutes · Room 1 has 4 challenges, Rooms 2–5 have 8 each · 10 points per correct answer · no negative points</p></div></div></section>
+    <div class="setup">
+      <section class="panel"><div class="field"><span>Mode</span><div class="seg">
+          <button class="${S.mode === 'teacher' ? 'on' : ''}" data-act="mode" data-v="teacher">Teacher-led · teams</button>
+          <button class="${S.mode === 'solo' ? 'on' : ''}" data-act="mode" data-v="solo">Individual practice</button></div></div>
+        ${S.mode === 'teacher' ? `<div class="field"><span>Number of teams</span><div class="seg">${[2, 3, 4].map(n => `<button class="${S.nTeams === n ? 'on' : ''}" data-act="nteams" data-v="${n}">${n} teams</button>`).join('')}</div></div>
+        <div class="field"><span>Team names (click to edit)</span>${names}</div>` : '<p class="sub">One player. You answer every challenge yourself.</p>'}
+      </section>
+      <section class="panel"><div class="field"><span>Timer per challenge</span><div class="seg">${[[0, 'Off'], [30, '30 s'], [45, '45 s'], [60, '60 s'], [90, '90 s']].map(([v, l]) => `<button class="${S.timer === v ? 'on' : ''}" data-act="timer" data-v="${v}">${l}</button>`).join('')}</div></div>
+        <label class="check"><input type="checkbox" id="free" data-act="free" ${S.free ? 'checked' : ''}> Open all five rooms at the start (any order)</label>
+        <div class="notecard"><b>Teacher controls in every challenge:</b> Submit, Reveal answer, Previous, Next, Skip, Pause for discussion, and an Arabic explanation button. In team mode, click a team’s name at the top to choose who is answering before you submit.</div>
+        <button class="btn btn-go" data-act="start" style="font-size:20px;padding:12px 18px;align-self:flex-start">Enter the clinic →</button>
+      </section></div>`;
+}
+
+function mapView() {
+  const pos = [[30, 30], [355, 30], [680, 30], [30, 340], [680, 340]];
+  const icon = n => ({
+    1: `<svg x="0" y="0" width="90" height="117" viewBox="0 0 400 520">${tooth({ bg: 'transparent' })}</svg>`,
+    2: `<path d="M8,10 h84 a12,12 0 0 1 12,12 v40 a12,12 0 0 1 -12,12 h-50 l-20,20 v-20 h-14 a12,12 0 0 1 -12,-12 v-40 a12,12 0 0 1 12,-12 Z" fill="#fff" stroke="#B63F33" stroke-width="4"/><g fill="#B63F33"><circle cx="34" cy="42" r="6"/><circle cx="54" cy="42" r="6"/><circle cx="74" cy="42" r="6"/></g>`,
+    3: `<circle cx="44" cy="44" r="32" fill="#fff" stroke="#21569F" stroke-width="8"/><path d="M68,68 L100,100" stroke="#21569F" stroke-width="12" stroke-linecap="round"/><path d="M30,40 a16,16 0 0 1 16,-16" fill="none" stroke="#9FC0EE" stroke-width="5" stroke-linecap="round"/>`,
+    4: `<g transform="scale(.55) translate(0,40)">${INST.hand()}</g><g transform="scale(.55) translate(0,110)">${INST.gp()}</g>`,
+    5: `<svg x="-6" y="0" width="60" height="78" viewBox="0 0 400 520">${tooth({ bg: 'transparent', chamber: 'material', canals: 'pulp' })}</svg><svg x="50" y="0" width="60" height="78" viewBox="0 0 400 520">${tooth({ bg: 'transparent', chamber: 'empty', canals: 'empty' })}</svg>`,
+  })[n];
+  const lock = (show, anim) => show ? `<g class="lockg ${anim ? 'unlocking' : ''}"><rect x="0" y="0" width="290" height="230" rx="22" fill="rgba(255,255,255,.72)"/><g transform="translate(121,70)"><path d="M10,40 V26 a14,14 0 0 1 28,0 V40" fill="none" stroke="#586379" stroke-width="7"/><rect x="0" y="38" width="48" height="40" rx="8" fill="#586379"/><circle cx="24" cy="56" r="6" fill="#fff"/><rect x="21" y="58" width="6" height="12" fill="#fff"/></g></g>` : '';
+  let rooms = ROOMS.map((r, k) => {
+    const [x, y] = pos[k], unl = roomUnlocked(r.n) || S.justUnlock === r.n, got = S.keys[k];
+    const prog = r.ch.filter(c => done(c)).length;
+    return `<g class="room-g ${unl ? '' : 'locked'}" data-act="room" data-n="${r.n}" role="button" tabindex="0" aria-label="Room ${r.n}: ${r.name.en}${unl ? '' : ', locked'}" transform="translate(${x},${y})">
+      <rect class="room-box" width="290" height="230" rx="22" fill="${r.soft}" stroke="${r.col}" stroke-width="4"/>
+      <rect x="110" y="${k < 3 ? 222 : -8}" width="70" height="16" rx="4" fill="#F7EBD9" stroke="${r.col}" stroke-width="3"/>
+      <circle cx="34" cy="34" r="20" fill="${r.col}"/><text x="34" y="41" text-anchor="middle" font-family="Fredoka, sans-serif" font-weight="600" font-size="22" fill="#fff">${r.n}</text>
+      <text x="62" y="41" font-family="Fredoka, sans-serif" font-weight="600" font-size="${r.name.en.length > 22 ? 16.5 : 20}" fill="${r.ink}">${r.name.en}</text>
+      <g transform="translate(${r.n === 1 ? 100 : 92},${r.n === 1 ? 64 : 76})">${icon(r.n)}</g>
+      <text x="20" y="214" font-family="Nunito Sans, sans-serif" font-weight="700" font-size="15" fill="#586379">${got ? 'Key collected' : prog ? `${prog} / ${r.ch.length} done` : `${r.ch.length} challenges`}</text>
+      ${got ? `<g transform="translate(232,176) scale(1.3)">${keyIcon(true).replace('<svg', '<svg width="36" height="36"')}</g>` : ''}
+      ${lock(!roomUnlocked(r.n) || S.justUnlock === r.n, S.justUnlock === r.n)}</g>`;
+  }).join('');
+  const fUnl = allKeys();
+  rooms += `<g class="room-g ${fUnl ? '' : 'locked'}" data-act="room" data-n="final" role="button" tabindex="0" aria-label="Final challenge${fUnl ? '' : ', needs 5 keys'}" transform="translate(355,340)">
+    <rect class="room-box" width="290" height="230" rx="22" fill="#FFF8E6" stroke="#E5A400" stroke-width="5" stroke-dasharray="${fUnl ? '0' : '12 8'}"/>
+    <rect x="110" y="-8" width="70" height="16" rx="4" fill="#F7EBD9" stroke="#E5A400" stroke-width="3"/>
+    <text x="145" y="44" text-anchor="middle" font-family="Fredoka, sans-serif" font-weight="700" font-size="23" fill="#8A6200">Final: The Clinical Note</text>
+    <g transform="translate(100,64)"><rect width="90" height="110" rx="8" fill="#fff" stroke="#C9B57A" stroke-width="3"/>${[24, 44, 64, 84].map(y => `<line x1="14" y1="${y}" x2="76" y2="${y}" stroke="#D9CBA0" stroke-width="4" stroke-linecap="round"/>`).join('')}</g>
+    <g transform="translate(40,184)">${S.keys.map((k, i) => `<g transform="translate(${i * 44},0)">${keyIcon(k).replace('<svg', '<svg width="36" height="36"')}</g>`).join('')}</g>
+    ${fUnl ? '' : lock(true, false).replace('rgba(255,255,255,.72)', 'rgba(255,255,255,.45)')}
+    ${S.justUnlock === 'final' ? lock(true, true) : ''}</g>`;
+  const guideMsg = S.finalDone ? 'You unlocked every room. Look at the results any time.' : allKeys() ? 'All five keys! The final room is open.' : S.keys.some(Boolean) ? `Great! ${S.keys.filter(Boolean).length} key${S.keys.filter(Boolean).length > 1 ? 's' : ''} collected. Pick the next room.` : 'Welcome to the clinic! Start with Room 1. Each room you finish gives you a key.';
+  return `<div class="mapwrap"><div class="guide"><div class="bubble">${guideMsg}</div>${mascot(allKeys() ? 'cheer' : 'happy')}${S.finalDone ? '<button class="btn btn-go" data-act="results">See results</button>' : ''}</div>
+    <section class="panel map"><svg viewBox="0 0 1000 600" role="group" aria-label="Clinic map">
+      <rect width="1000" height="600" rx="26" fill="#FBF3E6"/><rect x="0" y="270" width="1000" height="60" fill="#F1E2CB"/>
+      ${Array.from({ length: 20 }, (_, i) => `<rect x="${i * 50 + 12}" y="296" width="26" height="8" rx="4" fill="#E4CFAE"/>`).join('')}
+      <text x="500" y="290" text-anchor="middle" font-family="Fredoka, sans-serif" font-weight="600" font-size="14" fill="#B79B70" letter-spacing="4">CORRIDOR</text>
+      ${rooms}</svg></section></div>`;
+}
+
+function roomIntroView() {
+  const r = ROOMS[S.room - 1];
+  return `<section class="panel" style="--rc:${r.col};--rc-soft:${r.soft};--rc-ink:${r.ink};align-items:center;text-align:center;padding:30px">
+    ${mascot('cheer')}<div class="roomtag" style="justify-content:center"><span class="pill">Room ${r.n}</span></div>
+    <h2 style="font-family:var(--f-display);font-size:42px;margin:0">${r.name.en}</h2>
+    <p style="font-size:20px;margin:0;max-width:50ch">${r.intro.en}</p>
+    ${S.ar ? `<p class="ar" style="font-size:20px;margin:0;text-align:center">${r.name.ar}: ${r.intro.ar}</p>` : ''}
+    <div style="display:flex;gap:10px"><button class="btn btn-ar ${S.ar ? 'on' : ''}" data-act="ar">عربي</button><button class="btn btn-go" data-act="begin" style="font-size:20px">Start challenge 1 →</button></div></section>`;
+}
+
+function chView() {
+  const c = chal(), w = work(c), res = resOf(c);
+  const isFinal = S.room === 'final';
+  const r = isFinal ? { n: 'final', name: L('Final Challenge', 'التحدي النهائي'), col: '#E5A400', soft: '#FFF1C9', ink: '#8A6200', ch: [FINAL] } : ROOMS[S.room - 1];
+  const prog = isFinal ? '' : `<div class="progress">${r.ch.map((cc, k) => `<i class="${resOf(cc) ? (resOf(cc).status === 'ok' ? 'ok' : 'miss') : k === S.idx ? 'cur' : ''}"></i>`).join('')}</div>`;
+  const left = visual(c, w, res), right = taskPanel(c, w, res);
+  return `<div style="--rc:${r.col};--rc-soft:${r.soft};--rc-ink:${r.ink};display:flex;flex-direction:column;gap:14px">
+    <div class="roomtag"><span class="pill">${isFinal ? 'Final challenge' : `Room ${r.n} · ${r.name.en}`}</span>${prog}<span class="count">${isFinal ? '5 blanks · 10 points each' : `Challenge ${S.idx + 1} of ${r.ch.length}`}</span></div>
+    <div class="stage">${left}${right}</div></div>`;
+}
+
+function markerCtx(c, w, res) {
+  return () => c.slots.filter(sl => sl.m).map(sl => {
+    const v = w.a[sl.s];
+    let cls = v ? 'filled' : '', tag = '';
+    if (res) { const ok = res.how === 'answered' && v === sl.ans; cls = res.how === 'answered' ? (ok ? 'ok' : 'bad') : 'ok'; tag = sl.big ? '' : sl.ans; }
+    else if (w.sel) cls += ' armed';
+    return marker(sl.s, ...sl.m, { cls, tag });
+  }).join('');
+}
+function visual(c, w, res) {
+  if (c.type === 'cloze') {
+    let note = `<span class="head">Clinical note</span>`;
+    c.parts.forEach((p, k) => {
+      note += p;
+      if (k < c.ans.length) {
+        const f = w.fill[k]; let cls = !res && w.sel === k ? 'sel' : '';
+        if (res) cls = res.marks[k] ? 'ok' : 'bad';
+        note += `<button class="blank ${cls}" data-act="blank" data-k="${k}" ${res ? 'disabled' : ''}><span class="n">${k + 1}</span>${res && !res.marks[k] ? `${f ? `<s>${f}</s> ` : ''}${c.ans[k]}` : f || '&nbsp;'}</button>`;
+      }
+    });
+    return `<section class="panel"><div class="note-sheet">${note}</div><div style="display:flex;gap:12px;align-items:center">${mascot(res ? 'cheer' : 'happy').replace('class="mascot"', 'class="mascot" style="width:90px"')}<p class="sub">Tap a blank, then tap a word from the bank. Tap a filled blank to clear it.</p></div></section>`;
+  }
+  if (c.type === 'mc' && c.patient) return `<section class="panel"><div class="vis"><div class="duo" style="grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr)">${patient(c.patient)}<div class="bubble" style="font-size:22px;font-weight:700;font-family:var(--f-display)">${c.say}</div></div></div></section>`;
+  if (c.type === 'mc' && c.scene) return `<section class="panel"><div class="vis">${SCENES[c.scene]()}</div><p class="sub" style="text-align:center">A cold pellet is placed on the tooth.</p></section>`;
+  if (c.type === 'mc' && c.vis) return `<section class="panel"><div class="vis">${c.vis()}</div></section>`;
+  if (c.type === 'order') return `<section class="panel"><div class="vis">${traySVG()}</div><div class="notecard"><b>Simplified overview.</b> ${c.note}</div></section>`;
+  if (c.type === 'click') {
+    const hc = id => res ? (id === c.ans ? 'ok' : w.hot === id ? 'bad' : '') : w.hot === id ? 'sel' : '';
+    return `<section class="panel"><div class="vis">${c.vis({ hc })}</div>${res ? `<p class="sub" style="text-align:center"><b style="color:var(--ok)">Green</b> = ${c.ansLabel || 'accessory canal'}${w.hot && w.hot !== c.ans ? ` · you chose: ${c.names[w.hot]}` : ''}</p>` : ''}</section>`;
+  }
+  if (c.type === 'match' && c.layout === 'cards') {
+    const cards = c.slots.map(sl => {
+      const v = w.a[sl.s]; let dcls = v ? 'filled' : '';
+      if (res) dcls = res.how === 'answered' ? (v === sl.ans ? 'ok' : 'bad') : 'ok';
+      return `<div class="card ${!res && w.sel && !v ? 'armed' : ''}" data-act="slot" data-slot="${sl.s}" role="button" tabindex="0" aria-label="Card ${sl.s}"><span class="letter">${sl.s}</span>${sl.pic ? sl.pic() : ''}
+        ${sl.name ? `<span class="cname">${sl.name}</span>` : ''}${sl.text ? `<span class="ctext ${sl.pic ? '' : 'big'}">${sl.text}</span>` : ''}
+        <span class="drop ${dcls}">${res ? (res.how === 'answered' && v !== sl.ans ? `<span><s>${v}</s><br>${sl.ans}</span>` : sl.ans) : v || 'Tap a term, then tap here'}</span></div>`;
+    }).join('');
+    return `<section class="panel"><div class="cards">${cards}</div></section>`;
+  }
+  if (c.type === 'match') return `<section class="panel"><div class="vis">${c.vis({ markers: markerCtx(c, w, res) })}</div></section>`;
+  return '';
+}
+
+function taskPanel(c, w, res) {
+  let body = '';
+  const terms = S.shuf[c.id];
+  if (c.type === 'match') {
+    const used = Object.values(w.a);
+    body += `<div class="howto">${res ? 'Answer' : 'Terms'}</div><div class="chips">${terms.map(t => {
+      let cls = w.sel === t ? 'sel' : used.includes(t) ? 'used' : '';
+      if (res) cls = c.slots.some(sl => sl.ans === t) ? 'ok' : '';
+      return `<button class="chip ${cls}" data-act="term" data-t="${encodeURIComponent(t)}" ${res ? 'disabled' : ''}>${t}</button>`; }).join('')}</div>`;
+    if (c.layout !== 'cards') body += `<div class="slots">${c.slots.map(sl => {
+      const v = w.a[sl.s]; let cls = v ? 'filled' : '';
+      if (res) cls = res.how === 'answered' ? (v === sl.ans ? 'ok' : 'bad') : 'ok';
+      return `<button class="slot ${cls}" data-act="slot" data-slot="${sl.s}" ${res ? 'disabled' : ''}><span class="l">${sl.s}</span>${res ? (res.how === 'answered' && v !== sl.ans ? `<span><s>${v || '—'}</s> → <b>${sl.ans}</b></span>` : `<b>${sl.ans}</b>`) : v ? `<b>${v}</b>` : '<span class="ph">Tap a term, then tap here</span>'}</button>`; }).join('')}</div>`;
+  }
+  if (c.type === 'mc') {
+    body += c.badge ? `<span class="badge2">${c.badge}</span>` : '';
+    body += `<div class="opts">${terms.map(t => {
+      let cls = w.sel.includes(t) ? 'sel' : '';
+      if (res) cls = c.ans.includes(t) ? 'ok' : w.sel.includes(t) ? 'bad' : '';
+      return `<button class="opt ${c.multi ? '' : 'radio'} ${cls}" data-act="opt" data-t="${encodeURIComponent(t)}" ${res ? 'disabled' : ''} aria-pressed="${w.sel.includes(t)}"><span class="box"></span>${t}</button>`; }).join('')}</div>`;
+  }
+  if (c.type === 'order') {
+    body += `<div class="howto">Your order (tap a step to remove it)</div><div class="seq">${c.items.map((_, k) => {
+      const v = w.seq[k]; let cls = v ? 'filled' : '';
+      if (res) cls = res.how === 'answered' ? (v === c.items[k] ? 'ok' : 'bad') : 'ok';
+      return `<button class="step ${cls}" data-act="unseq" data-k="${k}" ${res || !v ? 'disabled' : ''}>${res ? (res.how === 'answered' && v !== c.items[k] ? `<span><s>${v}</s> → <b>${c.items[k]}</b></span>` : c.items[k]) : v || '<span class="ph" style="color:var(--muted)">…</span>'}</button>`; }).join('')}</div>`;
+    if (!res) body += `<div class="howto">Steps (tap in order)</div><div class="chips">${terms.map(t => `<button class="chip ${w.seq.includes(t) ? 'used' : ''}" data-act="seq" data-t="${encodeURIComponent(t)}" ${w.seq.includes(t) ? 'disabled' : ''}>${t}</button>`).join('')}</div>`;
+  }
+  if (c.type === 'click' && !res) body += `<p class="sub">${w.hot ? `Selected: <b>a part of the tooth</b>. Submit when ready, or click another part.` : 'Nothing selected yet.'}</p>`;
+  if (c.type === 'cloze') {
+    body += `<div class="howto">Word bank</div><div class="chips">${terms.map(t => `<button class="chip ${w.fill.includes(t) ? 'used' : ''}" data-act="word" data-t="${encodeURIComponent(t)}" ${res || w.fill.includes(t) ? 'disabled' : ''}>${t}</button>`).join('')}</div>`;
+  }
+  // feedback
+  let fb = '';
+  if (res) {
+    const isCloze = c.type === 'cloze';
+    const nOk = isCloze ? res.marks.filter(Boolean).length : 0;
+    const kind = res.how === 'revealed' || res.how === 'skipped' ? 'rev' : res.status === 'ok' ? 'ok' : 'bad';
+    const verdict = res.how === 'revealed' ? 'Answer revealed' : res.how === 'skipped' ? 'Skipped' : isCloze ? `${nOk} of 5 blanks correct · +${res.pts} points` : res.status === 'ok' ? `Correct! +10 for ${teamName(res.team)}` : 'Not quite';
+    fb = `<div class="fb ${kind}"><b class="v">${verdict}</b><span class="ans">Correct answer: ${answerText(c)}</span><span>${c.ex.en}</span>
+      ${c.warn ? `<span class="warn"><b>Remember:</b> ${c.warn}</span>` : ''}
+      ${S.ar ? `<div class="arx ar" lang="ar">${c.ex.ar}</div>` : ''}</div>`;
+  }
+  const isFinal = S.room === 'final';
+  const timer = S.timer ? `<span class="timer ${S.timeLeft <= 10 ? 'low' : ''}" id="timer" aria-label="Time left">${fmt(S.timeLeft)}</span>` : '';
+  const lastInRoom = !isFinal && S.idx === ROOMS[S.room - 1].ch.length - 1;
+  const ctrls = `<div class="controls">
+      <div class="grp"><button class="btn btn-sm" data-act="prev" ${isFinal || S.idx === 0 ? 'disabled' : ''}>◀ Previous</button><button class="btn btn-sm" data-act="skip" ${res ? 'disabled' : ''}>Skip</button><button class="btn btn-sm" data-act="pause">Pause</button><button class="btn btn-sm btn-ar ${S.ar ? 'on' : ''}" data-act="ar" aria-pressed="${S.ar}">عربي</button>${timer}</div>
+      <div class="grp"><button class="btn" data-act="reveal" ${res ? 'disabled' : ''}>Reveal answer</button>
+      ${res ? `<button class="btn btn-go" data-act="next">${isFinal ? 'Finish →' : lastInRoom ? 'Collect the key →' : 'Next ▶'}</button>` : `<button class="btn btn-go" data-act="submit" ${complete(c, w) ? '' : 'disabled'}>Submit</button>`}</div></div>`;
+  return `<section class="panel" aria-live="polite">
+    <p class="instr">${c.instr}</p>${c.sub && !res ? `<p class="sub">${c.sub}</p>` : ''}
+    ${S.timeUp && !res ? '<div class="fb rev"><b class="v">Time’s up!</b><span>Submit the answer now, or reveal it.</span></div>' : ''}
+    ${body}${fb}${ctrls}</section>`;
+}
+
+function roomDoneView() {
+  const r = ROOMS[S.room - 1];
+  const nOk = r.ch.filter(c => resOf(c) && resOf(c).status === 'ok').length;
+  return `<section class="panel" style="align-items:center;text-align:center;padding:30px">
+    <svg class="done-key" viewBox="0 0 40 40" aria-hidden="true"><circle cx="12" cy="20" r="9" fill="#FFC23D" stroke="#C48A00" stroke-width="1.5"/><path d="M19,17 H36 V23 H33 V28 H28 V23 H19 Z" fill="#FFC23D" stroke="#C48A00" stroke-width="1.5"/><circle cx="12" cy="20" r="3.5" fill="#fff"/></svg>
+    <h2 style="font-family:var(--f-display);font-size:40px;margin:0">Key collected!</h2>
+    <p style="font-size:20px;margin:0">Room ${r.n} · ${r.name.en}: ${nOk} of ${r.ch.length} challenges correct.</p>
+    ${r.outro ? `<div class="notecard" style="max-width:640px;text-align:start"><b>Before you leave this room:</b> ${r.outro.en}${S.ar ? `<div class="ar" style="margin-top:6px">${r.outro.ar}</div>` : ''}</div>` : ''}
+    <div style="display:flex;gap:10px">${r.outro ? `<button class="btn btn-ar ${S.ar ? 'on' : ''}" data-act="ar">عربي</button>` : ''}<button class="btn btn-go" data-act="map" style="font-size:20px">Back to the clinic map →</button></div></section>${confetti(40)}`;
+}
+
+function endView() {
+  const order = Array.from({ length: teamCount() }, (_, i) => i).sort((a, b) => S.scores[b] - S.scores[a]);
+  const missed = [...ALL, FINAL].filter(c => resOf(c) && resOf(c).status !== 'ok');
+  const unanswered = [...ALL, FINAL].filter(c => !resOf(c));
+  const roomName = c => c === FINAL ? 'Final challenge' : `Room ${c.room} · ${ROOMS[c.room - 1].name.en}`;
+  const max = ALL.length * 10 + 50;
+  return `<section class="panel" style="align-items:center;text-align:center">${mascot('cheer')}<h2 style="font-family:var(--f-display);font-size:42px;margin:0">The clinic is unlocked!</h2>
+      <p style="margin:0;font-size:18px">Maximum possible: ${max} points.</p>
+      <div class="rank" style="width:min(520px,100%)">${order.map((i, k) => `<div><span>${k === 0 && S.mode !== 'solo' ? 'Winner · ' : ''}${teamName(i)}</span><span>${S.scores[i]}</span></div>`).join('')}</div></section>
+    <section class="panel"><h2 style="font-family:var(--f-display);margin:0">What the class found difficult</h2>
+      ${missed.length ? `<p class="sub">Missed, revealed or skipped. Review these terms together.</p><div class="review">${missed.map(c => {
+        const r = resOf(c); const extra = c === FINAL ? ` (blanks missed: ${r.marks.map((m, k) => m ? null : k + 1).filter(Boolean).join(', ')})` : '';
+        return `<div class="item"><span class="room">${roomName(c)} · ${r.how === 'revealed' ? 'revealed' : r.how === 'skipped' ? 'skipped' : 'answered incorrectly'}${extra}</span><b>${c.instr}</b><span><b>Answer:</b> ${answerText(c)}</span><span>${c.ex.en}</span>${S.ar ? `<span class="ar">${c.ex.ar}</span>` : ''}</div>`; }).join('')}</div>`
+        : '<p>Nothing missed. Every challenge was answered correctly!</p>'}
+      ${unanswered.length ? `<p class="sub">${unanswered.length} challenge(s) were not opened.</p>` : ''}
+      <div style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn btn-ar ${S.ar ? 'on' : ''}" data-act="ar">عربي</button><button class="btn" data-act="map">Clinic map</button><button class="btn btn-go" data-act="again">Play again</button></div></section>${confetti(80)}`;
+}
+function confetti(n) {
+  const cols = ['#14A99D', '#3B7DDD', '#FF6F61', '#8A78E3', '#FFC23D'];
+  return `<div class="confetti" aria-hidden="true">${Array.from({ length: n }, () => `<i style="left:${Math.random() * 100}%;background:${cols[Math.floor(Math.random() * 5)]};animation-duration:${2 + Math.random() * 2.5}s;animation-delay:${Math.random() * .8}s"></i>`).join('')}</div>`;
+}
+
+// ═════════════ events ═════════════
+document.addEventListener('click', e => {
+  const el = e.target.closest('[data-act]'); if (!el) return;
+  const a = el.dataset.act, c = (S.view === 'ch') ? chal() : null, w = c ? work(c) : null;
+  switch (a) {
+    case 'mode': S.mode = el.dataset.v; render(); break;
+    case 'nteams': S.nTeams = +el.dataset.v; render(); break;
+    case 'timer': S.timer = +el.dataset.v; render(); break;
+    case 'free': S.free = el.checked; break;
+    case 'tname': return;
+    case 'start': S.view = 'map'; S.active = 0; render(); break;
+    case 'team': if (S.mode !== 'solo') { S.active = +el.dataset.i; render(); } break;
+    case 'map': S.view = 'map'; render(); break;
+    case 'results': S.view = 'end'; render(); break;
+    case 'room': {
+      const n = el.dataset.n;
+      if (n === 'final') { if (!allKeys()) return; S.room = 'final'; S.idx = 0; S.view = 'ch'; work(FINAL); startTimer(); render(); return; }
+      if (!roomUnlocked(+n)) return;
+      S.room = +n; const r = ROOMS[S.room - 1]; const firstOpen = r.ch.findIndex(cc => !done(cc));
+      S.idx = firstOpen < 0 ? 0 : firstOpen; S.view = firstOpen === 0 ? 'roomIntro' : 'ch'; startTimer(); render(); break;
+    }
+    case 'begin': S.view = 'ch'; startTimer(); render(); break;
+    case 'ar': S.ar = !S.ar; render(); break;
+    case 'pause': S.paused = true; render(); break;
+    case 'resume': S.paused = false; render(); break;
+    case 'askreset': S.confirm = true; render(); break;
+    case 'noreset': S.confirm = false; render(); break;
+    case 'reset': case 'again': S = newState(S); render(); break;
+    case 'submit': submit(); break;
+    case 'reveal': reveal(); break;
+    case 'skip': skip(); break;
+    case 'next': goNext(); break;
+    case 'prev': goPrev(); break;
+    case 'term': { if (resOf(c)) return; const t = decodeURIComponent(el.dataset.t); w.sel = w.sel === t ? null : t; render(); break; }
+    case 'slot': {
+      if (!c || resOf(c)) return; const s = el.dataset.slot;
+      if (w.sel) { for (const k in w.a) if (w.a[k] === w.sel) delete w.a[k]; w.a[s] = w.sel; w.sel = null; }
+      else if (w.a[s]) delete w.a[s];
+      render(); break;
+    }
+    case 'opt': { if (resOf(c)) return; const t = decodeURIComponent(el.dataset.t);
+      if (c.multi) { w.sel = w.sel.includes(t) ? w.sel.filter(x => x !== t) : (w.sel.length < c.ans.length ? [...w.sel, t] : w.sel); } else w.sel = [t];
+      render(); break; }
+    case 'seq': { if (resOf(c)) return; const t = decodeURIComponent(el.dataset.t); if (!w.seq.includes(t)) w.seq.push(t); render(); break; }
+    case 'unseq': { if (resOf(c)) return; w.seq.splice(+el.dataset.k, 1); render(); break; }
+    case 'hot': { if (resOf(c)) return; w.hot = el.dataset.hot; render(); break; }
+    case 'blank': { if (resOf(c)) return; const k = +el.dataset.k; if (w.fill[k]) { w.fill[k] = null; } w.sel = k; render(); break; }
+    case 'word': { if (resOf(c)) return; const t = decodeURIComponent(el.dataset.t);
+      let k = w.sel != null && !w.fill[w.sel] ? w.sel : w.fill.findIndex(f => !f); if (k < 0) return;
+      w.fill[k] = t; const nx = w.fill.findIndex(f => !f); w.sel = nx < 0 ? null : nx; render(); break; }
+  }
+});
+document.addEventListener('input', e => { if (e.target.dataset.act === 'tname') S.teamNames[+e.target.dataset.i] = e.target.value || DEFAULT_TEAMS[+e.target.dataset.i]; });
+document.addEventListener('change', e => { if (e.target.dataset.act === 'free') S.free = e.target.checked; });
+document.addEventListener('keydown', e => {
+  if ((e.key === 'Enter' || e.key === ' ') && e.target.matches('g[data-act], div[data-act][role="button"]')) { e.preventDefault(); e.target.dispatchEvent(new MouseEvent('click', { bubbles: true })); }
+});
+render();
+</script>
+
+</body></html>
