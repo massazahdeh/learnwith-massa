@@ -1,0 +1,862 @@
+<title>Empirical Formula of MgO</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Baloo+2:wght@600;700;800&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+/* Layout: lab stage (illustrated SVG bench) beside a lab notebook; caption under the stage; sticky transport controls at the bottom */
+:root{
+  --bg:#e9f1f0; --surface:#ffffff; --ink:#15303a; --muted:#4b6670; --line:#cfdedd;
+  --accent:#1f62c9; --accent-ink:#ffffff; --heat:#d9661f; --paper:#fff9df; --paper-line:#e8dcae; --paper-ink:#2a2a1a;
+  --ok:#2c8a57; --warn:#b5401c;
+  --f-display:"Baloo 2","Trebuchet MS","Segoe UI",system-ui,sans-serif;
+  --f-body:"Atkinson Hyperlegible","Segoe UI",Verdana,system-ui,sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,"Cascadia Mono",Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0e191d; --surface:#162630; --ink:#e4eff0; --muted:#9db4ba; --line:#2a3f48;
+  --accent:#6ea6ff; --accent-ink:#0b1a2e; --heat:#ff9a55; --paper:#26271a; --paper-line:#45452c; --paper-ink:#f1ecd2;
+  --ok:#5fd193; --warn:#ff8a66; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#0e191d; --surface:#162630; --ink:#e4eff0; --muted:#9db4ba; --line:#2a3f48;
+  --accent:#6ea6ff; --accent-ink:#0b1a2e; --heat:#ff9a55; --paper:#26271a; --paper-line:#45452c; --paper-ink:#f1ecd2;
+  --ok:#5fd193; --warn:#ff8a66; color-scheme:dark }
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.45}
+.wrap{max-width:1500px;margin:0 auto;padding-block:14px 0;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:14px}
+header{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 20px}
+header h1{font-family:var(--f-display);font-weight:800;font-size:clamp(1.35rem,2.4vw,2.1rem);line-height:1.1;margin:0;text-wrap:balance}
+header .eyebrow{font-size:.85rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:700}
+.by{font-family:var(--f-display);font-weight:700;font-size:clamp(1.1rem,1.8vw,1.6rem);color:var(--muted)}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{display:inline-block;border:2px solid var(--heat);color:var(--heat);border-radius:999px;padding:3px 12px;font-weight:700;font-size:.9rem}
+.chip.sim{border-color:var(--accent);color:var(--accent)}
+.main{display:grid;grid-template-columns:minmax(0,1fr) clamp(230px,23vw,320px);gap:16px;align-items:start}
+@media (max-width:700px){.main{grid-template-columns:minmax(0,1fr)}}
+.notebook{position:sticky;top:calc(10px + env(safe-area-inset-top,0px))}
+.left{min-width:0;display:flex;flex-direction:column;gap:12px}
+.stage{position:relative;border-radius:16px;overflow:hidden;border:2px solid var(--line);background:#d7ebe8}
+.stage svg{display:block;width:100%;height:auto}
+.stage svg text{font-family:var(--f-body)}
+/* overlays */
+.hud,.eqb,.endnote{pointer-events:none}
+.hud{position:absolute;top:10px;right:10px;display:flex;flex-direction:column;gap:8px;align-items:flex-end;max-width:46%}
+.panel{background:rgba(255,255,255,.94);color:#15303a;border-radius:12px;padding:8px 12px;box-shadow:0 2px 10px rgba(10,40,50,.18);font-size:clamp(.8rem,1.25vw,1.15rem)}
+.timer{display:flex;gap:10px;align-items:center}
+.timer .t{font-family:var(--f-mono);font-weight:700;font-size:clamp(1.1rem,2.3vw,2.2rem);font-variant-numeric:tabular-nums;line-height:1}
+.timer .lab{font-weight:700}
+.tc{display:inline-block;background:#d9661f;color:#fff;font-weight:700;font-size:.78em;border-radius:6px;padding:1px 7px;letter-spacing:.04em;text-transform:uppercase}
+.timer svg{width:clamp(30px,3.6vw,52px);height:auto}
+.temp{min-width:200px}
+.temp .bar{height:12px;border-radius:6px;background:#dfe7ea;overflow:hidden;margin-top:4px}
+.temp .fill{height:100%;width:0;border-radius:6px}
+.badge-off{background:#15303a;color:#fff;font-weight:800;letter-spacing:.04em}
+.eqb{position:absolute;top:10px;left:10px;max-width:50%}
+.eqb .eq{font-family:var(--f-display);font-weight:800;font-size:clamp(1.1rem,2.6vw,2.4rem);line-height:1.1}
+.intro{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(215,235,232,.55);padding:12px}
+.card{background:rgba(255,255,255,.97);color:#15303a;border-radius:18px;padding:clamp(14px,2.4vw,34px);max-width:760px;box-shadow:0 8px 30px rgba(10,40,50,.2);display:flex;flex-direction:column;gap:10px}
+.card .eyebrow{font-size:clamp(.75rem,1.1vw,.95rem);letter-spacing:.1em;text-transform:uppercase;color:#4b6670;font-weight:700}
+.card h2{font-family:var(--f-display);font-weight:800;font-size:clamp(1.4rem,3.4vw,3rem);line-height:1.05;margin:0;text-wrap:balance}
+.card p{margin:0;font-size:clamp(.95rem,1.6vw,1.4rem)}
+.card .big{font-size:clamp(1rem,1.8vw,1.55rem)}
+.card .startbig{align-self:flex-start;font-size:clamp(1rem,1.7vw,1.4rem);padding:10px 26px}
+.calc{position:absolute;inset:0;background:#fff9df;color:#2a2a1a;padding:clamp(10px,2vw,30px);overflow:auto;background-image:repeating-linear-gradient(transparent 0 calc(2.1em - 1px), #e8dcae calc(2.1em - 1px) 2.1em);font-size:clamp(.72rem,1.2vw,1.15rem)}
+.calc h3{font-family:var(--f-display);font-size:1.6em;margin:0 0 .3em;display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center}
+.calc .ln{margin:.15em 0 .4em}
+.calc .f{font-weight:700}
+.calc .v{font-family:var(--f-mono);font-variant-numeric:tabular-nums;color:#1f4fa0}
+.calc .final{font-family:var(--f-display);font-weight:800;font-size:2.1em;color:#1f4fa0;line-height:1.1}
+.calc .final b{color:#b5401c}
+.endnote{position:absolute;left:10px;bottom:10px;max-width:60%}
+/* caption */
+.caption{background:var(--surface);border:2px solid var(--line);border-radius:16px;padding:14px 18px;display:flex;flex-direction:column;gap:6px}
+.meta{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;color:var(--muted);font-weight:700;font-size:clamp(.85rem,1.2vw,1.05rem)}
+.meta .orig{border:1.5px solid var(--line);border-radius:6px;padding:1px 8px}
+.meta .status{color:var(--accent)}
+.caption h2{font-family:var(--f-display);font-weight:800;font-size:clamp(1.35rem,2.4vw,2.2rem);margin:0;line-height:1.1;text-wrap:balance}
+.caption p{margin:0;font-size:clamp(1.05rem,1.6vw,1.5rem);max-width:70ch}
+.decide{display:flex;flex-wrap:wrap;gap:10px;margin-top:4px}
+.decide div{border-radius:10px;padding:6px 12px;font-size:clamp(.95rem,1.3vw,1.2rem);font-weight:700;border:2px solid var(--line)}
+.decide .y{border-color:var(--ok);color:var(--ok)}
+.decide .n{border-color:var(--warn);color:var(--warn)}
+/* notebook */
+.notebook{background:var(--paper);color:var(--paper-ink);border-radius:14px;border:2px solid var(--paper-line);padding:14px 16px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.notebook h3{font-family:var(--f-display);font-weight:800;font-size:1.5rem;margin:0;line-height:1.1}
+.stamp{display:inline-block;align-self:flex-start;border:2px dashed var(--heat);color:var(--heat);font-weight:800;text-transform:uppercase;letter-spacing:.08em;font-size:.82rem;padding:2px 9px;border-radius:6px;transform:rotate(-2deg)}
+.row{border-bottom:1.5px solid var(--paper-line);padding-bottom:8px;display:flex;flex-direction:column;gap:2px}
+.row .k{font-size:1rem}
+.row .val{font-family:var(--f-mono);font-weight:700;font-size:1.55rem;font-variant-numeric:tabular-nums;min-height:1.3em}
+.row .val.empty{color:var(--muted);font-weight:500}
+.row.fresh .val{color:var(--accent)}
+.row .s{font-size:.82rem;color:var(--muted)}
+.nbnote{font-size:.92rem;color:var(--muted)}
+/* controls */
+.controls{position:sticky;bottom:0;z-index:5;background:var(--bg);padding-block:10px calc(10px + env(safe-area-inset-bottom,0px));border-top:2px solid var(--line);display:flex;flex-direction:column;gap:10px}
+.prog{display:flex;gap:4px}
+.seg{flex:1 1 0;height:14px;border-radius:4px;background:var(--line);border:0;padding:0;cursor:pointer;position:relative;overflow:hidden;min-width:0}
+.seg i{position:absolute;inset:0 auto 0 0;width:0;background:var(--accent)}
+.seg:focus-visible{outline:3px solid var(--heat);outline-offset:2px}
+.btns{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+button,select{font:inherit;font-weight:700;font-size:clamp(.95rem,1.2vw,1.1rem);border-radius:10px;border:2px solid var(--line);background:var(--surface);color:var(--ink);padding:8px 14px;cursor:pointer}
+button:hover{border-color:var(--accent)}
+button:focus-visible,select:focus-visible,input:focus-visible{outline:3px solid var(--heat);outline-offset:2px}
+button:disabled{opacity:.4;cursor:default;border-color:var(--line)}
+button.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.spacer{flex:1}
+label.inl{display:flex;align-items:center;gap:6px;font-weight:700;color:var(--muted)}
+.whyb.pulse{border-color:var(--heat);color:var(--heat)}
+.why{position:absolute;inset:6% 8%;background:#ffffff;color:#15303a;border-radius:16px;padding:clamp(12px,2vw,28px);box-shadow:0 10px 40px rgba(0,0,0,.3);overflow:auto;font-size:clamp(.9rem,1.5vw,1.35rem);display:flex;flex-direction:column;gap:.5em}
+.why h3{font-family:var(--f-display);font-size:1.6em;margin:0}
+.why .eq{font-family:var(--f-display);font-weight:800;font-size:1.35em;color:#1f4fa0}
+.why p{margin:0}
+.why button{align-self:flex-start;color:#15303a;background:#fff;border-color:#cfdedd}
+.task{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;border:3px solid var(--line);border-radius:12px;padding:10px 14px;background:var(--bg)}
+.task.waiting{border-color:var(--heat)}
+.task{padding:8px 12px;background:var(--surface)}
+.task .tn{font-weight:800;text-transform:uppercase;letter-spacing:.06em;font-size:.8rem;color:var(--heat)}
+.task .pt{flex:1 1 240px;min-width:0;font-weight:700;font-size:clamp(1.1rem,1.7vw,1.55rem);line-height:1.3}
+.task button{font-size:clamp(1rem,1.4vw,1.25rem);padding:10px 20px}
+.note{font-size:clamp(.95rem,1.3vw,1.2rem);margin-top:6px}
+#hs{cursor:pointer}
+#hsPulse{transform-box:fill-box;transform-origin:center;animation:hsp 1.1s ease-out infinite}
+@keyframes hsp{from{transform:scale(1);opacity:.9}to{transform:scale(1.5);opacity:0}}
+@media (prefers-reduced-motion: reduce){#hsPulse{animation:none;opacity:0}}
+footer{color:var(--muted);font-size:.9rem;padding-bottom:6px}
+@media (max-width:600px){.hud{max-width:60%}.temp{min-width:130px}.eqb{max-width:70%;top:auto;bottom:8px}}
+</style>
+
+<div class="wrap">
+<header>
+  <h1>Experiment 1: Empirical Formula of a Compound</h1>
+  <span class="by">Massa Zahdeh</span>
+</header>
+
+<div class="main">
+<div class="left">
+<div class="stage" id="stage">
+<svg id="scene" viewBox="0 0 1280 640" role="img" aria-label="Animated laboratory bench">
+<defs>
+  <linearGradient id="wall" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e3f3f0"/><stop offset="1" stop-color="#c3e2dd"/></linearGradient>
+  <linearGradient id="benchTop" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e2b982"/><stop offset="1" stop-color="#c9975d"/></linearGradient>
+  <linearGradient id="benchFront" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8a5a35"/><stop offset="1" stop-color="#6b4226"/></linearGradient>
+  <linearGradient id="steel" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#59636a"/><stop offset=".45" stop-color="#9aa5ad"/><stop offset="1" stop-color="#4c555b"/></linearGradient>
+  <linearGradient id="balBody" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d4dce1"/><stop offset="1" stop-color="#a8b4bb"/></linearGradient>
+  <radialGradient id="hotG"><stop offset="0" stop-color="#ff7a2a" stop-opacity=".75"/><stop offset="1" stop-color="#ff7a2a" stop-opacity="0"/></radialGradient>
+  <radialGradient id="burnG"><stop offset="0" stop-color="#ffffff" stop-opacity=".95"/><stop offset=".5" stop-color="#fff2b8" stop-opacity=".55"/><stop offset="1" stop-color="#fff2b8" stop-opacity="0"/></radialGradient>
+  <pattern id="mesh" width="7" height="7" patternUnits="userSpaceOnUse"><path d="M0 0L7 7M7 0L0 7" stroke="#3e4448" stroke-width="1"/></pattern>
+  <pattern id="tiles" width="80" height="80" patternUnits="userSpaceOnUse"><path d="M80 0V80H0" fill="none" stroke="#b3d6d0" stroke-width="1.5"/></pattern>
+</defs>
+
+<!-- room -->
+<rect width="1280" height="500" fill="url(#wall)"/>
+<rect width="1280" height="500" fill="url(#tiles)" opacity=".7"/>
+<!-- periodic table poster -->
+<g transform="translate(36 40)">
+  <rect width="200" height="150" rx="10" fill="#fff" stroke="#8fb9b2" stroke-width="3"/>
+  <text x="100" y="28" text-anchor="middle" font-size="17" font-weight="700" fill="#2b4a52">Molar masses</text>
+  <rect x="18" y="40" width="76" height="94" rx="8" fill="#ffe08a" stroke="#c99a1c" stroke-width="2"/>
+  <text x="26" y="58" font-size="14" fill="#5a4410">12</text>
+  <text x="56" y="96" text-anchor="middle" font-size="34" font-weight="700" fill="#3a2c06">Mg</text>
+  <text x="56" y="122" text-anchor="middle" font-size="14" font-weight="700" fill="#5a4410">24.305</text>
+  <rect x="106" y="40" width="76" height="94" rx="8" fill="#b9e3ff" stroke="#3d86c6" stroke-width="2"/>
+  <text x="114" y="58" font-size="14" fill="#123d63">8</text>
+  <text x="144" y="96" text-anchor="middle" font-size="34" font-weight="700" fill="#0b2c4a">O</text>
+  <text x="144" y="122" text-anchor="middle" font-size="14" font-weight="700" fill="#123d63">15.999</text>
+</g>
+<!-- shelf with reagent bottles -->
+<g>
+  <rect x="560" y="176" width="420" height="12" rx="3" fill="#a77446"/>
+  <path d="M600 176v-46h20v46z" fill="#7cc7b8" opacity=".9"/><rect x="598" y="120" width="24" height="12" rx="2" fill="#2f6b62"/>
+  <path d="M660 176l14-40v-18h10v18l14 40z" fill="#f2a1c8" opacity=".9"/>
+  <path d="M732 176v-56h30v56z" fill="#f6c45a" opacity=".9"/><rect x="730" y="110" width="34" height="12" rx="2" fill="#8a5b0b"/>
+  <path d="M800 176l18-44v-16h12v16l18 44z" fill="#8fb6ff" opacity=".9"/>
+  <path d="M884 176v-40h26v40z" fill="#b7e07a" opacity=".9"/><rect x="882" y="128" width="30" height="10" rx="2" fill="#49701a"/>
+  <path d="M936 176v-50h22v50z" fill="#ff9f7a" opacity=".9"/>
+</g>
+<!-- safety sign -->
+<g transform="translate(1086 48)">
+  <rect width="160" height="70" rx="10" fill="#ffd84a" stroke="#1d1d1d" stroke-width="3"/>
+  <circle cx="34" cy="35" r="20" fill="#1d1d1d"/><path d="M20 34h28M22 34a6 6 0 0 0 10 0M36 34a6 6 0 0 0 10 0" stroke="#ffd84a" stroke-width="3" fill="none"/>
+  <text x="62" y="31" font-size="16" font-weight="700" fill="#1d1d1d">Wear</text>
+  <text x="62" y="52" font-size="16" font-weight="700" fill="#1d1d1d">goggles</text>
+</g>
+<!-- gas tap -->
+<rect x="1258" y="458" width="22" height="18" rx="3" fill="#c33"/>
+<!-- bench -->
+<rect y="500" width="1280" height="46" fill="url(#benchTop)"/>
+<rect y="544" width="1280" height="96" fill="url(#benchFront)"/>
+<rect y="498" width="1280" height="4" fill="#f0d2a5"/>
+
+<!-- wire gauze -->
+<g>
+  <polygon points="616,508 744,508 731,494 629,494" fill="#cfd3d6"/>
+  <polygon points="616,508 744,508 731,494 629,494" fill="url(#mesh)"/>
+  <ellipse cx="680" cy="501" rx="32" ry="5" fill="#f1efe9"/>
+</g>
+
+<!-- balance -->
+<g id="balance">
+  <ellipse cx="300" cy="503" rx="125" ry="6" fill="#000" opacity=".15"/>
+  <rect x="236" y="256" width="5" height="182" fill="#b9c4ca"/>
+  <rect x="359" y="256" width="5" height="182" fill="#b9c4ca"/>
+  <rect x="206" y="256" width="188" height="184" fill="#cdeeff" opacity=".18"/>
+  <rect x="198" y="248" width="204" height="10" rx="4" fill="#6f7a81"/>
+  <rect x="200" y="250" width="7" height="192" rx="2" fill="#6f7a81"/>
+  <rect x="393" y="250" width="7" height="192" rx="2" fill="#6f7a81"/>
+  <rect x="200" y="452" width="10" height="50" rx="4" fill="#33393d"/>
+  <rect x="390" y="452" width="10" height="50" rx="4" fill="#33393d"/>
+  <rect x="188" y="438" width="224" height="58" rx="14" fill="url(#balBody)" stroke="#7f8b92" stroke-width="2"/>
+  <rect x="190" y="439" width="220" height="9" rx="4" fill="#e8eef1"/>
+  <ellipse cx="300" cy="438" rx="58" ry="8" fill="#2c3438"/>
+  <ellipse cx="300" cy="436" rx="52" ry="5.5" fill="#3d474c"/>
+  <rect x="210" y="452" width="122" height="34" rx="6" fill="#c5e6a0" stroke="#5f7550" stroke-width="2"/>
+  <text id="bdisp" x="318" y="477" text-anchor="end" font-size="22" font-weight="700" fill="#1e2f16" style="font-family:var(--f-mono)">0.0000</text>
+  <text x="327" y="477" text-anchor="end" font-size="14" font-weight="700" fill="#1e2f16">g</text>
+  <circle id="bstable" cx="219" cy="460" r="3.5" fill="#1e2f16"/>
+  <rect id="btare" x="343" y="456" width="38" height="22" rx="5" fill="#8fc3e8" stroke="#3c6e92" stroke-width="2"/>
+  <text x="362" y="471" text-anchor="middle" font-size="10.5" font-weight="700" fill="#173a55">TARE</text>
+  <circle cx="395" cy="467" r="7" fill="#4fbf6a" stroke="#2c6e3c" stroke-width="2"/>
+</g>
+
+<!-- magnesium jar -->
+<g>
+  <rect x="512" y="414" width="66" height="86" rx="9" fill="#e9c94f" stroke="#a88a1d" stroke-width="2"/>
+  <rect x="510" y="408" width="70" height="12" rx="4" fill="#d43a2c"/>
+  <ellipse cx="545" cy="410" rx="31" ry="5" fill="#4b4b4b"/>
+  <path d="M528 409q4-4 8 0t8 0t8 0" stroke="#c6ccd2" stroke-width="2.5" fill="none"/>
+  <rect x="520" y="444" width="50" height="26" rx="3" fill="#fff" stroke="#999"/>
+  <text x="545" y="455" text-anchor="middle" font-size="10" font-weight="700" fill="#333">Magnesium</text>
+  <text x="545" y="466" text-anchor="middle" font-size="10" font-weight="700" fill="#333">metal</text>
+</g>
+
+<!-- tripod back leg -->
+<line x1="940" y1="366" x2="940" y2="497" stroke="#555e64" stroke-width="5"/>
+
+<!-- gas hose -->
+<path id="hose" d="" stroke="#3a3f43" stroke-width="9" fill="none" stroke-linecap="round"/>
+
+<!-- burner -->
+<g id="burner">
+  <ellipse cx="0" cy="-5" rx="36" ry="8" fill="#2a3135"/>
+  <rect x="-15" y="-27" width="30" height="18" rx="3" fill="#3a4449"/>
+  <rect x="-9" y="-95" width="18" height="72" rx="2" fill="url(#steel)"/>
+  <rect x="-11" y="-60" width="22" height="9" rx="2" fill="#2b3236"/>
+  <circle cx="0" cy="-18" r="3" fill="#111"/>
+  <g id="flame" transform="translate(0 -95)">
+    <path id="fo" d=""/>
+    <path id="fi" d=""/>
+  </g>
+</g>
+
+<!-- tripod ring + front legs -->
+<g>
+  <line x1="889" y1="364" x2="870" y2="499" stroke="#3f474c" stroke-width="7" stroke-linecap="round"/>
+  <line x1="991" y1="364" x2="1010" y2="499" stroke="#3f474c" stroke-width="7" stroke-linecap="round"/>
+  <ellipse cx="940" cy="362" rx="62" ry="9" fill="none" stroke="#2f363a" stroke-width="8"/>
+</g>
+
+<!-- clay triangle -->
+<g id="tri">
+  <path d="M-62 5L-40 4M40 4L62 5M3 -8L4 -16" stroke="#7d868d" stroke-width="2.5"/>
+  <line x1="-40" y1="4" x2="40" y2="4" stroke="#e7d6b0" stroke-width="8" stroke-linecap="round"/>
+  <line x1="-40" y1="4" x2="3" y2="-8" stroke="#dcc79c" stroke-width="7" stroke-linecap="round"/>
+  <line x1="40" y1="4" x2="3" y2="-8" stroke="#dcc79c" stroke-width="7" stroke-linecap="round"/>
+</g>
+
+<!-- beaker + wash bottle -->
+<g>
+  <path d="M1167 420h56v74q0 6-6 6h-44q-6 0-6-6z" fill="#e9f6ff" fill-opacity=".6" stroke="#7aa3b5" stroke-width="2.5"/>
+  <path d="M1169 452h52v42q0 5-5 5h-42q-5 0-5-5z" fill="#8fd0ef" opacity=".75"/>
+  <path d="M1163 420h8" stroke="#7aa3b5" stroke-width="3"/>
+  <path d="M1209 436h10M1209 452h10M1209 468h10" stroke="#7aa3b5" stroke-width="1.5"/>
+  <rect x="1230" y="410" width="42" height="90" rx="11" fill="#f4fbff" fill-opacity=".85" stroke="#8aa9b8" stroke-width="2.5"/>
+  <rect x="1238" y="398" width="26" height="14" rx="3" fill="#d43a2c"/>
+  <path d="M1251 398v-12q0-8-8-10l-22 8" stroke="#9fb6c0" stroke-width="4" fill="none" stroke-linecap="round"/>
+  <text x="1251" y="450" text-anchor="middle" font-size="11" font-weight="700" fill="#2f5664">DI</text>
+  <text x="1251" y="464" text-anchor="middle" font-size="11" font-weight="700" fill="#2f5664">water</text>
+</g>
+
+<!-- matches -->
+<g>
+  <rect x="984" y="522" width="52" height="22" rx="3" fill="#f2a35c" stroke="#a5602a" stroke-width="2"/>
+  <rect x="984" y="522" width="52" height="7" fill="#d94a3a"/>
+  <line x1="1040" y1="540" x2="1072" y2="536" stroke="#e5cfa0" stroke-width="3"/><circle cx="1073" cy="536" r="3.5" fill="#c62f2a"/>
+</g>
+
+<!-- weighing dish -->
+<g id="dish">
+  <path d="M-37 -19H37L29 0H-29Z" fill="#f8fbfc" stroke="#87a2ad" stroke-width="2"/>
+  <path d="M-31 -15H31" stroke="#c9d8de" stroke-width="2"/>
+  <g id="mgD">
+    <path d="M-20 -21q4-4 8 0t8 0t8 0t8 0" stroke="#9ea8b2" stroke-width="3" fill="none"/>
+    <path d="M-14 -26q4-4 8 0t8 0t8 0" stroke="#b9c2cb" stroke-width="3" fill="none"/>
+    <path d="M-6 -30q3-3 6 0t6 0" stroke="#aab3bc" stroke-width="3" fill="none"/>
+  </g>
+</g>
+
+<!-- crucible -->
+<g id="cruc">
+  <ellipse id="cGlow" cx="0" cy="-30" rx="70" ry="60" fill="url(#hotG)" opacity="0"/>
+  <path id="cBody" d="M-32 -58H32Q30 -20 20 -2Q0 3 -20 -2Q-30 -20 -32 -58Z" stroke="#a99c84" stroke-width="2"/>
+  <ellipse cx="0" cy="-58" rx="32" ry="7" fill="#e3dccd" stroke="#a99c84" stroke-width="2"/>
+  <ellipse cx="0" cy="-57.5" rx="27" ry="4.6" fill="#6a6158"/>
+  <g id="cRib">
+    <path d="M-20 -58q4-4 8 0t8 0t8 0t8 0" stroke="#c3cad1" stroke-width="2.8" fill="none"/>
+    <path d="M-12 -61q4-3 8 0t8 0t8 0" stroke="#9ea8b2" stroke-width="2.8" fill="none"/>
+  </g>
+  <g id="cAsh">
+    <ellipse cx="-12" cy="-59" rx="9" ry="4"/><ellipse cx="4" cy="-61" rx="10" ry="4.5"/><ellipse cx="15" cy="-58" rx="7" ry="3.5"/><ellipse cx="-2" cy="-57" rx="8" ry="3"/>
+  </g>
+  <ellipse id="cBurn" cx="0" cy="-62" rx="40" ry="24" fill="url(#burnG)" opacity="0"/>
+  <g id="cCool" stroke="#3d8fe0" stroke-width="3" fill="none" stroke-linecap="round" opacity="0">
+    <path d="M-48 -50q-6 6 0 12t0 12"/><path d="M-58 -42q-6 6 0 12t0 12"/>
+    <path d="M48 -50q6 6 0 12t0 12"/><path d="M58 -42q6 6 0 12t0 12"/>
+  </g>
+</g>
+
+<!-- lid -->
+<g id="lid">
+  <path id="lidD" d="M-36 0Q-34 -12 0 -13Q34 -12 36 0Z" stroke="#a99c84" stroke-width="2"/>
+  <ellipse id="lidE" cx="0" cy="0" rx="37" ry="5.5" stroke="#a99c84" stroke-width="2"/>
+  <path d="M-7 -12q7 -9 14 0" stroke="#a99c84" stroke-width="3" fill="none"/>
+</g>
+
+<!-- wisps (vapour / ammonia) -->
+<g id="wisp" opacity="0" stroke="#9fb0bb" stroke-width="3" fill="none" stroke-linecap="round">
+  <g id="wispIn">
+    <path d="M0 0q-8 -10 0 -20t0 -20"/><path d="M14 -6q-8 -10 0 -20t0 -20"/><path d="M-12 -4q-6 -9 0 -18t0 -18"/>
+  </g>
+</g>
+
+<!-- spatula -->
+<g id="spat">
+  <line x1="0" y1="-12" x2="0" y2="-150" stroke="#7d868d" stroke-width="4.5" stroke-linecap="round"/>
+  <rect x="-5" y="-172" width="10" height="24" rx="2" fill="#8d969d"/>
+  <ellipse cx="0" cy="-6" rx="7" ry="10" fill="#9aa3aa" stroke="#6c757c" stroke-width="1.5"/>
+  <path id="mgS" d="M-5 -8q2.5 -3 5 0t5 0" stroke="#c9d0d6" stroke-width="3" fill="none" opacity="0"/>
+</g>
+
+<!-- dropper + drop -->
+<g id="dropper">
+  <path d="M-2.5 0L-5 -70V-95H5V-70L2.5 0Z" fill="#e3f4ff" fill-opacity=".8" stroke="#6f97a8" stroke-width="2"/>
+  <path d="M-3 -40H3V-6" stroke="#8fd0ef" stroke-width="3" opacity=".7"/>
+  <ellipse id="bulb" cx="0" cy="-108" rx="10" ry="15" fill="#e8574d" stroke="#a33029" stroke-width="2"/>
+</g>
+<circle id="drop" r="5.5" fill="#5cbcf0" opacity="0"/>
+
+<!-- tongs -->
+<g id="tongs">
+  <g id="tA"><path d="M1 -3Q28 -11 55 -3L138 -15" stroke="#5d666c" stroke-width="6.5" fill="none" stroke-linecap="round"/><circle cx="148" cy="-17" r="9" fill="none" stroke="#5d666c" stroke-width="5"/></g>
+  <g id="tB"><path d="M1 3Q28 11 55 3L138 15" stroke="#4a5257" stroke-width="6.5" fill="none" stroke-linecap="round"/><circle cx="148" cy="17" r="9" fill="none" stroke="#4a5257" stroke-width="5"/></g>
+  <circle cx="55" cy="0" r="5.5" fill="#30363a"/>
+</g>
+
+<!-- equipment labels -->
+<g id="eqg"></g>
+
+<!-- clickable target for the student's next action -->
+<g id="hs" visibility="hidden">
+  <circle id="hsPulse" r="48" fill="none" stroke="#ff8a1f" stroke-width="4"/>
+  <circle id="hsHit" r="48" fill="#ffb15c" fill-opacity="0.18"/>
+  <circle id="hsRing" r="48" fill="none" stroke="#ff7a0f" stroke-width="5" stroke-dasharray="12 7"/>
+  <g id="hsTag"><rect rx="9" height="32" fill="#ff7a0f"/><text text-anchor="middle" font-size="19" font-weight="700" fill="#1b1206"></text></g>
+</g>
+<!-- callouts -->
+<g id="co1" visibility="hidden"><line stroke="#1f4fa0" stroke-width="3"/><circle r="6" fill="#1f4fa0"/><rect rx="10" fill="#1f4fa0"/><text text-anchor="middle" font-size="22" font-weight="700" fill="#fff"></text></g>
+<g id="co2" visibility="hidden"><line stroke="#1f4fa0" stroke-width="3"/><circle r="6" fill="#1f4fa0"/><rect rx="10" fill="#1f4fa0"/><text text-anchor="middle" font-size="22" font-weight="700" fill="#fff"></text></g>
+</svg>
+
+<!-- HTML overlays -->
+<div class="eqb panel" id="eqb" hidden>
+  <div class="eq">2Mg(s) + O₂(g) → 2MgO(s)</div>
+  <div>The mass goes up because magnesium combines with oxygen from the air.</div>
+</div>
+<div class="hud">
+  <div class="panel timer" id="timer" hidden>
+    <svg viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="16" fill="none" stroke="#dfe7ea" stroke-width="6"/><circle id="tring" cx="20" cy="20" r="16" fill="none" stroke="#d9661f" stroke-width="6" stroke-dasharray="100.5" stroke-dashoffset="100.5" transform="rotate(-90 20 20)" stroke-linecap="round"/></svg>
+    <div>
+      <div class="lab" id="tlab">Strong heating</div>
+      <div class="t" id="tval">00:00</div>
+      <div><span class="tc">Time compressed</span></div>
+      <div id="lifts" hidden>Lid lifts: 0 / 30</div>
+    </div>
+  </div>
+  <div class="panel temp" id="temp" hidden>
+    <div><b>Crucible temperature</b> <span id="tempw">cool</span></div>
+    <div class="bar"><div class="fill" id="tempf"></div></div>
+  </div>
+  <div class="panel" id="dcount" hidden><b>Drops added:</b> <span id="dnum" style="font-family:var(--f-mono);font-weight:700;font-size:1.3em">0</span> / 10</div>
+  <div class="panel badge-off" id="foff" hidden>FLAME OFF</div>
+</div>
+<div class="panel endnote" id="endnote" hidden><b>Simplified version.</b> One weighing after cooling. Constant mass was not checked.</div>
+
+<div class="calc" id="calc" hidden>
+  <h3>Calculation <span class="stamp">Simulated data</span></h3>
+  <div id="clines"></div>
+</div>
+
+<div class="why" id="why" hidden role="dialog" aria-labelledby="whyh">
+  <h3 id="whyh">Why add water?</h3>
+  <p>Hot magnesium also reacts with nitrogen in the air and forms a little magnesium nitride, Mg₃N₂. That would give the wrong product mass.</p>
+  <p>Water turns the nitride into magnesium hydroxide, and ammonia gas escapes:</p>
+  <div class="eq">Mg₃N₂ + 6H₂O → 3Mg(OH)₂ + 2NH₃</div>
+  <p>Heating then turns the hydroxide into the oxide and drives off the water:</p>
+  <div class="eq">Mg(OH)₂ → MgO + H₂O (on heating)</div>
+  <p>So all of the magnesium ends up as MgO before the final weighing.</p>
+  <button id="whyClose">Close</button>
+</div>
+</div>
+
+<div class="caption">
+  <div class="meta"><span id="snum">Stage 1 of 16</span><span class="orig" id="sorig">Aim</span><span class="status" id="sstat"></span></div>
+  <h2 id="stitle">Aim</h2>
+  <p id="stext"></p>
+  <div id="sextra"></div>
+</div>
+</div>
+
+<aside class="notebook" aria-label="Lab notebook">
+  <h3>Lab notebook</h3>
+  <span class="stamp">Simulated data</span>
+  <div class="row" id="r1"><span class="k">Mass of Mg in the tared dish (direct reading)</span><span class="val empty">—</span></div>
+  <div class="row" id="r2"><span class="k">Mass of empty crucible + lid</span><span class="val empty">—</span></div>
+  <div class="row" id="r3"><span class="k">Final mass of crucible + lid + product (after cooling, one weighing)</span><span class="val empty">—</span></div>
+  <div class="nbnote">Values appear as each mass is recorded. Simplified teaching animation: constant mass was not verified.</div>
+</aside>
+</div>
+
+<div class="controls">
+  <div class="task" id="task" aria-live="polite"><span class="tn" id="tnum">Ready</span><span class="pt" id="ptext"></span><button class="primary" id="bDo">Start ▶</button></div>
+  <div class="prog" id="prog"></div>
+  <div class="btns">
+    <button id="bBack">◀ Back</button>
+    <button id="bPlay">Play</button>
+    <button id="bNext">Next ▶</button>
+    <button id="bReplay">Replay step</button>
+    <button id="bRestart">Restart</button>
+    <button class="whyb" id="bWhy">Why add water?</button>
+    <button id="bSound" aria-pressed="true">Sound: On</button>
+    <span class="spacer"></span>
+    <label class="inl" for="speed">Speed
+      <select id="speed"><option value="0.5">0.5×</option><option value="0.75">0.75×</option><option value="1" selected>1×</option><option value="1.5">1.5×</option><option value="2">2×</option><option value="3">3×</option></select>
+    </label>
+    <label class="inl" for="auto"><input type="checkbox" id="auto"> Demo mode (plays by itself)</label>
+  </div>
+</div>
+<footer>Prepared by Massa Zahdeh · Based on “Experiment 1: Empirical Formula of a Compound”, procedure steps 1–19 (step 9 left out: Mg and crucible weighed separately). Keys: Space or Enter do it / pause · Sound button turns effects on or off · ← → back/next · R replay.</footer>
+</div>
+
+<script>
+(()=>{
+const $=id=>document.getElementById(id);
+const clamp=(v,a=0,b=1)=>Math.max(a,Math.min(b,v));
+const RM=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+const EASE={lin:t=>t,io:t=>t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2,out:t=>1-Math.pow(1-t,3),in:t=>t*t};
+function hx(h){const n=parseInt(h.slice(1),16);return[n>>16,(n>>8)&255,n&255]}
+function mix(a,b,t){t=clamp(t);const A=hx(a),B=hx(b);return`rgb(${A.map((v,i)=>Math.round(v+(B[i]-v)*t)).join(',')})`}
+const TEMPO=1.5; // base pace; the Speed menu multiplies this
+
+/* ---------- sound (synthesised with Web Audio, works offline) ---------- */
+let AC=null,master=null,nbuf=null,hiss=null,soundOn=true,silent=false;
+function ac(){
+  if(!AC){try{AC=new (window.AudioContext||window.webkitAudioContext)();master=AC.createGain();master.gain.value=0.9;master.connect(AC.destination)}catch(e){AC=null}}
+  if(AC&&AC.state==='suspended')AC.resume().catch(()=>{});
+  return AC;
+}
+function envG(g,t,a,d,v){g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(v,t+a);g.gain.exponentialRampToValueAtTime(0.0001,t+a+d)}
+function tone(f,d,o={}){const a=ac();if(!a||!soundOn)return;const t=a.currentTime+(o.delay||0);
+  const os=a.createOscillator(),g=a.createGain();os.type=o.type||'sine';os.frequency.setValueAtTime(f,t);
+  if(o.to)os.frequency.exponentialRampToValueAtTime(o.to,t+d);os.connect(g);g.connect(master);envG(g,t,0.008,d,o.v||0.1);os.start(t);os.stop(t+d+0.05)}
+function noiseBuf(a){if(!nbuf){nbuf=a.createBuffer(1,a.sampleRate,a.sampleRate);const c=nbuf.getChannelData(0);for(let i=0;i<c.length;i++)c[i]=Math.random()*2-1}return nbuf}
+function noise(d,o={}){const a=ac();if(!a||!soundOn)return;const t=a.currentTime+(o.delay||0);
+  const src=a.createBufferSource();src.buffer=noiseBuf(a);src.loop=true;
+  const fl=a.createBiquadFilter();fl.type=o.type||'bandpass';fl.frequency.setValueAtTime(o.f||1500,t);fl.Q.value=o.q||1;
+  if(o.fTo)fl.frequency.exponentialRampToValueAtTime(o.fTo,t+d);
+  const g=a.createGain();src.connect(fl);fl.connect(g);g.connect(master);envG(g,t,o.a||0.01,d,o.v||0.08);src.start(t);src.stop(t+d+0.1)}
+const SFX={
+  click:()=>tone(880,0.05,{type:'square',v:0.04}),
+  beep:()=>tone(2050,0.13,{v:0.07}),
+  clink:()=>{tone(2300,0.28,{type:'triangle',v:0.06});tone(3450,0.2,{v:0.03})},
+  tick:()=>tone(3100,0.05,{type:'triangle',v:0.025}),
+  scrape:()=>noise(0.25,{v:0.05,f:3200,type:'highpass'}),
+  pour:()=>{for(let i=0;i<6;i++)noise(0.07,{v:0.06,f:2600+i*150,q:2,delay:i*0.09})},
+  slide:()=>noise(0.9,{v:0.04,f:700,q:0.7,a:0.15}),
+  whoosh:()=>noise(0.7,{v:0.16,f:250,fTo:1400,type:'lowpass',a:0.05}),
+  puff:()=>noise(0.3,{v:0.09,f:500,type:'lowpass'}),
+  drip:()=>tone(1300,0.11,{to:480,v:0.09}),
+  write:()=>{for(let i=0;i<6;i++)noise(0.06,{v:0.045,f:4200,type:'highpass',delay:i*0.11})},
+  pop:()=>tone(620,0.08,{to:940,v:0.05}),
+  chime:()=>{tone(660,0.3,{v:0.08});tone(880,0.3,{v:0.08,delay:0.12});tone(1320,0.5,{v:0.07,delay:0.24})}
+};
+function updateHiss(running){
+  if(!AC)return;
+  if(!hiss){const src=AC.createBufferSource();src.buffer=noiseBuf(AC);src.loop=true;const fl=AC.createBiquadFilter();fl.type='bandpass';fl.frequency.value=900;fl.Q.value=0.6;
+    const g=AC.createGain();g.gain.value=0;src.connect(fl);fl.connect(g);g.connect(master);src.start();hiss={g,fl}}
+  const target=soundOn&&running?S.flame*0.07:0;
+  hiss.g.gain.setTargetAtTime(target,AC.currentTime,0.08);hiss.fl.frequency.setTargetAtTime(600+700*S.flame,AC.currentTime,0.1);
+}
+
+/* ---------- simulated data (internally consistent) ---------- */
+const D={mg:0.3042, empty:28.4562, final:28.9542, dish:1.2150};
+D.prod=+(D.final-D.empty).toFixed(4);          // 0.4980
+D.o=+(D.prod-D.mg).toFixed(4);                 // 0.1938
+D.nMg=D.mg/24.305; D.nO=D.o/15.999;
+D.small=Math.min(D.nMg,D.nO); D.rMg=D.nMg/D.small; D.rO=D.nO/D.small;
+
+/* ---------- timeline ---------- */
+class TL{
+  constructor(){this.q=[];this.c=0;this.ls=0;this.end=0}
+  _p(o){this.q.push(o);this.end=Math.max(this.end,o.s+(o.d||0))}
+  to(p,d,e='io'){this.ls=this.c;this._p({s:this.c,d,p,e});this.c+=d;return this}
+  also(p,d,e='io'){this._p({s:this.ls,d,p,e});this.c=Math.max(this.c,this.ls+d);return this}
+  wait(d){this.c+=d;this.end=Math.max(this.end,this.c);return this}
+  at(t){this.c=t;this.ls=t;return this}
+  set(p){this._p({s:this.c,d:0,set:p});return this}
+  fx(n,dt=0){this._p({s:this.c+dt,d:0,fx:n});return this}
+  fin(){this.q.forEach((o,i)=>o.i=i);this.q.sort((a,b)=>a.s-b.s||a.i-b.i);this.end=Math.max(this.end,this.c);return this}
+  apply(t){
+    for(const o of this.q){
+      if(t<o.s)break;
+      if(o.set){if(!o.done){o.done=1;Object.assign(S,o.set)}continue}
+      if(o.fx){if(!o.done){o.done=1;if(!silent&&SFX[o.fx])SFX[o.fx]()}continue}
+      if(!o.f){o.f={};for(const k in o.p)o.f[k]=S[k]}
+      const r=o.d?Math.min(1,(t-o.s)/o.d):1, v=EASE[o.e](r);
+      for(const k in o.p)S[k]=o.f[k]+(o.p[k]-o.f[k])*v;
+    }
+  }
+}
+
+function init(){return{
+  intro:0,eqL:0,
+  dishX:100,dishY:500,dishA:0,mgD:0,
+  spX:440,spY:528,spA:92,mgS:0,
+  cX:680,cY:497,lidX:680,lidY:437,lidA:0,mgC:0,ash:0,hot:0,burn:0,cool:0,wisp:0,
+  tgX:705,tgY:530,tgA:0,tgO:0,
+  triX:1040,triY:500,bnX:1120,flame:0,
+  drX:1195,drY:470,sq:0,dropP:0,dropV:0,drops:0,dcOn:0,
+  disp:0,stable:1,tare:0,
+  c1:0,c1t:'',c1ax:0,c1ay:0,c1lx:0,c1ly:0,
+  c2:0,c2t:'',c2ax:0,c2ay:0,c2lx:0,c2ly:0,
+  eqb:0,tOn:0,tT:0,tTot:900,tLab:'',lifts:0,liftOn:0,tmpOn:0,foff:0,why:0,
+  n1:0,n2:0,n3:0,calcOn:0,calc:0,endNote:0
+}}
+let S=init();
+
+/* ---------- reusable lab actions ---------- */
+const P={gauze:{x:680,y:497},pan:{x:300,y:432},tri:{x:940,y:358}};
+const LIDREST={x:600,y:515};
+function home(t){t.to({tgX:705,tgY:530,tgA:0,tgO:0},0.7)}
+function grab(t,from,to,lid,liftProps){
+  const lo=lid==='on'?[0,-60]:lid==='part'?[16,-63]:null;
+  const g=p=>({tgX:p.x+31,tgY:p.y-46});
+  t.to({...g(from),tgA:-18,tgO:12},0.8).to({tgO:2},0.2).fx('tick');
+  const top=Math.min(from.y,to.y)-80;
+  const leg=(p,d)=>{const o={cX:p.x,cY:p.y,...g(p)};if(lo){o.lidX=p.x+lo[0];o.lidY=p.y+lo[1]}t.to(o,d)};
+  leg({x:from.x,y:top},0.5);
+  leg({x:to.x,y:top},0.9); if(liftProps)t.also(liftProps,0.5,'out');
+  leg(to,0.5);t.fx('clink');
+  t.to({tgO:12},0.2); home(t);
+}
+function lidTo(t,from,to,a,hold){
+  const o=[8,-9];
+  t.to({tgX:from.x+o[0],tgY:from.y+o[1],tgA:-30,tgO:12},0.7).to({tgO:2},0.2);
+  const top=Math.min(from.y,to.y)-60;
+  t.to({lidY:top,tgY:top+o[1]},0.4).to({lidX:to.x,tgX:to.x+o[0]},0.8).to({lidY:to.y,tgY:to.y+o[1],lidA:a},0.4).fx('clink');
+  if(!hold)t.to({tgO:12},0.2);
+}
+function tare(t){t.fx('click').to({tare:1},0.2).to({disp:0},0.5,'out').fx('beep').to({tare:0},0.25)}
+function co(t,n,txt,ax,ay,lx,ly){const k='c'+n;t.set({[k+'t']:txt,[k+'ax']:ax,[k+'ay']:ay,[k+'lx']:lx,[k+'ly']:ly}).to({[k]:1},0.3)}
+function scoop(t,d,g){t.to({spX:545,spY:370,spA:30},0.8).to({spY:414},0.4).fx('scrape').to({mgS:1},0.25).to({spY:370},0.4)
+  .to({spX:300,spY:405,spA:35},0.8).to({spA:62},0.3).fx('pour').to({mgS:0,mgD:d},0.4).also({disp:g},1.0,'out').fx('beep').to({spA:35},0.3)}
+function cool(t){t.to({cool:1},0.4).to({hot:0},3.5,'lin').to({cool:0},0.4)}
+const DISP=[270,468], BELOW=[300,600];
+
+/* ---------- stages → student actions ---------- */
+/* each act: k = short name on the glowing target, p = instruction, h = clickable target (null = use the Do it button), b = animation */
+const STAGES=[
+{t:'Equipment',o:'Equipment page',pre:{intro:0},x:'These are the items used in this experiment.',acts:[
+ {k:'Labels',p:'Press “Do it” to label the equipment on the bench.',h:null,b:t=>{for(let i=0;i<13;i++)t.fx('pop',i*3.5/13+0.1);t.to({eqL:13},3.5,'lin')}}]},
+{t:'Tare the weighing dish',o:'PDF steps 1–2',pre:{eqL:0},x:'The dish goes on the analytical balance and TARE sets the display to zero, so the dish mass is not counted.',acts:[
+ {k:'Weighing dish',p:'Click the weighing dish to put it on the balance pan.',h:'dish',b:t=>{t.set({stable:0}).to({dishY:380},0.5).to({dishX:300},0.8).to({dishY:432},0.5).to({disp:D.dish},0.7,'out').set({stable:1}).fx('beep');co(t,1,'The display shows the dish mass',...DISP,...BELOW)}},
+ {k:'TARE',p:'Click the TARE button to zero the balance.',h:'tare',b:t=>{tare(t);co(t,1,'0.0000 g: the dish is not counted',...DISP,...BELOW)}}]},
+{t:'Weigh about 0.3 g of magnesium',o:'PDF steps 3–5',x:'Add magnesium until the display reads about 0.3 g. Take the spatula out before you read and record the mass.',acts:[
+ {k:'Magnesium jar',p:'Click the magnesium jar to scoop magnesium into the dish.',h:'jar',b:t=>{t.set({stable:0});scoop(t,0.55,0.1875);co(t,1,'0.1875 g: not 0.3 g yet',...DISP,...BELOW)}},
+ {k:'Magnesium jar',p:'Click the jar again to add a little more magnesium.',h:'jar',b:t=>{scoop(t,1,D.mg);co(t,1,'About 0.3 g now',300,418,300,226)}},
+ {k:'Spatula',p:'Click the spatula to take it out of the balance before reading.',h:'spat',b:t=>{t.to({spX:440,spY:528,spA:92},0.9).set({stable:1}).fx('beep');co(t,1,'Spatula out: the reading is stable',...DISP,...BELOW)}},
+ {k:'Display',p:'Click the display to record the mass of magnesium in your notebook.',h:'disp',b:t=>{t.fx('write').to({n1:1},0.8,'lin');co(t,1,'Mass of Mg recorded',...DISP,...BELOW)}}]},
+{t:'Weigh the empty crucible and lid',o:'PDF step 6',x:'Re-zero the empty balance, then weigh the clean, dry crucible with its lid. Tongs keep fingerprints off the crucible.',acts:[
+ {k:'Weighing dish',p:'Click the dish to take it off the balance.',h:'dish',b:t=>{t.set({stable:0}).to({dishY:380},0.5).also({disp:-D.dish},0.5,'out').to({dishX:100},0.8).to({dishY:500},0.5);co(t,1,'Empty pan reads −1.2150 g',...DISP,...BELOW)}},
+ {k:'TARE',p:'Click TARE to re-zero the empty balance.',h:'tare',b:t=>{tare(t);t.set({stable:1}).fx('beep');co(t,1,'Back to 0.0000 g',...DISP,...BELOW)}},
+ {k:'Crucible + lid',p:'Click the crucible to put it, with its lid, on the balance pan.',h:'cruc',b:t=>{t.set({stable:0});grab(t,P.gauze,P.pan,'on');t.to({disp:D.empty},0.9,'out').set({stable:1}).fx('beep');co(t,1,'Empty crucible + lid',...DISP,...BELOW)}},
+ {k:'Display',p:'Click the display to record the mass of the empty crucible and lid.',h:'disp',b:t=>{t.fx('write').to({n2:1},0.8,'lin');co(t,1,'Recorded',...DISP,...BELOW)}}]},
+{t:'Transfer the magnesium',o:'PDF steps 7–8',x:'Put all of the weighed magnesium into the bottom of the crucible. The magnesium and the crucible were weighed separately, so there is no need to weigh them together.',acts:[
+ {k:'Crucible',p:'Click the crucible to move it back to the bench.',h:'cruc',b:t=>{t.set({stable:0});grab(t,P.pan,P.gauze,'on',{disp:0});t.set({stable:1}).fx('beep')}},
+ {k:'Lid',p:'Click the lid to lift it off with the tongs.',h:'lid',b:t=>{lidTo(t,{x:680,y:437},LIDREST,0);home(t)}},
+ {k:'Dish of Mg',p:'Click the dish to tip the magnesium into the crucible.',h:'dish',b:t=>{t.to({dishY:380},0.4).to({dishX:728,dishY:380},1.0).to({dishY:416},0.4).to({dishA:-60},0.5).fx('pour').to({mgD:0,mgC:1},0.7).wait(0.2)
+   .to({dishA:0},0.4).to({dishY:380},0.3).to({dishX:100},1.0).to({dishY:500},0.4);co(t,1,'Mg in the bottom of the crucible',680,440,540,330)}},
+ {k:'Lid',p:'Click the lid to put it back on the crucible.',h:'lid',b:t=>{lidTo(t,LIDREST,{x:680,y:437},0);home(t)}}]},
+{t:'Set up the heating apparatus',o:'PDF step 10',x:'Bunsen burner under the tripod, clay triangle on the tripod ring, and the covered crucible sitting in the triangle.',acts:[
+ {k:'Bunsen burner',p:'Click the Bunsen burner to place it under the tripod.',h:'burner',b:t=>{t.fx('slide').to({bnX:940},1.2);co(t,1,'Bunsen burner',935,445,760,330)}},
+ {k:'Clay triangle',p:'Click the clay triangle to place it on the tripod ring.',h:'tri',b:t=>{t.to({triY:430},0.4).to({triX:940,triY:300},0.9).to({triY:358},0.4).fx('clink');co(t,1,'Clay triangle on the tripod ring',995,362,1100,250)}},
+ {k:'Crucible',p:'Click the crucible to set it in the clay triangle.',h:'cruc',b:t=>{grab(t,P.gauze,P.tri,'on');co(t,1,'Covered crucible in the triangle',940,320,700,230)}}]},
+{t:'Heat strongly for 15 minutes',o:'PDF steps 11–12',x:'The lid is lifted briefly with tongs every 30 seconds to let air in. Keeping it mostly on stops the white product escaping as smoke.',acts:[
+ {k:'Light burner',p:'Click the burner to light it and heat the crucible strongly for 15 minutes.',h:'burner',b:t=>{
+  t.set({tOn:1,tLab:'Strong heating · 15 min',tTot:900,tT:0,tmpOn:1,liftOn:1,lifts:0}).fx('whoosh').to({flame:1},0.6).to({eqb:1},0.4);
+  t.to({tgX:948,tgY:289,tgA:-30,tgO:12},0.7).to({tgO:2},0.2);
+  const T0=t.c,N=30,cyc=0.5,T1=T0+N*cyc;
+  for(let i=0;i<N;i++){t.at(T0+cyc*(i+1)-0.16).set({lifts:i+1}).fx('tick').to({lidY:281,lidA:-12,tgY:272},0.15).to({lidY:298,lidA:0,tgY:289},0.16)}
+  t.at(T0).to({tT:900},T1-T0,'lin').also({hot:1},3).also({ash:0.8},T1-T0-1,'lin').also({burn:1},3);
+  t.at(T0+(T1-T0)*0.7).to({burn:0.3},4);
+  t.at(T1+0.2).to({tgO:12},0.2);home(t)}}]},
+{t:'Check the reaction is complete',o:'PDF step 13',pre:{tOn:0,liftOn:0,eqb:0},x:'A whitish ash means the magnesium has reacted.',
+ extra:'<div class="decide"><div class="y">Whitish ash → carry on</div><div class="n">Still grey or shiny → heat 10 more minutes, then check again</div></div><p class="note">This checks that the reaction is finished. It is not a weighing step.</p>',acts:[
+ {k:'Lid',p:'Click the lid to lift it and look at the product.',h:'lid',b:t=>{lidTo(t,{x:940,y:298},{x:1070,y:250},-18,true);t.to({ash:1,burn:0},1.4);co(t,1,'Whitish product: MgO',940,300,720,230)}},
+ {k:'Lid',p:'The ash is whitish, so the reaction is complete. Click the lid to put it back.',h:'lid',b:t=>{t.to({lidX:940,tgX:948,lidY:240,tgY:231,lidA:0},0.8).to({lidY:298,tgY:289},0.4).to({tgO:12},0.2);home(t)}}]},
+{t:'Stop heating and cool',o:'PDF step 14',x:'Turn off the burner and let the crucible cool on the wire gauze.',acts:[
+ {k:'Burner',p:'Click the burner to turn it off.',h:'burner',b:t=>{t.fx('puff').to({flame:0},0.5);co(t,1,'Flame off',940,400,760,330)}},
+ {k:'Crucible',p:'Click the crucible to move it with tongs onto the wire gauze.',h:'cruc',b:t=>{grab(t,P.tri,P.gauze,'on');co(t,1,'Cooling on the wire gauze',680,470,540,300);cool(t)}}]},
+{t:'Add 10 drops of deionised water',o:'PDF steps 15–16',pre:{foff:1,why:1,tmpOn:0},x:'Keep the flame OFF. The water reacts with any magnesium nitride (Mg₃N₂) that formed from nitrogen in the air. Open “Why add water?” for the equations.',acts:[
+ {k:'Lid',p:'Click the lid to take it off the cooled crucible.',h:'lid',b:t=>{lidTo(t,{x:680,y:437},LIDREST,0);home(t)}},
+ {k:'Dropper',p:'Click the dropper to add 10 drops of deionised water to the product.',h:'dropper',b:t=>{
+  t.to({drY:360},0.5).to({drX:680},1.1).to({drY:424},0.5).set({dcOn:1,drops:0});
+  for(let i=0;i<10;i++){t.to({sq:1},0.1).set({dropV:1,dropP:0}).to({dropP:1},0.22,'in').also({sq:0},0.15).set({dropV:0,drops:i+1}).fx('drip').wait(0.08)}
+  t.wait(0.3).to({drY:360},0.5).to({drX:1195},1.1).to({drY:470},0.5)}}]},
+{t:'Heat gently, then strongly',o:'PDF step 17',pre:{foff:0,why:0,dcOn:0},x:'The small gap lets water vapour and ammonia escape while Mg(OH)₂ turns into MgO.',acts:[
+ {k:'Crucible',p:'Click the crucible to put it back in the clay triangle.',h:'cruc',b:t=>{grab(t,P.gauze,P.tri,null)}},
+ {k:'Lid',p:'Click the lid to cover the crucible, leaving a small gap.',h:'lid',b:t=>{lidTo(t,LIDREST,{x:956,y:295},-9);home(t);co(t,1,'Small gap left open',964,288,720,230)}},
+ {k:'Gentle heat',p:'Click the burner to heat gently for 2 minutes.',h:'burner',b:t=>{
+  t.set({tOn:1,tLab:'Gentle heating · 2 min',tTot:120,tT:0,tmpOn:1}).fx('whoosh').to({flame:0.5},0.5).to({tT:120},3,'lin').also({wisp:1},1).also({hot:0.45},3)}},
+ {k:'Strong heat',p:'Click the burner again to heat strongly for 10 minutes.',h:'burner',b:t=>{
+  t.set({tLab:'Strong heating · 10 min',tTot:600,tT:0}).fx('whoosh').to({flame:1},0.5).to({tT:600},6,'lin').also({hot:1},2.5).also({wisp:0},2.5)}}]},
+{t:'Stop heating and cool again',o:'PDF step 18',pre:{tOn:0},x:'A warm crucible gives a false reading, so it must be at room temperature before weighing.',acts:[
+ {k:'Burner',p:'Click the burner to turn it off.',h:'burner',b:t=>{t.fx('puff').to({flame:0},0.5);co(t,1,'Flame off',940,400,760,330)}},
+ {k:'Lid',p:'Click the lid to close it fully.',h:'lid',b:t=>{t.to({tgX:964,tgY:286,tgA:-30,tgO:12},0.7).to({tgO:2},0.2).to({lidX:940,lidY:298,lidA:0,tgX:948,tgY:289},0.5).to({tgO:12},0.2);home(t)}},
+ {k:'Crucible',p:'Click the crucible to move it to the wire gauze to cool.',h:'cruc',b:t=>{grab(t,P.tri,P.gauze,'on');co(t,1,'Cool before weighing',680,470,540,300);cool(t)}}]},
+{t:'Final weighing (once)',o:'PDF step 19',pre:{tmpOn:0},x:'Weigh the cooled crucible, lid and product once. This is the end of the procedure in this simplified version.',acts:[
+ {k:'Crucible',p:'Click the cooled crucible to put it on the balance.',h:'cruc',b:t=>{t.set({stable:0});grab(t,P.gauze,P.pan,'on');t.to({disp:D.final},0.9,'out').set({stable:1}).fx('beep');co(t,1,'Crucible + lid + product',...DISP,...BELOW)}},
+ {k:'Display',p:'Click the display to record the final mass.',h:'disp',b:t=>{t.fx('write').to({n3:1},0.8,'lin').set({endNote:1});co(t,1,'One final weighing recorded',...DISP,...BELOW)}}]},
+{t:'Calculate the empirical formula',o:'Calculation',pre:{endNote:0,calcOn:1,calc:0},x:'The mass of Mg comes straight from the tared dish. The other masses come from the notebook.',acts:[
+ {k:'Masses',p:'Press “Do it” (or click the page) to work out the masses.',h:null,b:t=>t.fx('pop').fx('pop',0.5).fx('pop',1).to({calc:3},1.5,'lin')},
+ {k:'Moles',p:'Now work out the moles of Mg and O.',h:null,b:t=>t.fx('pop').fx('pop',0.6).to({calc:5},1.2,'lin')},
+ {k:'Ratio',p:'Divide both by the smaller number of moles.',h:null,b:t=>t.fx('pop').to({calc:6},0.8,'lin')},
+ {k:'Formula',p:'Write the empirical formula.',h:null,b:t=>t.fx('chime').to({calc:7},0.8,'lin')}]}
+];
+const N=STAGES.length;
+function build(i,k){const t=new TL();t.to({c1:0,c2:0},0.2);STAGES[i].acts[k].b(t);t.wait(0.2);return t.fin()}
+function enter(i){Object.assign(S,STAGES[i].pre||{})}
+
+/* clickable targets, positioned from the live scene state */
+const HOT={
+ dish:()=>({x:S.dishX,y:S.dishY-14,r:48}),
+ tare:()=>({x:362,y:467,r:26}),
+ jar:()=>({x:545,y:452,r:52}),
+ spat:()=>{const a=S.spA*Math.PI/180;return{x:S.spX+Math.sin(a)*80,y:S.spY-Math.cos(a)*80,r:42}},
+ disp:()=>({x:271,y:469,r:44}),
+ cruc:()=>({x:S.cX,y:S.cY-34,r:50}),
+ lid:()=>({x:S.lidX,y:S.lidY-6,r:40}),
+ burner:()=>({x:S.bnX,y:455,r:48}),
+ tri:()=>({x:S.triX,y:S.triY-2,r:52}),
+ dropper:()=>({x:S.drX,y:S.drY-62,r:50})
+};
+
+/* ---------- element refs ---------- */
+const E={};['dish','mgD','spat','mgS','cruc','cGlow','cBody','cRib','cAsh','cBurn','cCool','lid','lidD','lidE','tongs','tA','tB','tri','burner','flame','fo','fi','hose','dropper','bulb','drop','wisp','wispIn','bdisp','bstable','btare','co1','co2','eqg',
+ 'timer','tlab','tval','tring','lifts','temp','tempf','tempw','dcount','dnum','foff','eqb','endnote','calc','clines','why','bWhy','hs','hsHit','hsRing','hsPulse','hsTag'].forEach(k=>E[k]=$(k));
+const txt=(el,s)=>{if(el._t!==s){el._t=s;el.textContent=s}};
+const show=(el,on)=>{if(el.hidden===on)el.hidden=!on};
+const tr=(el,x,y,a=0)=>el.setAttribute('transform',`translate(${x.toFixed(1)} ${y.toFixed(1)}) rotate(${a.toFixed(2)})`);
+const introLines=[...document.querySelectorAll('#intro .il')];
+
+/* equipment labels */
+const EQ=[['Analytical balance',300,300,300,224],['Weighing dish',100,484,100,428],['Spatula',470,527,470,600],['Magnesium metal',545,428,545,340],
+['Crucible + lid',680,440,700,388],['Wire gauze',680,503,645,600],['Crucible tongs',790,531,822,600],['Matches',1010,534,1010,600],
+['Tripod',940,362,940,300],['Clay triangle',1040,499,1030,450],['Bunsen burner',1120,430,1120,378],['Beaker + dropper',1195,430,1180,250],['Wash bottle (DI water)',1250,440,1190,302]];
+const NS='http://www.w3.org/2000/svg';
+const eqEls=EQ.map(([s,ax,ay,lx,ly])=>{const g=document.createElementNS(NS,'g');
+  g.innerHTML=`<line x1="${ax}" y1="${ay}" stroke="#15303a" stroke-width="2.5"/><circle cx="${ax}" cy="${ay}" r="5" fill="#15303a"/><rect height="36" rx="9" fill="#ffffff" stroke="#15303a" stroke-width="2.5"/><text text-anchor="middle" font-size="21" font-weight="700" fill="#15303a">${s}</text>`;
+  E.eqg.appendChild(g);g.style.opacity=0;return{g,ax,ay,lx,ly}});
+function layoutChip(rect,text,line,ax,ay,lx,ly,h){
+  const w=text.getComputedTextLength()+28, x=clamp(lx,w/2+6,1274-w/2);
+  rect.setAttribute('x',x-w/2);rect.setAttribute('y',ly-h/2);rect.setAttribute('width',w);rect.setAttribute('height',h);
+  text.setAttribute('x',x);text.setAttribute('y',ly+7.5);
+  line.setAttribute('x1',ax);line.setAttribute('y1',ay);line.setAttribute('x2',x);line.setAttribute('y2',ly+(ay>ly?h/2:-h/2));
+}
+function layoutEq(){eqEls.forEach(o=>{const g=o.g;layoutChip(g.querySelector('rect'),g.querySelector('text'),g.querySelector('line'),o.ax,o.ay,o.lx,o.ly,36)})}
+layoutEq();
+if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>{layoutEq();E.co1._t=E.co2._t=null;E.hs._t=null});
+
+/* calculation lines */
+const f4=v=>v.toFixed(4), f5=v=>v.toFixed(5), f2=v=>v.toFixed(2);
+const CL=[
+ `<div class="f">Mass of Mg (weighed directly in the tared dish)</div><div class="v">= ${f4(D.mg)} g</div>`,
+ `<div class="f">Mass of product = (final mass of crucible + lid + product) − (mass of empty crucible + lid)</div><div class="v">= (${f4(D.final)} g) − (${f4(D.empty)} g) = ${f4(D.prod)} g</div>`,
+ `<div class="f">Mass of oxygen = (mass of product) − (mass of Mg)</div><div class="v">= (${f4(D.prod)} g) − (${f4(D.mg)} g) = ${f4(D.o)} g</div>`,
+ `<div class="f">Moles of Mg = mass of Mg ÷ 24.305 g/mol</div><div class="v">= ${f4(D.mg)} ÷ 24.305 = ${f5(D.nMg)} mol</div>`,
+ `<div class="f">Moles of O = mass of oxygen ÷ 15.999 g/mol</div><div class="v">= ${f4(D.o)} ÷ 15.999 = ${f5(D.nO)} mol</div>`,
+ `<div class="f">Divide both by the smaller value (${f5(D.small)} mol)</div><div class="v">Mg: ${f5(D.nMg)} ÷ ${f5(D.small)} = ${f2(D.rMg)}&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;O: ${f5(D.nO)} ÷ ${f5(D.small)} = ${f2(D.rO)}</div>`,
+ `<div class="final">Mg : O ≈ 1 : 1 → empirical formula <b>MgO</b></div>`];
+E.clines.innerHTML=CL.map(h=>`<div class="ln">${h}</div>`).join('');
+const clEls=[...E.clines.children];
+
+/* notebook */
+const NB=[[$('r1'),f4(D.mg)+' g'],[$('r2'),f4(D.empty)+' g'],[$('r3'),f4(D.final)+' g']].map(([r,v])=>({r,v,val:r.querySelector('.val')}));
+
+/* progress */
+const prog=$('prog');
+const segs=STAGES.map((s,i)=>{const b=document.createElement('button');b.className='seg';b.setAttribute('aria-label',`Go to stage ${i+1}: ${s.t}`);b.title=`${i+1}. ${s.t}`;b.innerHTML='<i></i>';b.onclick=()=>goTo(i);prog.appendChild(b);return b.firstChild});
+
+/* ---------- render ---------- */
+let ft=0;
+function render(){
+  tr(E.dish,S.dishX,S.dishY,S.dishA);E.mgD.setAttribute('opacity',S.mgD);
+  tr(E.spat,S.spX,S.spY,S.spA);E.mgS.setAttribute('opacity',S.mgS);
+  tr(E.cruc,S.cX,S.cY);
+  E.cBody.setAttribute('fill',mix('#f4efe4','#ffab66',S.hot));E.cGlow.setAttribute('opacity',S.hot*0.9);
+  E.cRib.setAttribute('opacity',S.mgC*(1-S.ash));
+  E.cAsh.setAttribute('opacity',S.mgC*clamp(S.ash*1.6));E.cAsh.setAttribute('fill',mix('#b9bfc6','#f7f5ef',S.ash));
+  E.cBurn.setAttribute('opacity',S.burn*(RM?0.85:0.82+0.12*Math.sin(ft*1.4)));
+  E.cCool.setAttribute('opacity',S.cool);E.cCool.setAttribute('transform',`translate(0 ${RM?0:(Math.sin(ft*2)*3).toFixed(1)})`);
+  tr(E.lid,S.lidX,S.lidY,S.lidA);const lc=mix('#efe8da','#ffb27a',S.hot*0.7);E.lidD.setAttribute('fill',lc);E.lidE.setAttribute('fill',lc);
+  tr(E.tongs,S.tgX,S.tgY,S.tgA);E.tA.setAttribute('transform',`rotate(${(S.tgO/2).toFixed(2)} 55 0)`);E.tB.setAttribute('transform',`rotate(${(-S.tgO/2).toFixed(2)} 55 0)`);
+  tr(E.tri,S.triX,S.triY);
+  tr(E.burner,S.bnX,500);
+  E.hose.setAttribute('d',`M${(S.bnX+30).toFixed(1)} 497C${(S.bnX+90).toFixed(1)} 528 ${((S.bnX+1262)/2).toFixed(1)} 532 1260 470`);
+  const f=S.flame;
+  if(f<0.02){E.flame.setAttribute('opacity',0)}else{
+    const fl=RM?1:1+0.06*Math.sin(ft*14)+0.04*Math.sin(ft*23.7), h=64*f*fl, w=10+3*f, k=clamp((f-0.5)/0.5);
+    E.fo.setAttribute('d',`M${-w} 0C${-w-3} ${-h*.45} -4 ${-h*.8} 0 ${-h}C4 ${-h*.8} ${w+3} ${-h*.45} ${w} 0Z`);
+    E.fo.setAttribute('fill',mix('#ffb03a','#6a84ff',k));E.fo.setAttribute('fill-opacity',0.88);
+    const hi=h*(0.38+0.12*k), wi=w*0.55;
+    E.fi.setAttribute('d',`M${-wi} 0C${-wi-1} ${-hi*.5} -2 ${-hi*.85} 0 ${-hi}C2 ${-hi*.85} ${wi+1} ${-hi*.5} ${wi} 0Z`);
+    E.fi.setAttribute('fill',mix('#ff6a1a','#a6f0ff',k));
+    E.flame.setAttribute('opacity',clamp(f*3));
+  }
+  tr(E.dropper,S.drX,S.drY);E.bulb.setAttribute('ry',15*(1-0.28*S.sq));E.bulb.setAttribute('rx',10*(1+0.15*S.sq));
+  E.drop.setAttribute('cx',S.drX);E.drop.setAttribute('cy',S.drY+6+S.dropP*22);E.drop.setAttribute('opacity',S.dropV);
+  tr(E.wisp,S.cX+30,S.cY-70);E.wisp.setAttribute('opacity',S.wisp*0.9);
+  E.wispIn.setAttribute('transform',`translate(0 ${RM?0:(-(ft*18)%14).toFixed(1)})`);
+  const dv=Math.abs(S.disp)<0.00005?0:S.disp;
+  txt(E.bdisp,(dv<0?'−':'')+Math.abs(dv).toFixed(4));
+  E.bstable.setAttribute('opacity',S.stable?1:0.12);
+  E.btare.setAttribute('fill',mix('#8fc3e8','#ffd34d',S.tare));
+  [1,2].forEach(n=>{const g=E['co'+n],o=S['c'+n];
+    if(o<0.01){g.setAttribute('visibility','hidden');return}
+    g.setAttribute('visibility','visible');g.setAttribute('opacity',o);
+    const text=g.querySelector('text'),key=S['c'+n+'t']+'|'+S['c'+n+'lx']+'|'+S['c'+n+'ax'];
+    if(g._t!==key){g._t=key;text.textContent=S['c'+n+'t'];
+      layoutChip(g.querySelector('rect'),text,g.querySelector('line'),S['c'+n+'ax'],S['c'+n+'ay'],S['c'+n+'lx'],S['c'+n+'ly'],42);
+      const c=g.querySelector('circle');c.setAttribute('cx',S['c'+n+'ax']);c.setAttribute('cy',S['c'+n+'ay'])}
+  });
+  eqEls.forEach((o,i)=>{const v=clamp(S.eqL-i);o.g.style.opacity=v;o.g.style.visibility=v<0.01?'hidden':'visible'});
+  // clickable target
+  const a=STAGES[cur].acts[act];
+  if(phase==='wait'&&a&&a.h){
+    const h=HOT[a.h]();E.hs.setAttribute('visibility','visible');E.hs.setAttribute('transform',`translate(${h.x.toFixed(1)} ${h.y.toFixed(1)})`);
+    [E.hsHit,E.hsRing,E.hsPulse].forEach(c=>c.setAttribute('r',h.r));
+    const key=a.k+'|'+h.r+'|'+Math.round(h.x);
+    if(E.hs._t!==key){E.hs._t=key;const tt=E.hsTag.querySelector('text'),rr=E.hsTag.querySelector('rect');tt.textContent='Click: '+a.k;
+      const w=tt.getComputedTextLength()+24, cx=clamp(0,w/2+6-h.x,1274-w/2-h.x), y=-h.r-40;
+      rr.setAttribute('x',cx-w/2);rr.setAttribute('y',y);rr.setAttribute('width',w);tt.setAttribute('x',cx);tt.setAttribute('y',y+22)}
+  }else E.hs.setAttribute('visibility','hidden');
+  // overlays
+    show(E.timer,!!S.tOn);
+  if(S.tOn){const s=Math.floor(S.tT+0.001),tot=S.tTot;
+    txt(E.tval,`${String(Math.floor(s/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')} / ${String(tot/60|0).padStart(2,'0')}:00`);
+    txt(E.tlab,S.tLab);E.tring.setAttribute('stroke-dashoffset',(100.5*(1-clamp(S.tT/tot))).toFixed(1));
+    show(E.lifts,!!S.liftOn);if(S.liftOn)txt(E.lifts,`Lid lifted to admit air: ${S.lifts} / 30`)}
+  show(E.temp,!!S.tmpOn);
+  if(S.tmpOn){E.tempf.style.width=(8+92*S.hot).toFixed(1)+'%';E.tempf.style.background=mix('#3d8fe0','#e2531f',S.hot);
+    txt(E.tempw,S.hot>0.7?'very hot':S.hot>0.3?'hot':S.hot>0.08?'warm':'cool')}
+  show(E.dcount,!!S.dcOn);if(S.dcOn)txt(E.dnum,String(S.drops));
+  show(E.foff,!!S.foff);
+  show(E.eqb,S.eqb>0.01);E.eqb.style.opacity=S.eqb;
+  show(E.endnote,!!S.endNote);
+  E.bWhy.classList.toggle('pulse',!!S.why);
+  show(E.calc,S.calcOn>0.01);E.calc.style.opacity=S.calcOn;
+  if(S.calcOn>0.01){clEls.forEach((el,i)=>{const v=clamp((S.calc-i)*1.5);el.style.opacity=v;el.style.transform=`translateY(${((1-v)*10).toFixed(1)}px)`});
+    if(S.calc>5.5&&E.calc.scrollHeight>E.calc.clientHeight)E.calc.scrollTop=E.calc.scrollHeight}
+  NB.forEach((o,i)=>{const r=S['n'+(i+1)];
+    const s=r<=0?'—':o.v.slice(0,Math.max(1,Math.ceil(r*o.v.length)));txt(o.val,s);
+    o.val.classList.toggle('empty',r<=0);o.r.classList.toggle('fresh',r>0&&r<1)});
+  const na=STAGES[cur].acts.length;
+  const fr=phase==='done'||!na?1:(act+(phase==='run'&&tl?clamp(vt/tl.end):0))/na;
+  segs.forEach((el,i)=>{el.style.width=i<cur?'100%':i>cur?'0%':(fr*100).toFixed(1)+'%'});
+}
+
+/* ---------- player: stages are split into student actions ---------- */
+let cur=0,act=0,phase='done',tl=null,vt=0,playing=false,speed=1,last=performance.now(),pend=0;
+const bPlay=$('bPlay'),bBack=$('bBack'),bNext=$('bNext'),bDo=$('bDo'),auto=$('auto');
+function goTo(i){
+  i=clamp(i,0,N-1);S=init();
+  silent=true;for(let j=0;j<i;j++){enter(j);STAGES[j].acts.forEach((_,k)=>build(j,k).apply(Infinity))}silent=false;
+  enter(i);cur=i;act=0;tl=null;vt=0;playing=false;pend=0;
+  phase=STAGES[i].acts.length?'wait':'done';
+  closeWhy(false);updateUI();
+  if(auto.checked&&phase==='wait')doAct();
+}
+function doAct(){
+  if(phase==='done'){if(cur<N-1)goTo(cur+1);return}
+  if(phase!=='wait')return;
+  ac();SFX.click();tl=build(cur,act);vt=0;tl.apply(0);phase='run';playing=true;closeWhy(false);updateUI();
+}
+function endAct(){
+  playing=false;act++;pend=0;
+  phase=act<STAGES[cur].acts.length?'wait':'done';
+  if(phase==='done'&&cur<N-1)SFX.chime();
+  updateUI();
+  if(auto.checked&&phase==='wait')doAct();
+}
+function updateUI(){
+  const s=STAGES[cur],na=s.acts.length,a=s.acts[act];
+  $('snum').textContent=`Stage ${cur+1} of ${N}`;$('sorig').textContent=s.o;$('stitle').textContent=s.t;$('stext').textContent=s.x;
+  $('sextra').innerHTML=s.extra||'';
+  const tn=$('tnum'),pt=$('ptext'),task=$('task');
+  task.classList.toggle('waiting',phase==='wait');
+  if(phase==='wait'){tn.textContent=`Your turn · action ${act+1} of ${na}`;pt.textContent=a.p;bDo.textContent='Do it ▶';bDo.disabled=false}
+  else if(phase==='run'){tn.textContent=`Action ${act+1} of ${na}`;pt.textContent=a.p;bDo.textContent=playing?'Running…':'Paused';bDo.disabled=true}
+  else{tn.textContent='Stage complete';pt.textContent=cur<N-1?'Well done. Press Next stage when you are ready.':'All done. Press Restart to try again.';bDo.textContent=cur<N-1?'Next stage ▶':'Done';bDo.disabled=cur>=N-1}
+  $('sstat').textContent=phase==='run'?(playing?'Playing':'Paused'):phase==='wait'?'Waiting for you':'Stage complete';
+  bPlay.textContent=phase==='run'&&playing?'Pause':'Play';
+  bBack.disabled=cur===0;bNext.disabled=cur===N-1;
+}
+function togglePlay(){
+  if(phase==='run'){playing=!playing;if(playing)closeWhy(false);updateUI()}
+  else doAct();
+}
+function loop(now){
+  const dt=Math.min(0.1,(now-last)/1000);last=now;
+  const running=!(phase==='run'&&!playing);
+  if(running)ft+=dt*speed*TEMPO;
+  if(phase==='run'&&playing&&tl){vt+=dt*speed*TEMPO;tl.apply(vt);if(vt>=tl.end)endAct()}
+  else if(phase==='done'&&auto.checked&&cur<N-1){pend+=dt;if(pend>1.4)goTo(cur+1)}
+  render();updateHiss(running&&!document.hidden);requestAnimationFrame(loop);
+}
+function openWhy(){if(playing){playing=false;updateUI()}E.why.hidden=false;$('whyClose').focus()}
+function closeWhy(focus){if(!E.why.hidden){E.why.hidden=true;if(focus)E.bWhy.focus()}}
+bDo.onclick=doAct;
+E.hs.addEventListener('click',doAct);
+E.calc.addEventListener('click',()=>{if(phase==='wait')doAct()});
+bPlay.onclick=togglePlay;
+bNext.onclick=()=>goTo(cur+1);
+bBack.onclick=()=>goTo(cur-1);
+$('bReplay').onclick=()=>goTo(cur);
+$('bRestart').onclick=()=>goTo(0);
+$('speed').onchange=e=>{speed=parseFloat(e.target.value)||1};
+auto.onchange=()=>{if(auto.checked&&phase==='wait')doAct()};
+const bSound=$('bSound');
+bSound.onclick=()=>{soundOn=!soundOn;bSound.textContent='Sound: '+(soundOn?'On':'Off');bSound.setAttribute('aria-pressed',soundOn);if(soundOn){ac();SFX.click()}};
+document.addEventListener('pointerdown',()=>ac(),{once:true});
+E.bWhy.onclick=()=>E.why.hidden?openWhy():closeWhy(true);
+$('whyClose').onclick=()=>closeWhy(true);
+document.addEventListener('keydown',e=>{
+  if(e.target.closest('select,input,button'))return;
+  if(e.key===' '||e.key==='Enter'){e.preventDefault();togglePlay()}
+  else if(e.key==='ArrowRight'){goTo(cur+1)}
+  else if(e.key==='ArrowLeft'){goTo(cur-1)}
+  else if(e.key==='r'||e.key==='R'){goTo(cur)}
+  else if(e.key==='Escape'){closeWhy(true)}
+});
+goTo(0);
+requestAnimationFrame(loop);
+})();
+</script>
